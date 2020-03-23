@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "938853592930",
+    "firebase_url": "https://lise-99703.firebaseio.com",
+    "project_id": "lise-99703",
+    "storage_bucket": "lise-99703.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:938853592930:android:496f7f07ff415279f5863b",
+        "android_client_info": {
+          "package_name": "com.prospectusoft.lise"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "938853592930-670pc34sot08klenl2sie649ngfjs7a0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2magNkm_9m6nMETMBPyzBDd3yqm3w52A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "938853592930-670pc34sot08klenl2sie649ngfjs7a0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "938853592930-oiu1lfjtf0hs9bfvnos8np981osvqep9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.prospectusoft.lise"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
