@@ -35,7 +35,7 @@ dependencies:
   # Server
   http: ^0.12.0+4
 
-  # Utils
+  # Tools
   tuple: ^1.0.3
   url_launcher: ^5.4.2
   flutter_local_notifications: ^1.2.2

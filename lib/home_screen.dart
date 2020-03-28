@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'new_user/nu_welcome_screen.dart';
+import 'messages/m_matches_screen.dart';
+import 'messages/m_p_matches_screen.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -142,7 +144,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                         .document('user_rooms')
                         .collection('p_matches')
                         .snapshots(),
-                    builder: _build_pMatches_Tiles
+                    builder: _buildPMatchesTiles
                 ),
                 
                 
@@ -155,104 +157,9 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                         .document('user_rooms')
                         .collection('matches')
                         .snapshots(),
-                    builder: _build_matches_Tiles
+                    builder: _buildMatchesTiles
                 ),
-                /*
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.red, shape: BoxShape.circle),
-                            child: Icon(Icons.person),
-                          ),
-                          title: Text(
-                            "Connection X",
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          subtitle: Text(
-                            "At the park behind the tree with the big white flowers",
-                            style: _subFont,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                          ),
-                          trailing: Text(
-                            "48 mins",
-                            style: _trailFont,
-                            textAlign: TextAlign.left,
-                          ),
-                          onLongPress: () {},
-                          onTap: () {
-                            setState(() {});
-                          }),
-                    ),
-                    Divider(),
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.red, shape: BoxShape.circle),
-                            child: Icon(Icons.person),
-                          ),
-                          title: Text(
-                            "Connection Y",
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          subtitle: Text(
-                            "Hello",
-                            style: _subFont,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                          ),
-                          trailing: Text(
-                            "2 hours",
-                            style: _trailFont,
-                            textAlign: TextAlign.left,
-                          ),
-                          onLongPress: () {},
-                          onTap: () {
-                            setState(() {});
-                          }),
-                    ),
-                    Divider(),
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.red, shape: BoxShape.circle),
-                            child: Icon(Icons.person),
-                          ),
-                          title: Text(
-                            "Connection Z",
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          subtitle: Text(
-                            "The moon is bright",
-                            style: _subFont,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                          ),
-                          trailing: Text(
-                            "1 day",
-                            style: _trailFont,
-                            textAlign: TextAlign.left,
-                          ),
-                          onLongPress: () {},
-                          onTap: () {
-                            setState(() {});
-                          }),
-                    ),
-                  ],
-                ),
-                */
+                
                 ///------------------------------------------- PROFILE ---------------------------------------------
                 ListView(
                   controller: _scrollController,
@@ -389,7 +296,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             )));
   }
 
-  Widget _build_pMatches_Tiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+  Widget _buildPMatchesTiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
     
       if (snapshot.hasData) {
       List<ListTile> header = [
@@ -424,7 +331,17 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             textAlign: TextAlign.left,
           ),
           onLongPress: () {},
-          onTap: () {});
+          onTap: () {
+            setState(() {
+              Navigator.push(context, MaterialPageRoute(builder:
+              (context) => PMConversationScreen(
+                user: user,
+                matchName: document['otherUser'],
+                username: user.displayName,
+                room: document['room'],
+              )));
+            });
+          });
       }).toList();
       
       List<ListTile> pendingTiles =
@@ -488,37 +405,8 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   }
   
   
-  String convertTime(int time) {
-    int minutes = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inMinutes;
-    
-    int hours = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inHours;
-    
-    int days = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inDays;
-    
-    if (minutes < 0) {
-      return "COMPLETED";
-    }
-    
-    if (minutes < 60) {
-      return "$minutes mins left";
-    }
-    
-    else if (hours < 24) {
-      return "$hours hours left";
-    }
-    
-    else if (days > 0){
-      return "$days days left";
-    }
-    
-  }
   
-  
-  
-  
-  
-  
-  Widget _build_matches_Tiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+  Widget _buildMatchesTiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
     
       if (snapshot.hasData) {
       List<ListTile> header = [
@@ -582,6 +470,43 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     
     return CircularProgressIndicator();
   }
+  
+  
+  
+  
+  
+  
+  
+  String convertTime(int time) {
+    int minutes = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inMinutes;
+    
+    int hours = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inHours;
+    
+    int days = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inDays;
+    
+    if (minutes < 0) {
+      return "COMPLETED";
+    }
+    
+    if (minutes < 60) {
+      return "$minutes mins left";
+    }
+    
+    else if (hours < 24) {
+      return "$hours hours left";
+    }
+    
+    else if (days > 0){
+      return "$days days left";
+    }
+    
+    return " ";
+    
+  }
+  
+  
+  
+  
 
   /**
   Future<void> _checkCurrentUser() async {
@@ -598,11 +523,6 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     });
   }
   */
-
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
 }
 
 /// The base class for the different types of items the list can contain.

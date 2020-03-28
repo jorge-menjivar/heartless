@@ -34,6 +34,7 @@ void main(){
 
 class MyApp extends StatelessWidget {
   // Root Widget.
+  //TODO add terms and conditions
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
