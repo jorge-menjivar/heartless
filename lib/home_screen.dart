@@ -419,7 +419,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             maxLines: 1,
           ),
           trailing: Text(
-            document['expiration'].toString(),
+            convertTime(int.parse(document.documentID)),
             style: _trailFont,
             textAlign: TextAlign.left,
           ),
@@ -485,6 +485,32 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     }
     
     return CircularProgressIndicator();
+  }
+  
+  
+  String convertTime(int time) {
+    int minutes = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inMinutes;
+    
+    int hours = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inHours;
+    
+    int days = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inDays;
+    
+    if (minutes < 0) {
+      return "COMPLETED";
+    }
+    
+    if (minutes < 60) {
+      return "$minutes mins left";
+    }
+    
+    else if (hours < 24) {
+      return "$hours hours left";
+    }
+    
+    else if (days > 0){
+      return "$days days left";
+    }
+    
   }
   
   
