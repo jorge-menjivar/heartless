@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
-import 'home_screen.dart';
+import 'package:lise/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 // Server

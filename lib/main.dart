@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lise/home_screen.dart';
-import 'nu_welcome_screen.dart';
+import 'new_user/nu_welcome_screen.dart';
 
 // Storage
 import 'package:path_provider/path_provider.dart';
@@ -25,7 +25,7 @@ Map<int, Color> color = {
   800: Color.fromRGBO(0, 0, 0, .9),
   900: Color.fromRGBO(0, 0, 0, 1),
 };
-MaterialColor black = MaterialColor(0xFF000000, color);
+MaterialColor black = MaterialColor(0xFF1c1c1c, color);
 MaterialColor white = MaterialColor(0xFFFFFFFF, color);
 
 void main(){

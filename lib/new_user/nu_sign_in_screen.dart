@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:lise/nu_verification_screen.dart';
-import 'home_screen.dart';
-import 'main.dart';
+import 'nu_verification_screen.dart';
+import 'package:lise/home_screen.dart';
+import 'package:lise/main.dart';
 
 import 'nu_username_screen.dart';
 
@@ -71,7 +71,7 @@ class SignInScreenState extends State<MySignInScreen> {
                     validator: (email) {
                       if (_firstTry == false && email.length < 4)
                         return 'Check length';
-                      else if (!email.contains(new RegExp(r'[@]')) || !email.contains(new RegExp(r'[.]')))
+                      else if (_firstTry == false && (!email.contains(new RegExp(r'[@]')) || !email.contains(new RegExp(r'[.]'))))
                         return 'Email not valid';
                       else {
                         return null;
