@@ -64,499 +64,499 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
   FirebaseUser user;
   final String username;
-  
+
   final secureStorage = new FlutterSecureStorage();
 
-  ScrollController _scrollController ;
+  ScrollController _scrollController;
 
   @override
   void initState() {
     _scrollController = ScrollController();
     super.initState();
-    //_checkCurrentUser();
+    //TODO _checkCurrentUser();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: DefaultTabController(
-        length: 3,
-        child: NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverOverlapAbsorber(
-                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-                sliver: SliverSafeArea(
-                  bottom: false,
-                  top: false,
-                  sliver: SliverAppBar(
-                    centerTitle: true,
-                    title: Text(
-                      "LISA",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                      ),
-                    ),
-                    expandedHeight: 140.0,
-                    floating: true,
-                    pinned: true,
-                    snap: false,
-                    flexibleSpace: FlexibleSpaceBar(
-                      collapseMode: CollapseMode.pin,
-                      background: Image.network(
-                        "https://c2.staticflickr.com/6/5283/5321712546_e9c3d4d4c1_b.jpg",
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    bottom: TabBar(
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.grey,
-                      tabs: [
-                        new Tab(
-                          icon: new Icon(Icons.search),
+        body: DefaultTabController(
+            length: 3,
+            child: NestedScrollView(
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) {
+                return <Widget>[
+                  SliverOverlapAbsorber(
+                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                        context),
+                    sliver: SliverSafeArea(
+                      bottom: false,
+                      top: false,
+                      sliver: SliverAppBar(
+                        centerTitle: true,
+                        title: Text(
+                          "LISA",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.0,
                           ),
-                        new Tab(
-                          icon: new Icon(Icons.message),
+                        ),
+                        expandedHeight: 140.0,
+                        floating: true,
+                        pinned: true,
+                        snap: false,
+                        flexibleSpace: FlexibleSpaceBar(
+                          collapseMode: CollapseMode.pin,
+                          background: Image.network(
+                            "https://c2.staticflickr.com/6/5283/5321712546_e9c3d4d4c1_b.jpg",
+                            fit: BoxFit.cover,
                           ),
-                        new Tab(
-                          icon: new Icon(Icons.person),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            ];
-          },
-          body: TabBarView(
-            children: [
-              ///------------------------------------ POTENTIAL MATCHES ---------------------------
-              ListView(
-                padding: const EdgeInsets.all(1),
-                controller: _scrollController,
-                children: <Widget>[
-                  ListTile(
-                    leading: Text(
-                      "POTENTIAL MATCHES",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        color: white,
-                        fontWeight: FontWeight.bold,
                         ),
-                    ),
-                  ),
-                  Container(
-                    child: ListTile(
-                      title: Text(
-                        "Entry A",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      subtitle: Text(
-                        "The train left the station on a saturday night above the ",
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      trailing: Text(
-                        "55 hours",
-                        style: _trailFont,
-                        textAlign: TextAlign.left,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
-                    ),
-                  ),
-                  Container(
-                    child: ListTile(
-                      title: Text(
-                        "Entry B",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      subtitle: Text(
-                        "Water",
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      trailing: Text(
-                        "168 hours",
-                        style: _trailFont,
-                        textAlign: TextAlign.left,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
-                    ),
-                  ),
-                  Container(
-                    child: ListTile(
-                      title: Text(
-                        "Entry C",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      subtitle: (isNew = false) 
-                      ? Text(
-                        "This is the the preview",
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      )
-                      : null,
-                      trailing: Text(
-                        "New",
-                        style: _trailFont,
-                        textAlign: TextAlign.left,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
-                    ),
-                  ),
-                  Divider(
-                    color: white
-                  ),
-                  Container(
-                    child: ListTile(
-                      title: Text(
-                        "Searching the world",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      subtitle: Text(
-                        "We will let you know when we find someone for you",
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      trailing: Icon(
-                        Icons.access_time,
-                        color: white,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
-                    ),
-                  ),
-                  Divider(
-                    color: white
-                  ),
-                  Container(
-                    child: ListTile(
-                      title: Text(
-                        "Find someone new",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      trailing: Icon(
-                        Icons.person_add,
-                        color: white,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
-                    ),
-                  ),
-                  Container(
-                    child: ListTile(
-                      title: Text(
-                        "Find someone new",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      trailing: Icon(
-                        Icons.person_add,
-                        color: white,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
-                    ),
-                  ),
-                  
-                ],
-              ),
-
-              ///------------------------------------------- MATCHES ---------------------------------------------
-              ListView(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(1),
-                children: <Widget>[
-                  ListTile(
-                    leading: Text(
-                      "MATCHES",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        color: white,
-                        fontWeight: FontWeight.bold,
-                        ),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                    ),
-                    child: ListTile(
-                      dense: true,
-                      leading: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle
-                        ),
-                        child: Icon(Icons.person),
-                      ),
-                      title: Text(
-                        "Connection X",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      subtitle: Text(
-                        "At the park behind the tree with the big white flowers",
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      trailing: Text(
-                        "48 mins",
-                        style: _trailFont,
-                        textAlign: TextAlign.left,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
-                    ),
-                  ),
-                  Divider(),
-                  Container(
-                    decoration: BoxDecoration(
-                    ),
-                    child: ListTile(
-                      dense: true,
-                      leading: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle
-                        ),
-                        child: Icon(Icons.person),
-                      ),
-                      title: Text(
-                        "Connection Y",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      subtitle: Text(
-                        "Hello",
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      trailing: Text(
-                        "2 hours",
-                        style: _trailFont,
-                        textAlign: TextAlign.left,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
-                    ),
-                  ),
-                  Divider(),
-                  Container(
-                    decoration: BoxDecoration(
-                    ),
-                    child: ListTile(
-                      dense: true,
-                      leading: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle
-                        ),
-                        child: Icon(Icons.person),
-                      ),
-                      title: Text(
-                        "Connection Z",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      subtitle: Text(
-                        "The moon is bright",
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      trailing: Text(
-                        "1 day",
-                        style: _trailFont,
-                        textAlign: TextAlign.left,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
-                    ),
-                  ),
-                ],
-              ),
-              ///------------------------------------------- PROFILE ---------------------------------------------
-              ListView(
-                controller: _scrollController,
-                padding: const EdgeInsets.all(1),
-                children: <Widget>[
-                  ListTile(
-                    leading: Text(
-                      "PROFILE",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        color: white,
-                        fontWeight: FontWeight.bold,
-                        ),
-                    ),
-                  ),
-                  Center(
-                    child: SizedBox(
-                      width: 200,
-                      height: 200,
-                      child: CupertinoButton(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                "https://media.gettyimages.com/photos/smiling-businesswoman-over-gray-background-picture-id557608545?s=2048x2048",
-                              ),
-                              fit: BoxFit.cover,
+                        bottom: TabBar(
+                          labelColor: Colors.white,
+                          unselectedLabelColor: Colors.grey,
+                          tabs: [
+                            new Tab(
+                              icon: new Icon(Icons.search),
                             ),
-                          )
+                            new Tab(
+                              icon: new Icon(Icons.message),
+                            ),
+                            new Tab(
+                              icon: new Icon(Icons.person),
+                            ),
+                          ],
                         ),
-                        onPressed: () {},
-                      ) 
-                    ),
-                  ),
-                  Divider(
-                  ),
-                  Divider(
-                    color: white
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                    ),
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(
-                        Icons.person,
-                        color: white,
                       ),
-                      title: Text(
-                        "Personal information",
+                    ),
+                  )
+                ];
+              },
+              body: TabBarView(children: [
+                
+                ///------------------------------------ POTENTIAL MATCHES ---------------------------
+                new StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance
+                        .collection('users')
+                        .document('user1')
+                        .collection('data_generated')
+                        .document('user_rooms')
+                        .collection('p_matches')
+                        .snapshots(),
+                    builder: _build_pMatches_Tiles
+                ),
+                
+                
+                ///------------------------------------------- MATCHES ---------------------------------------------
+                new StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance
+                        .collection('users')
+                        .document('user1')
+                        .collection('data_generated')
+                        .document('user_rooms')
+                        .collection('matches')
+                        .snapshots(),
+                    builder: _build_matches_Tiles
+                ),
+                /*
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.red, shape: BoxShape.circle),
+                            child: Icon(Icons.person),
+                          ),
+                          title: Text(
+                            "Connection X",
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          subtitle: Text(
+                            "At the park behind the tree with the big white flowers",
+                            style: _subFont,
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                          ),
+                          trailing: Text(
+                            "48 mins",
+                            style: _trailFont,
+                            textAlign: TextAlign.left,
+                          ),
+                          onLongPress: () {},
+                          onTap: () {
+                            setState(() {});
+                          }),
+                    ),
+                    Divider(),
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.red, shape: BoxShape.circle),
+                            child: Icon(Icons.person),
+                          ),
+                          title: Text(
+                            "Connection Y",
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          subtitle: Text(
+                            "Hello",
+                            style: _subFont,
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                          ),
+                          trailing: Text(
+                            "2 hours",
+                            style: _trailFont,
+                            textAlign: TextAlign.left,
+                          ),
+                          onLongPress: () {},
+                          onTap: () {
+                            setState(() {});
+                          }),
+                    ),
+                    Divider(),
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.red, shape: BoxShape.circle),
+                            child: Icon(Icons.person),
+                          ),
+                          title: Text(
+                            "Connection Z",
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          subtitle: Text(
+                            "The moon is bright",
+                            style: _subFont,
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                          ),
+                          trailing: Text(
+                            "1 day",
+                            style: _trailFont,
+                            textAlign: TextAlign.left,
+                          ),
+                          onLongPress: () {},
+                          onTap: () {
+                            setState(() {});
+                          }),
+                    ),
+                  ],
+                ),
+                */
+                ///------------------------------------------- PROFILE ---------------------------------------------
+                ListView(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(1),
+                  children: <Widget>[
+                    ListTile(
+                      leading: Text(
+                        "PROFILE",
                         textAlign: TextAlign.left,
-                        style: _biggerFont,
+                        style: TextStyle(
+                          color: white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      subtitle: Text(
-                        "Age, gender, height, weight, etc.",
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
                     ),
-                  ),
-                  Divider(),
-                  Container(
-                    decoration: BoxDecoration(
+                    Center(
+                      child: SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: CupertinoButton(
+                            child: Container(
+                                decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                  "https://media.gettyimages.com/photos/smiling-businesswoman-over-gray-background-picture-id557608545?s=2048x2048",
+                                ),
+                                fit: BoxFit.cover,
+                              ),
+                            )),
+                            onPressed: () {},
+                          )),
                     ),
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(
-                        Icons.search,
-                        color: white,
-                      ),
-                      title: Text(
-                        "I am looking for",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      subtitle: Text(
-                        "Gender, type of relationship, etc.",
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
+                    Divider(),
+                    Divider(color: white),
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: Icon(
+                            Icons.person,
+                            color: white,
+                          ),
+                          title: Text(
+                            "Personal information",
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          subtitle: Text(
+                            "Age, gender, height, weight, etc.",
+                            style: _subFont,
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                          ),
+                          onLongPress: () {},
+                          onTap: () {
+                            setState(() {});
+                          }),
                     ),
-                  ),
-                  Divider(),
-                  Container(
-                    decoration: BoxDecoration(
+                    Divider(),
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: Icon(
+                            Icons.search,
+                            color: white,
+                          ),
+                          title: Text(
+                            "I am looking for",
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          subtitle: Text(
+                            "Gender, type of relationship, etc.",
+                            style: _subFont,
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                          ),
+                          onLongPress: () {},
+                          onTap: () {
+                            setState(() {});
+                          }),
                     ),
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(
-                        Icons.compare_arrows,
-                        color: white,
-                      ),
-                      title: Text(
-                        "My way of living",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      subtitle: Text(
-                        "Interests, passions, hobbies, kinks, etc.",
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }
+                    Divider(),
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: Icon(
+                            Icons.compare_arrows,
+                            color: white,
+                          ),
+                          title: Text(
+                            "My way of living",
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          subtitle: Text(
+                            "Interests, passions, hobbies, kinks, etc.",
+                            style: _subFont,
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                          ),
+                          onLongPress: () {},
+                          onTap: () {
+                            setState(() {});
+                          }),
                     ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: Icon(
+                            Icons.exit_to_app,
+                            color: white,
+                          ),
+                          title: Text(
+                            "SIGN OUT",
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          onTap: () {
+                            FirebaseAuth.instance.signOut();
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoadingPage()));
+                          }),
                     ),
-                    child: ListTile(
-                      dense: true,
-                      leading: Icon(
-                        Icons.exit_to_app,
-                        color: white,
-                      ),
-                      title: Text(
-                        "SIGN OUT",
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      onTap: () {
-                          FirebaseAuth.instance.signOut();
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()));
-                      }
-                    ),
-                  ),
-                ],
-              ),
-            ]
-        ),
-      )
-    )
-    );
+                  ],
+                ),
+              ]),
+            )));
   }
+
+  Widget _build_pMatches_Tiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    
+      if (snapshot.hasData) {
+      List<ListTile> header = [
+        ListTile(
+          leading: Text(
+            "POTENTIAL MATCHES",
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              color: white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        )
+      ];
+
+      List<ListTile> listTiles =
+          snapshot.data.documents.where((element) => element['otherUser'] != null).map((DocumentSnapshot document) {
+        return new ListTile(
+          title: new Text(
+            document['otherUser'],
+            style: _biggerFont,
+          ),
+          subtitle: new Text(
+            "",
+            style: _subFont,
+            textAlign: TextAlign.left,
+            maxLines: 1,
+          ),
+          trailing: Text(
+            document['expiration'].toString(),
+            style: _trailFont,
+            textAlign: TextAlign.left,
+          ),
+          onLongPress: () {},
+          onTap: () {});
+      }).toList();
       
+      List<ListTile> pendingTiles =
+          snapshot.data.documents.where((element) => element['pending'] == true).map((DocumentSnapshot document) {
+        return new ListTile(
+          title: Text(
+            "Searching the world",
+            textAlign: TextAlign.left,
+            style: _biggerFont,
+          ),
+          subtitle: Text(
+            "We will let you know when we find someone for you",
+            style: _subFont,
+            textAlign: TextAlign.left,
+            maxLines: 1,
+          ),
+          trailing: Icon(
+            Icons.access_time,
+            color: white,
+          ),
+          onLongPress: () {},
+          onTap: () {}
+        );
+      }).toList();
+      
+      
+      List<ListTile> availableTiles =
+          snapshot.data.documents.where((element) => element['available'] == true).map((DocumentSnapshot document) {
+        return new ListTile(
+          title: Text(
+            "Find someone new",
+            textAlign: TextAlign.left,
+            style: _biggerFont,
+          ),
+          trailing: Icon(
+            Icons.person_add,
+            color: white,
+          ),
+          onLongPress: () {},
+          onTap: () {}
+        );
+      }).toList();
+      
+      
+      List<Object> completeList = header + listTiles + pendingTiles + availableTiles;
+
+      if (snapshot.hasError) {
+        return new Text('Error: ${snapshot.error}');
+      }
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return new Text('Loading...');
+      } else {
+        return new ListView(
+            padding: const EdgeInsets.all(1),
+            controller: _scrollController,
+            children: completeList);
+      }
+    }
+    
+    return CircularProgressIndicator();
+  }
+  
+  
+  
+  
+  
+  
+  Widget _build_matches_Tiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    
+      if (snapshot.hasData) {
+      List<ListTile> header = [
+        ListTile(
+          leading: Text(
+            "MATCHES",
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              color: white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        )
+      ];
+
+      List<ListTile> listTiles =
+          snapshot.data.documents.where((element) => element['otherUser'] != null).map((DocumentSnapshot document) {
+        return new ListTile(
+          dense: true,
+          leading: Container(
+            decoration: BoxDecoration(
+                color: Colors.red, shape: BoxShape.circle),
+            child: Icon(Icons.person),
+          ),
+          title: Text(
+            document['otherUser'],
+            textAlign: TextAlign.left,
+            style: _biggerFont,
+          ),
+          subtitle: Text(
+            "At the park behind the tree with the big white flowers",
+            style: _subFont,
+            textAlign: TextAlign.left,
+            maxLines: 1,
+          ),
+          trailing: Text(
+            "48 mins",
+            style: _trailFont,
+            textAlign: TextAlign.left,
+          ),
+          onLongPress: () {},
+          onTap: () {
+            setState(() {});
+          });
+      }).toList();
+      
+      List<Object> completeList = header + listTiles;
+
+      if (snapshot.hasError) {
+        return new Text('Error: ${snapshot.error}');
+      }
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return new Text('Loading...');
+      } else {
+        return new ListView(
+            padding: const EdgeInsets.all(1),
+            controller: _scrollController,
+            children: completeList);
+      }
+    }
+    
+    return CircularProgressIndicator();
+  }
+
   /**
   Future<void> _checkCurrentUser() async {
     await _auth.currentUser().then((u) async{
@@ -577,4 +577,41 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
   }
+}
+
+/// The base class for the different types of items the list can contain.
+abstract class ListItem {
+  /// The title line to show in a list item.
+  Widget buildTitle(BuildContext context);
+
+  /// The subtitle line, if any, to show in a list item.
+  Widget buildSubtitle(BuildContext context);
+}
+
+/// A ListItem that contains data to display a heading.
+class HeadingItem implements ListItem {
+  final String heading;
+
+  HeadingItem(this.heading);
+
+  Widget buildTitle(BuildContext context) {
+    return Text(
+      heading,
+      style: Theme.of(context).textTheme.headline,
+    );
+  }
+
+  Widget buildSubtitle(BuildContext context) => null;
+}
+
+/// A ListItem that contains data to display a message.
+class MessageItem implements ListItem {
+  final String sender;
+  final String body;
+
+  MessageItem(this.sender, this.body);
+
+  Widget buildTitle(BuildContext context) => Text(sender);
+
+  Widget buildSubtitle(BuildContext context) => Text(body);
 }
