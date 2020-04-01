@@ -78,7 +78,26 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
                 ),
                 SizedBox(
                   height: 210,
-                  child: ListView(
+                  child: ShaderMask(
+                    shaderCallback: (rect) {
+                      return LinearGradient(
+                        begin: Alignment(0, 0.9),
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.white, Colors.transparent],
+                      ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                    },
+                    blendMode: BlendMode.dstIn,
+                    child: ShaderMask(
+                      shaderCallback: (rect) {
+                        return LinearGradient(
+                          begin: Alignment(0, -0.9),
+                          end: Alignment.topCenter,
+                          colors: [Colors.white, Colors.transparent],
+                        ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                      },
+                      blendMode: BlendMode.dstIn,
+                      child:
+                  ListView(
                     physics: BouncingScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     controller: _scrollController,
@@ -815,6 +834,8 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
                       ),
                     ],
                   )
+                ),
+                ),
                 ),
                 SizedBox (
                   height: 50,
