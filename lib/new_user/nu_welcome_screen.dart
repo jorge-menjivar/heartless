@@ -41,7 +41,7 @@ class WelcomeScreenState extends State<WelcomeScreen> {
             ),
             new RaisedButton(
               child: new Text("SIGN IN"), onPressed: (){
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MySignInScreen(user)));
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MySignInScreen()));
               }
             )
           ],

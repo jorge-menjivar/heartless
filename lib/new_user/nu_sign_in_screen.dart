@@ -12,9 +12,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MySignInScreen extends StatefulWidget {
-  final FirebaseUser user;
-
-  MySignInScreen(this.user);
 
   @override
   SignInScreenState createState() => new SignInScreenState();
@@ -48,9 +45,7 @@ class SignInScreenState extends State<MySignInScreen> {
           title: new Text("SIGN IN"),
           elevation: 4.0,
         ),
-        body: new Builder(
-          builder: (BuildContext context) {
-            return Container(
+        body: Container(
               decoration: new BoxDecoration(color: Colors.white),
               padding: const EdgeInsets.all(16.0),
               child: new Column(
@@ -92,9 +87,6 @@ class SignInScreenState extends State<MySignInScreen> {
                       hintText: "Password",
                     ),
                   ),
-                  new SizedBox(
-                    height: 32.0,
-                  ),
                   new Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -107,9 +99,6 @@ class SignInScreenState extends State<MySignInScreen> {
                       )
                     ],
                   ),
-                  new SizedBox(
-                    height: 32.0,
-                  ),
                   new RaisedButton(
                       child: new Text("CONTINUE TO LISA"),
                       onPressed: () {
@@ -119,9 +108,7 @@ class SignInScreenState extends State<MySignInScreen> {
                   )
                 ],
               )
-            );
-          },
-        )
+            )
       )
     );
   }
@@ -134,8 +121,7 @@ class SignInScreenState extends State<MySignInScreen> {
 
   @override
   void dispose() {
-    super.dispose();
-    _listener.cancel();
+    super.dispose(); 
   }
 
   Future<FirebaseUser> _handleSignIn(String e, String p) async {

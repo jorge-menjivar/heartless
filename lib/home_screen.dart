@@ -5,6 +5,7 @@ import 'main.dart';
 import 'new_user/nu_welcome_screen.dart';
 import 'messages/m_matches_screen.dart';
 import 'messages/m_p_matches_screen.dart';
+import 'convo_completion/select_matches_screen.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -135,7 +136,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
               },
               body: TabBarView(children: [
                 
-                ///------------------------------------ POTENTIAL MATCHES ---------------------------
+                ///------------------------------------ POTENTIAL MATCHES -----------------------------------------
                 new StreamBuilder<QuerySnapshot>(
                     stream: Firestore.instance
                         .collection('users')
@@ -333,13 +334,19 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
           onLongPress: () {},
           onTap: () {
             setState(() {
-              Navigator.push(context, MaterialPageRoute(builder:
-              (context) => PMConversationScreen(
-                user: user,
-                matchName: document['otherUser'],
-                username: user.displayName,
-                room: document['room'],
-              )));
+              (convertTime(int.parse(document.documentID)) != 'COMPLETED') ?
+                Navigator.push(context, MaterialPageRoute(builder:
+                (context) => PMConversationScreen(
+                  user: user,
+                  matchName: document['otherUser'],
+                  username: user.displayName,
+                  room: document['room'],
+                )))
+              
+              : Navigator.push(context, MaterialPageRoute(builder:
+                (context) => SelectMatchesScreen(
+                  room: document['room'],
+                )));
             });
           });
       }).toList();

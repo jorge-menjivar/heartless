@@ -317,6 +317,8 @@ class PMConversationScreenState extends State<PMConversationScreen>
 
   // Creating message and sending its values to cloud firestore.
   _handleSubmitted(String text) async{
+    
+    print (user.uid.toString());
     _textController.clear();
     var sTime = DateTime.now().millisecondsSinceEpoch.toString();
     Firestore.instance
@@ -332,10 +334,14 @@ class PMConversationScreenState extends State<PMConversationScreen>
         merge: false
       )
       .then((r) {
+        Timer(
+          Duration(milliseconds: 100),
+          () => _scrollController
+            .jumpTo(_scrollController.position.maxScrollExtent));
           print("Document successfully written!");
       })
       .catchError((error) {
-          print("Error writing document: " + error);
+          print("Error writing document: " + error.toString());
       });
   }
 }
