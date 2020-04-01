@@ -146,7 +146,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
       var colorReceived = Colors.blueGrey[50];
       
       
-      List<ListTile> listTiles = snapshot.data.documents.where((element) => element['message'] != null).map((DocumentSnapshot document) {
+      List<ListTile> listTiles = snapshot.data.documents.reversed.where((element) => element['message'] != null).map((DocumentSnapshot document) {
         if (document['from'] == 'user2') {
           return ListTile(
             contentPadding: EdgeInsets.only(right: 80.0),
@@ -223,9 +223,11 @@ class PMConversationScreenState extends State<PMConversationScreen>
         return new Text('Loading...');
       } else {
         return new ListView(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-            controller: _scrollController,
-            children: completeList);
+          physics: BouncingScrollPhysics(),
+          reverse: true,
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+          controller: _scrollController,
+          children: completeList);
       }
     }
     return CircularProgressIndicator();
@@ -243,7 +245,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
                 Timer(
                   Duration(milliseconds: 300),
                   () => _scrollController
-                      .jumpTo(_scrollController.position.maxScrollExtent));
+                      .jumpTo(_scrollController.position.minScrollExtent));
               },
               maxLines: null,
               controller: _textController,
@@ -337,7 +339,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
         Timer(
           Duration(milliseconds: 100),
           () => _scrollController
-            .jumpTo(_scrollController.position.maxScrollExtent));
+            .jumpTo(_scrollController.position.minScrollExtent));
           print("Document successfully written!");
       })
       .catchError((error) {

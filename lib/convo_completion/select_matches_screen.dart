@@ -77,74 +77,420 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
                   height: 50,
                 ),
                 SizedBox(
-                  height: 200,
-                  child:
-                  ListView(
+                  height: 210,
+                  child: ListView(
+                    physics: BouncingScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     controller: _scrollController,
                     children: <Widget>[
                       Center(
-                        child: Card(
-                          color: (_profiles[0]) 
-                            ? Colors.green
-                            : Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(100))
-                          ),
-                          child:  SizedBox(
-                            width: 200,
-                            height: 200,
-                            child: CupertinoButton(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                      "https://st.depositphotos.com/1597387/1984/i/450/depositphotos_19841901-stock-photo-asian-young-business-man-close.jpg",
+                        child: SizedBox(
+                          height: 1000,
+                          width: 210,
+                          child: ListView(
+                            physics: BouncingScrollPhysics(),
+                            reverse: true,
+                            children: <Widget>[
+                              Card(
+                                color: (_profiles[0]) 
+                                  ? Colors.green
+                                  : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                                ),
+                                child:  SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: RawMaterialButton(
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    padding: EdgeInsets.all(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "https://st.depositphotos.com/1597387/1984/i/450/depositphotos_19841901-stock-photo-asian-young-business-man-close.jpg",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
                                     ),
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
+                                    onLongPress: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        _profiles[0] = !_profiles[0];
+                                      });
+                                    },
+                                  )
+                                ),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _profiles[0] = !_profiles[0];
-                                });
-                              },
-                            )
+                              Card(
+                                color: (_profiles[0]) 
+                                  ? Colors.green
+                                  : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                                ),
+                                child:  SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: RawMaterialButton(
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    padding: EdgeInsets.all(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "https://st.depositphotos.com/1597387/1984/i/450/depositphotos_19841901-stock-photo-asian-young-business-man-close.jpg",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    ),
+                                    onLongPress: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        _profiles[0] = !_profiles[0];
+                                      });
+                                    },
+                                  )
+                                ),
+                              ),
+                              Card(
+                                color: (_profiles[0]) 
+                                  ? Colors.green
+                                  : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                                ),
+                                child:  SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: RawMaterialButton(
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    padding: EdgeInsets.all(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "https://st.depositphotos.com/1597387/1984/i/450/depositphotos_19841901-stock-photo-asian-young-business-man-close.jpg",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    ),
+                                    onLongPress: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        _profiles[0] = !_profiles[0];
+                                      });
+                                    },
+                                  )
+                                ),
+                              ),
+                              Card(
+                                color: (_profiles[0]) 
+                                  ? Colors.green
+                                  : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                                ),
+                                child:  SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: RawMaterialButton(
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    padding: EdgeInsets.all(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "https://st.depositphotos.com/1597387/1984/i/450/depositphotos_19841901-stock-photo-asian-young-business-man-close.jpg",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    ),
+                                    onLongPress: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        _profiles[0] = !_profiles[0];
+                                      });
+                                    },
+                                  )
+                                ),
+                              ),
+                              Card(
+                                color: (_profiles[0]) 
+                                  ? Colors.green
+                                  : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                                ),
+                                child:  SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: RawMaterialButton(
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    padding: EdgeInsets.all(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "https://st.depositphotos.com/1597387/1984/i/450/depositphotos_19841901-stock-photo-asian-young-business-man-close.jpg",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    ),
+                                    onLongPress: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        _profiles[0] = !_profiles[0];
+                                      });
+                                    },
+                                  )
+                                ),
+                              ),
+                            ],
                           ),
                         )
                       ),
                       Center(
-                        child: Card(
-                          color: (_profiles[1]) 
-                            ? Colors.green
-                            : Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(100))
-                          ),
-                          child:  SizedBox(
-                            width: 200,
-                            height: 200,
-                            child: CupertinoButton(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: NetworkImage(
-                                      "https://media-exp1.licdn.com/dms/image/C4E03AQE2s8trWXGjWw/profile-displayphoto-shrink_200_200/0?e=1587600000&v=beta&t=NJUaGXLUdAqe44cm_UgWYLb_CxMlSED0CcPp1W7Fnbk",
+                        child: SizedBox(
+                          height: 1000,
+                          width: 210,
+                          child: ListView(
+                            physics: BouncingScrollPhysics(),
+                            reverse: true,
+                            children: <Widget>[
+                              Card(
+                                color: (_profiles[1]) 
+                                  ? Colors.green
+                                  : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                                ),
+                                child:  SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: RawMaterialButton(
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    padding: EdgeInsets.all(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "https://media-exp1.licdn.com/dms/image/C4E03AQE2s8trWXGjWw/profile-displayphoto-shrink_200_200/0?e=1587600000&v=beta&t=NJUaGXLUdAqe44cm_UgWYLb_CxMlSED0CcPp1W7Fnbk",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
                                     ),
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
+                                    onLongPress: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        _profiles[1] = !_profiles[1];
+                                      });
+                                    },
+                                  )
+                                ),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _profiles[1] = !_profiles[1];
-                                });
-                              },
-                            )
-                          ),
+                              Card(
+                                color: (_profiles[1]) 
+                                  ? Colors.green
+                                  : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                                ),
+                                child:  SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: RawMaterialButton(
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    padding: EdgeInsets.all(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "https://media-exp1.licdn.com/dms/image/C4E03AQE2s8trWXGjWw/profile-displayphoto-shrink_200_200/0?e=1587600000&v=beta&t=NJUaGXLUdAqe44cm_UgWYLb_CxMlSED0CcPp1W7Fnbk",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    ),
+                                    onLongPress: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        _profiles[1] = !_profiles[1];
+                                      });
+                                    },
+                                  )
+                                ),
+                              ),
+                              Card(
+                                color: (_profiles[1]) 
+                                  ? Colors.green
+                                  : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                                ),
+                                child:  SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: RawMaterialButton(
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    padding: EdgeInsets.all(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "https://media-exp1.licdn.com/dms/image/C4E03AQE2s8trWXGjWw/profile-displayphoto-shrink_200_200/0?e=1587600000&v=beta&t=NJUaGXLUdAqe44cm_UgWYLb_CxMlSED0CcPp1W7Fnbk",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    ),
+                                    onLongPress: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        _profiles[1] = !_profiles[1];
+                                      });
+                                    },
+                                  )
+                                ),
+                              ),
+                              Card(
+                                color: (_profiles[1]) 
+                                  ? Colors.green
+                                  : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                                ),
+                                child:  SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: RawMaterialButton(
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    padding: EdgeInsets.all(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "https://media-exp1.licdn.com/dms/image/C4E03AQE2s8trWXGjWw/profile-displayphoto-shrink_200_200/0?e=1587600000&v=beta&t=NJUaGXLUdAqe44cm_UgWYLb_CxMlSED0CcPp1W7Fnbk",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    ),
+                                    onLongPress: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        _profiles[1] = !_profiles[1];
+                                      });
+                                    },
+                                  )
+                                ),
+                              ),
+                              Card(
+                                color: (_profiles[1]) 
+                                  ? Colors.green
+                                  : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                                ),
+                                child:  SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: RawMaterialButton(
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    padding: EdgeInsets.all(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "https://media-exp1.licdn.com/dms/image/C4E03AQE2s8trWXGjWw/profile-displayphoto-shrink_200_200/0?e=1587600000&v=beta&t=NJUaGXLUdAqe44cm_UgWYLb_CxMlSED0CcPp1W7Fnbk",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    ),
+                                    onLongPress: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        _profiles[1] = !_profiles[1];
+                                      });
+                                    },
+                                  )
+                                ),
+                              ),
+                              Card(
+                                color: (_profiles[1]) 
+                                  ? Colors.green
+                                  : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                                ),
+                                child:  SizedBox(
+                                  width: 200,
+                                  height: 200,
+                                  child: RawMaterialButton(
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    padding: EdgeInsets.all(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            "https://media-exp1.licdn.com/dms/image/C4E03AQE2s8trWXGjWw/profile-displayphoto-shrink_200_200/0?e=1587600000&v=beta&t=NJUaGXLUdAqe44cm_UgWYLb_CxMlSED0CcPp1W7Fnbk",
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    ),
+                                    onLongPress: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        _profiles[1] = !_profiles[1];
+                                      });
+                                    },
+                                  )
+                                ),
+                              ),
+                              
+                            ]
+                          )
                         )
                       ),
                       Center(
