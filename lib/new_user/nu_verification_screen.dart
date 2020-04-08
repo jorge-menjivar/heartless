@@ -29,8 +29,8 @@ class VerifyScreenState extends State<VerifyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _sendVerification();
     String email = user.email;
+    // wait 5 secs and _sendVerification();
     return Scaffold(
       key: _scaffoldKey,
       appBar: new AppBar(
@@ -66,11 +66,13 @@ class VerifyScreenState extends State<VerifyScreen> {
             RaisedButton(
               child: new Text("CONTINUE TO LISA"), 
               onPressed: () async {
-                await _auth.signOut();
-                user = (await _auth.signInWithEmailAndPassword(email: this.email, password: this.password)).user;
-                (user.isEmailVerified)
-                ? Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()))
-                : _notVerified = true;
+                user = await _auth.currentUser();
+                await user.reload();
+                setState(() {
+                  (user.isEmailVerified)
+                  ? Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()))
+                  : _notVerified = true;
+                });
               }
             ),
             SizedBox(
@@ -80,7 +82,7 @@ class VerifyScreenState extends State<VerifyScreen> {
               child: Text(
                 "RESEND VERIFICATION LINK",
                 style: TextStyle(
-                  fontSize: 12
+                  fontSize: 14
                 ),
               ),
               onPressed: () async {
