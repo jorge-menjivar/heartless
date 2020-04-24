@@ -3,6 +3,7 @@
         "RGBO",
         "autocorrect",
         "autofocus",
-        "autovalidate"
+        "autovalidate",
+        "convo"
     ]
 }

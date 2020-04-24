@@ -29,7 +29,7 @@ MaterialColor black = MaterialColor(0xFF1c1c1c, color);
 MaterialColor white = MaterialColor(0xFFFFFFFF, color);
 
 void main(){
-  runApp(new MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -37,14 +37,14 @@ class MyApp extends StatelessWidget {
   //TODO add terms and conditions
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'LISA',
-      theme: new ThemeData(
+      theme: ThemeData(
         primarySwatch: black,
         canvasColor: black,
         accentColor: black,
       ),
-      home: new LoadingPage(),
+      home: LoadingPage(),
     );
   }
 }
@@ -56,13 +56,13 @@ class LoadingPage extends StatefulWidget {
   final String title;
 
   @override
-  _LoadingPageState createState() => new _LoadingPageState();
+  _LoadingPageState createState() => _LoadingPageState();
 }
 
 class _LoadingPageState extends State<LoadingPage> {
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseUser user;
-  final secureStorage = new FlutterSecureStorage();
+  final secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {

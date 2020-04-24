@@ -31,6 +31,7 @@ class VerifyScreenState extends State<VerifyScreen> {
   Widget build(BuildContext context) {
     String email = user.email;
     // wait 5 secs and _sendVerification();
+    _sendVerification();
     return Scaffold(
       key: _scaffoldKey,
       appBar: new AppBar(
@@ -68,11 +69,14 @@ class VerifyScreenState extends State<VerifyScreen> {
               onPressed: () async {
                 user = await _auth.currentUser();
                 await user.reload();
-                setState(() {
-                  (user.isEmailVerified)
-                  ? Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()))
-                  : _notVerified = true;
-                });
+                if (user.isEmailVerified) {
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()));
+                }
+                else {
+                  setState(() {
+                    _notVerified = true;
+                  });
+                }
               }
             ),
             SizedBox(
@@ -104,14 +108,32 @@ class VerifyScreenState extends State<VerifyScreen> {
     );
   }
 
+  /// Send Email Verification to the email on file for this user account.
   Future<FirebaseUser> _sendVerification() async {
     try {
       await user.sendEmailVerification();
       print("Verification email sent");
-      setState(() {});
+      final snackBar = SnackBar(
+        content: Text(
+          'Email sent',
+        ),
+        duration: Duration(
+          seconds: 4
+        ),
+      );
+      _scaffoldKey.currentState.showSnackBar(snackBar);
     }
     catch (e) {
       print (e.toString());
+      final snackBar = SnackBar(
+        content: Text(
+          'Wait a few seconds and try again',
+        ),
+        duration: Duration(
+          seconds: 4
+        ),
+      );
+      _scaffoldKey.currentState.showSnackBar(snackBar);
     }
     
     return user;

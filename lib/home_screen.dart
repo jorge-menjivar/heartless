@@ -1,27 +1,24 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
-import 'new_user/nu_welcome_screen.dart';
-import 'messages/m_matches_screen.dart';
 import 'messages/m_p_matches_screen.dart';
 import 'convo_completion/select_matches_screen.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+// Firebase
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 // Storage
-import 'package:path_provider/path_provider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_image/firebase_image.dart';
 
-// Utils
+// Tools
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'package:tuple/tuple.dart';
-
-// Storage
-import 'package:sqflite/sqflite.dart';
+import 'package:image_picker/image_picker.dart';
 
 Map<int, Color> color = {
   50: Color.fromRGBO(0, 0, 0, .1),
@@ -57,18 +54,18 @@ class InitPage extends StatefulWidget {
   InitPage({this.user, this.username});
 
   @override
-  createState() => InitPageState(user: user, username: username);
+  InitPageState createState() => InitPageState(user: user, username: username);
 }
 
 class InitPageState extends State<InitPage> with WidgetsBindingObserver {
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  File _image;
 
   InitPageState({this.user, this.username});
 
   FirebaseUser user;
   final String username;
 
-  final secureStorage = new FlutterSecureStorage();
+  final secureStorage = FlutterSecureStorage();
 
   ScrollController _scrollController;
 
@@ -78,7 +75,9 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     super.initState();
     //TODO _checkCurrentUser();
   }
-
+  
+  
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +96,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                       sliver: SliverAppBar(
                         centerTitle: true,
                         title: Text(
-                          "LISA",
+                          'LISA',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16.0,
@@ -110,7 +109,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                         flexibleSpace: FlexibleSpaceBar(
                           collapseMode: CollapseMode.pin,
                           background: Image.network(
-                            "https://c2.staticflickr.com/6/5283/5321712546_e9c3d4d4c1_b.jpg",
+                            'https://c2.staticflickr.com/6/5283/5321712546_e9c3d4d4c1_b.jpg',
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -118,14 +117,14 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                           labelColor: Colors.white,
                           unselectedLabelColor: Colors.grey,
                           tabs: [
-                            new Tab(
-                              icon: new Icon(Icons.search),
+                            Tab(
+                              icon: Icon(Icons.search),
                             ),
-                            new Tab(
-                              icon: new Icon(Icons.message),
+                            Tab(
+                              icon: Icon(Icons.message),
                             ),
-                            new Tab(
-                              icon: new Icon(Icons.person),
+                            Tab(
+                              icon: Icon(Icons.person),
                             ),
                           ],
                         ),
@@ -137,28 +136,28 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
               body: TabBarView(children: [
                 
                 ///------------------------------------ POTENTIAL MATCHES -----------------------------------------
-                new StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance
-                        .collection('users')
-                        .document('user1')
-                        .collection('data_generated')
-                        .document('user_rooms')
-                        .collection('p_matches')
-                        .snapshots(),
-                    builder: _buildPMatchesTiles
+                StreamBuilder<QuerySnapshot>(
+                  stream: Firestore.instance
+                      .collection('users')
+                      .document('user1')
+                      .collection('data_generated')
+                      .document('user_rooms')
+                      .collection('p_matches')
+                      .snapshots(),
+                  builder: _buildPMatchesTiles
                 ),
                 
                 
                 ///------------------------------------------- MATCHES ---------------------------------------------
-                new StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance
-                        .collection('users')
-                        .document('user1')
-                        .collection('data_generated')
-                        .document('user_rooms')
-                        .collection('matches')
-                        .snapshots(),
-                    builder: _buildMatchesTiles
+                StreamBuilder<QuerySnapshot>(
+                  stream: Firestore.instance
+                      .collection('users')
+                      .document('user1')
+                      .collection('data_generated')
+                      .document('user_rooms')
+                      .collection('matches')
+                      .snapshots(),
+                  builder: _buildMatchesTiles
                 ),
                 
                 ///------------------------------------------- PROFILE ---------------------------------------------
@@ -168,7 +167,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                   children: <Widget>[
                     ListTile(
                       leading: Text(
-                        "PROFILE",
+                        'PROFILE',
                         textAlign: TextAlign.left,
                         style: TextStyle(
                           color: white,
@@ -185,13 +184,13 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                                 decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               image: DecorationImage(
-                                image: NetworkImage(
-                                  "https://media.gettyimages.com/photos/smiling-businesswoman-over-gray-background-picture-id557608545?s=2048x2048",
-                                ),
+                                image: FirebaseImage(
+                                  'gs://lise-99703.appspot.com/users/profile_pictures/pic1.jpg',
+                                  shouldCache: false),
                                 fit: BoxFit.cover,
                               ),
                             )),
-                            onPressed: () {},
+                            onPressed: getImageFromGallery
                           )),
                     ),
                     Divider(),
@@ -205,12 +204,12 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                             color: white,
                           ),
                           title: Text(
-                            "Personal information",
+                            'Personal information',
                             textAlign: TextAlign.left,
                             style: _biggerFont,
                           ),
                           subtitle: Text(
-                            "Age, gender, height, weight, etc.",
+                            'Age, gender, height, weight, etc.',
                             style: _subFont,
                             textAlign: TextAlign.left,
                             maxLines: 1,
@@ -230,12 +229,12 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                             color: white,
                           ),
                           title: Text(
-                            "I am looking for",
+                            'I am looking for',
                             textAlign: TextAlign.left,
                             style: _biggerFont,
                           ),
                           subtitle: Text(
-                            "Gender, type of relationship, etc.",
+                            'Gender, type of relationship, etc.',
                             style: _subFont,
                             textAlign: TextAlign.left,
                             maxLines: 1,
@@ -255,12 +254,12 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                             color: white,
                           ),
                           title: Text(
-                            "My way of living",
+                            'My way of living',
                             textAlign: TextAlign.left,
                             style: _biggerFont,
                           ),
                           subtitle: Text(
-                            "Interests, passions, hobbies, kinks, etc.",
+                            'Interests, passions, hobbies, kinks, etc.',
                             style: _subFont,
                             textAlign: TextAlign.left,
                             maxLines: 1,
@@ -279,7 +278,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                             color: white,
                           ),
                           title: Text(
-                            "SIGN OUT",
+                            'SIGN OUT',
                             textAlign: TextAlign.left,
                             style: _biggerFont,
                           ),
@@ -300,10 +299,10 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   Widget _buildPMatchesTiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
     
       if (snapshot.hasData) {
-      List<ListTile> header = [
+      var header = <ListTile>[
         ListTile(
           leading: Text(
-            "POTENTIAL MATCHES",
+            'POTENTIAL MATCHES',
             textAlign: TextAlign.left,
             style: TextStyle(
               color: white,
@@ -313,15 +312,15 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
         )
       ];
 
-      List<ListTile> listTiles =
+      var listTiles =
           snapshot.data.documents.where((element) => element['otherUser'] != null).map((DocumentSnapshot document) {
-        return new ListTile(
-          title: new Text(
+        return ListTile(
+          title: Text(
             document['otherUser'],
             style: _biggerFont,
           ),
-          subtitle: new Text(
-            "",
+          subtitle: Text(
+            '',
             style: _subFont,
             textAlign: TextAlign.left,
             maxLines: 1,
@@ -351,16 +350,16 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
           });
       }).toList();
       
-      List<ListTile> pendingTiles =
+      var pendingTiles =
           snapshot.data.documents.where((element) => element['pending'] == true).map((DocumentSnapshot document) {
-        return new ListTile(
+        return ListTile(
           title: Text(
-            "Searching the world",
+            'Searching the world',
             textAlign: TextAlign.left,
             style: _biggerFont,
           ),
           subtitle: Text(
-            "We will let you know when we find someone for you",
+            'We will let you know when we find someone for you',
             style: _subFont,
             textAlign: TextAlign.left,
             maxLines: 1,
@@ -370,16 +369,16 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             color: white,
           ),
           onLongPress: () {},
-          onTap: () {}
+          onTap: () {},
         );
       }).toList();
       
       
-      List<ListTile> availableTiles =
+      var availableTiles =
           snapshot.data.documents.where((element) => element['available'] == true).map((DocumentSnapshot document) {
-        return new ListTile(
+        return ListTile(
           title: Text(
-            "Find someone new",
+            'Find someone new',
             textAlign: TextAlign.left,
             style: _biggerFont,
           ),
@@ -388,7 +387,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             color: white,
           ),
           onLongPress: () {},
-          onTap: () {}
+          onTap: _sendPotentialMatchRequest,
         );
       }).toList();
       
@@ -396,15 +395,15 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
       List<Object> completeList = header + listTiles + pendingTiles + availableTiles;
 
       if (snapshot.hasError) {
-        return new Text('Error: ${snapshot.error}');
+        return Text('Error: ${snapshot.error}');
       }
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return new Text('Loading...');
+        return Text('Loading...');
       } else {
-        return new ListView(
-            padding: const EdgeInsets.all(1),
-            controller: _scrollController,
-            children: completeList);
+        return ListView(
+          padding: const EdgeInsets.all(1),
+          controller: _scrollController,
+          children: completeList);
       }
     }
     
@@ -416,10 +415,10 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   Widget _buildMatchesTiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
     
       if (snapshot.hasData) {
-      List<ListTile> header = [
+      var header = <ListTile>[
         ListTile(
           leading: Text(
-            "MATCHES",
+            'MATCHES',
             textAlign: TextAlign.left,
             style: TextStyle(
               color: white,
@@ -429,9 +428,9 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
         )
       ];
 
-      List<ListTile> listTiles =
+      var listTiles =
           snapshot.data.documents.where((element) => element['otherUser'] != null).map((DocumentSnapshot document) {
-        return new ListTile(
+        return ListTile(
           dense: true,
           leading: Container(
             decoration: BoxDecoration(
@@ -444,13 +443,13 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             style: _biggerFont,
           ),
           subtitle: Text(
-            "At the park behind the tree with the big white flowers",
+            'At the park behind the tree with the big white flowers',
             style: _subFont,
             textAlign: TextAlign.left,
             maxLines: 1,
           ),
           trailing: Text(
-            "48 mins",
+            '48 mins',
             style: _trailFont,
             textAlign: TextAlign.left,
           ),
@@ -463,15 +462,15 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
       List<Object> completeList = header + listTiles;
 
       if (snapshot.hasError) {
-        return new Text('Error: ${snapshot.error}');
+        return Text('Error: ${snapshot.error}');
       }
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return new Text('Loading...');
+        return Text('Loading...');
       } else {
-        return new ListView(
-            padding: const EdgeInsets.all(1),
-            controller: _scrollController,
-            children: completeList);
+        return ListView(
+          padding: const EdgeInsets.all(1),
+          controller: _scrollController,
+          children: completeList);
       }
     }
     
@@ -479,42 +478,78 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   }
   
   
-  
-  
-  
+  void _sendPotentialMatchRequest() async {
+    final callable = CloudFunctions.instance.getHttpsCallable(
+      functionName: 'getPotentialMatch',
+    );
+    
+    dynamic resp = await callable.call();
+    
+    print(resp);
+    
+    /**
+     * Calling function with parameters
+    dynamic resp = await callable.call(<String, dynamic>{
+        'YOUR_PARAMETER_NAME': 'YOUR_PARAMETER_VALUE',
+    });
+    **/
+  }
   
   
   String convertTime(int time) {
-    int minutes = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inMinutes;
+    var minutes = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inMinutes;
     
-    int hours = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inHours;
+    var hours = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inHours;
     
-    int days = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inDays;
+    var days = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inDays;
     
     if (minutes < 0) {
-      return "COMPLETED";
+      return 'COMPLETED';
     }
     
     if (minutes < 60) {
-      return "$minutes mins left";
+      return '$minutes mins left';
     }
     
     else if (hours < 24) {
-      return "$hours hours left";
+      return '$hours hours left';
     }
     
     else if (days > 0){
-      return "$days days left";
+      return '$days days left';
     }
     
-    return " ";
+    return ' ';
     
   }
   
   
+  /// Gets image from gallery and uploads it to firebase storage
+  Future getImageFromGallery() async {
+    setState(() {
+    });
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    
+    if (image == null) {
+      return;
+    }
+    
+    
+    final storageReference = FirebaseStorage().ref().child('users/profile_pictures/pic1.jpg');
+    
+    final uploadTask = storageReference.putFile(image);
+    
+    await uploadTask.onComplete;
+    print('image uploaded');
+    
+    await FirebaseImage('gs://lise-99703.appspot.com/users/profile_pictures/pic1_700x700.jpg').evict();
+    
+    setState(() {
+    });
+  }
   
   
-
+  
   /**
   Future<void> _checkCurrentUser() async {
     await _auth.currentUser().then((u) async{
@@ -547,6 +582,7 @@ class HeadingItem implements ListItem {
 
   HeadingItem(this.heading);
 
+  @override
   Widget buildTitle(BuildContext context) {
     return Text(
       heading,
@@ -554,6 +590,7 @@ class HeadingItem implements ListItem {
     );
   }
 
+  @override
   Widget buildSubtitle(BuildContext context) => null;
 }
 
@@ -564,7 +601,9 @@ class MessageItem implements ListItem {
 
   MessageItem(this.sender, this.body);
 
+  @override
   Widget buildTitle(BuildContext context) => Text(sender);
 
+  @override
   Widget buildSubtitle(BuildContext context) => Text(body);
 }
