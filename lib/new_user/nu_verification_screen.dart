@@ -11,7 +11,7 @@ class VerifyScreen extends StatefulWidget {
   VerifyScreen({this.user, this.email, this.password});
 
   @override
-  VerifyScreenState createState() => new VerifyScreenState(user: this.user, email: this.email, password: this.password);
+  VerifyScreenState createState() => VerifyScreenState(user: user, email: email, password: password);
 }
 
 class VerifyScreenState extends State<VerifyScreen> {
@@ -25,28 +25,28 @@ class VerifyScreenState extends State<VerifyScreen> {
 
   bool _notVerified = false;
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
-    String email = user.email;
+    var email = user.email;
     // wait 5 secs and _sendVerification();
     _sendVerification();
     return Scaffold(
       key: _scaffoldKey,
-      appBar: new AppBar(
-        title: new Text("LISA"),
+      appBar: AppBar(
+        title: Text('LISA'),
         elevation: 4.0,
       ),
       body: Container (
         padding: const EdgeInsets.all(16.0),
-        decoration: new BoxDecoration(color: Colors.white),
+        decoration: BoxDecoration(color: Colors.white),
         child: Column (
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              "A VERIFICATION EMAIL WAS SENT TO $email",
+              'A VERIFICATION EMAIL WAS SENT TO $email',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20.0,
@@ -58,19 +58,19 @@ class VerifyScreenState extends State<VerifyScreen> {
             ),
             Text(
               (_notVerified)
-              ? "Account not verified"
-              : " ",
+              ? 'Account not verified'
+              : ' ',
               style: TextStyle(
                 color: Colors.red
               ),
             ),
             RaisedButton(
-              child: new Text("CONTINUE TO LISA"), 
+              child: Text('CONTINUE TO LISA'), 
               onPressed: () async {
                 user = await _auth.currentUser();
                 await user.reload();
                 if (user.isEmailVerified) {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()));
+                  await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()));
                 }
                 else {
                   setState(() {
@@ -84,7 +84,7 @@ class VerifyScreenState extends State<VerifyScreen> {
             ),
             MaterialButton(
               child: Text(
-                "RESEND VERIFICATION LINK",
+                'RESEND VERIFICATION LINK',
                 style: TextStyle(
                   fontSize: 14
                 ),
@@ -99,7 +99,7 @@ class VerifyScreenState extends State<VerifyScreen> {
                   ),
                 );
                 _scaffoldKey.currentState.showSnackBar(snackBar);
-                _sendVerification();
+                await _sendVerification();
               }
             ),
           ],
@@ -112,7 +112,7 @@ class VerifyScreenState extends State<VerifyScreen> {
   Future<FirebaseUser> _sendVerification() async {
     try {
       await user.sendEmailVerification();
-      print("Verification email sent");
+      print('Verification email sent');
       final snackBar = SnackBar(
         content: Text(
           'Email sent',

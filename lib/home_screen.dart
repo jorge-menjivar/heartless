@@ -3,6 +3,9 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:image/image.dart' as image_package;
+import 'package:path_provider/path_provider.dart';
 import 'main.dart';
 import 'messages/m_p_matches_screen.dart';
 import 'convo_completion/select_matches_screen.dart';
@@ -14,7 +17,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 // Storage
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_image/firebase_image.dart';
+import 'package:flutter_advanced_networkimage/provider.dart';
 
 // Tools
 import 'package:flutter/cupertino.dart';
@@ -58,7 +61,6 @@ class InitPage extends StatefulWidget {
 }
 
 class InitPageState extends State<InitPage> with WidgetsBindingObserver {
-  File _image;
 
   InitPageState({this.user, this.username});
 
@@ -68,232 +70,256 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   final secureStorage = FlutterSecureStorage();
 
   ScrollController _scrollController;
+  
+  String _profilePicImageLink = 'http://loading';
+  
+  final double _profilePicSize = 200;
+  
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  
 
   @override
   void initState() {
-    _scrollController = ScrollController();
     super.initState();
+    _loadProfilePicture();
+    _scrollController = ScrollController();
     //TODO _checkCurrentUser();
   }
+  
+  
+   void _loadProfilePicture() async {
+      final storageReference = FirebaseStorage().ref().child('users/profile_pictures/pic1.jpg');
+      _profilePicImageLink = await storageReference.getDownloadURL();
+      print(_profilePicImageLink);
+      setState(() {});
+      return;
+   }
   
   
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: DefaultTabController(
-            length: 3,
-            child: NestedScrollView(
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) {
-                return <Widget>[
-                  SliverOverlapAbsorber(
-                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                        context),
-                    sliver: SliverSafeArea(
-                      bottom: false,
-                      top: false,
-                      sliver: SliverAppBar(
-                        centerTitle: true,
-                        title: Text(
-                          'LISA',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.0,
-                          ),
-                        ),
-                        expandedHeight: 140.0,
-                        floating: true,
-                        pinned: true,
-                        snap: false,
-                        flexibleSpace: FlexibleSpaceBar(
-                          collapseMode: CollapseMode.pin,
-                          background: Image.network(
-                            'https://c2.staticflickr.com/6/5283/5321712546_e9c3d4d4c1_b.jpg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        bottom: TabBar(
-                          labelColor: Colors.white,
-                          unselectedLabelColor: Colors.grey,
-                          tabs: [
-                            Tab(
-                              icon: Icon(Icons.search),
-                            ),
-                            Tab(
-                              icon: Icon(Icons.message),
-                            ),
-                            Tab(
-                              icon: Icon(Icons.person),
-                            ),
-                          ],
-                        ),
+      key: _scaffoldKey,
+      body: DefaultTabController(
+        length: 3,
+        child: NestedScrollView(
+          headerSliverBuilder:
+              (BuildContext context, bool innerBoxIsScrolled) {
+            return <Widget>[
+              SliverOverlapAbsorber(
+                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                    context),
+                child: SliverSafeArea(
+                  bottom: false,
+                  top: false,
+                  sliver: SliverAppBar(
+                    centerTitle: true,
+                    title: Text(
+                      'LISA',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
                       ),
                     ),
-                  )
-                ];
-              },
-              body: TabBarView(children: [
-                
-                ///------------------------------------ POTENTIAL MATCHES -----------------------------------------
-                StreamBuilder<QuerySnapshot>(
-                  stream: Firestore.instance
-                      .collection('users')
-                      .document('user1')
-                      .collection('data_generated')
-                      .document('user_rooms')
-                      .collection('p_matches')
-                      .snapshots(),
-                  builder: _buildPMatchesTiles
-                ),
-                
-                
-                ///------------------------------------------- MATCHES ---------------------------------------------
-                StreamBuilder<QuerySnapshot>(
-                  stream: Firestore.instance
-                      .collection('users')
-                      .document('user1')
-                      .collection('data_generated')
-                      .document('user_rooms')
-                      .collection('matches')
-                      .snapshots(),
-                  builder: _buildMatchesTiles
-                ),
-                
-                ///------------------------------------------- PROFILE ---------------------------------------------
-                ListView(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(1),
-                  children: <Widget>[
-                    ListTile(
-                      leading: Text(
-                        'PROFILE',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          color: white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    expandedHeight: 140.0,
+                    floating: true,
+                    pinned: true,
+                    snap: false,
+                    flexibleSpace: FlexibleSpaceBar(
+                      collapseMode: CollapseMode.pin,
+                      background: Image.network(
+                        'https://c2.staticflickr.com/6/5283/5321712546_e9c3d4d4c1_b.jpg',
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    Center(
-                      child: SizedBox(
-                          width: 200,
-                          height: 200,
-                          child: CupertinoButton(
-                            child: Container(
-                                decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                image: FirebaseImage(
-                                  'gs://lise-99703.appspot.com/users/profile_pictures/pic1.jpg',
-                                  shouldCache: false),
-                                fit: BoxFit.cover,
+                    bottom: TabBar(
+                      labelColor: Colors.white,
+                      unselectedLabelColor: Colors.grey,
+                      tabs: [
+                        Tab(
+                          icon: Icon(Icons.search),
+                        ),
+                        Tab(
+                          icon: Icon(Icons.message),
+                        ),
+                        Tab(
+                          icon: Icon(Icons.person),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ];
+          },
+          body: TabBarView(children: [
+            
+            ///------------------------------------ POTENTIAL MATCHES -----------------------------------------
+            StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance
+                  .collection('users')
+                  .document('user1')
+                  .collection('data_generated')
+                  .document('user_rooms')
+                  .collection('p_matches')
+                  .snapshots(),
+              builder: _buildPMatchesTiles
+            ),
+            
+            
+            ///------------------------------------------- MATCHES ---------------------------------------------
+            StreamBuilder<QuerySnapshot>(
+              stream: Firestore.instance
+                  .collection('users')
+                  .document('user1')
+                  .collection('data_generated')
+                  .document('user_rooms')
+                  .collection('matches')
+                  .snapshots(),
+              builder: _buildMatchesTiles
+            ),
+            
+            ///------------------------------------------- PROFILE ---------------------------------------------
+            ListView(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(1),
+              children: <Widget>[
+                ListTile(
+                  leading: Text(
+                    'PROFILE',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Center(
+                  child: SizedBox(
+                    width: _profilePicSize,
+                    height: _profilePicSize,
+                    child: CupertinoButton(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: AdvancedNetworkImage(
+                                _profilePicImageLink,
+                                useDiskCache: true,
                               ),
-                            )),
-                            onPressed: getImageFromGallery
-                          )),
-                    ),
-                    Divider(),
-                    Divider(color: white),
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: Icon(
-                            Icons.person,
-                            color: white,
-                          ),
-                          title: Text(
-                            'Personal information',
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          subtitle: Text(
-                            'Age, gender, height, weight, etc.',
-                            style: _subFont,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                          ),
-                          onLongPress: () {},
-                          onTap: () {
-                            setState(() {});
-                          }),
-                    ),
-                    Divider(),
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: Icon(
-                            Icons.search,
-                            color: white,
-                          ),
-                          title: Text(
-                            'I am looking for',
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          subtitle: Text(
-                            'Gender, type of relationship, etc.',
-                            style: _subFont,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                          ),
-                          onLongPress: () {},
-                          onTap: () {
-                            setState(() {});
-                          }),
-                    ),
-                    Divider(),
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: Icon(
-                            Icons.compare_arrows,
-                            color: white,
-                          ),
-                          title: Text(
-                            'My way of living',
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          subtitle: Text(
-                            'Interests, passions, hobbies, kinks, etc.',
-                            style: _subFont,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                          ),
-                          onLongPress: () {},
-                          onTap: () {
-                            setState(() {});
-                          }),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: Icon(
-                            Icons.exit_to_app,
-                            color: white,
-                          ),
-                          title: Text(
-                            'SIGN OUT',
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          onTap: () {
-                            FirebaseAuth.instance.signOut();
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoadingPage()));
-                          }),
-                    ),
-                  ],
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        ),
+                        onPressed: getImageFromGallery
+                    )
+                  ),
                 ),
-              ]),
-            )));
+                Divider(),
+                Divider(color: white),
+                Container(
+                  decoration: BoxDecoration(),
+                  child: ListTile(
+                      dense: true,
+                      leading: Icon(
+                        Icons.person,
+                        color: white,
+                      ),
+                      title: Text(
+                        'Personal information',
+                        textAlign: TextAlign.left,
+                        style: _biggerFont,
+                      ),
+                      subtitle: Text(
+                        'Age, gender, height, weight, etc.',
+                        style: _subFont,
+                        textAlign: TextAlign.left,
+                        maxLines: 1,
+                      ),
+                      onLongPress: () {},
+                      onTap: () {
+                        setState(() {});
+                      }),
+                ),
+                Divider(),
+                Container(
+                  decoration: BoxDecoration(),
+                  child: ListTile(
+                      dense: true,
+                      leading: Icon(
+                        Icons.search,
+                        color: white,
+                      ),
+                      title: Text(
+                        'I am looking for',
+                        textAlign: TextAlign.left,
+                        style: _biggerFont,
+                      ),
+                      subtitle: Text(
+                        'Gender, type of relationship, etc.',
+                        style: _subFont,
+                        textAlign: TextAlign.left,
+                        maxLines: 1,
+                      ),
+                      onLongPress: () {},
+                      onTap: () {
+                        setState(() {});
+                      }),
+                ),
+                Divider(),
+                Container(
+                  decoration: BoxDecoration(),
+                  child: ListTile(
+                      dense: true,
+                      leading: Icon(
+                        Icons.compare_arrows,
+                        color: white,
+                      ),
+                      title: Text(
+                        'My way of living',
+                        textAlign: TextAlign.left,
+                        style: _biggerFont,
+                      ),
+                      subtitle: Text(
+                        'Interests, passions, hobbies, kinks, etc.',
+                        style: _subFont,
+                        textAlign: TextAlign.left,
+                        maxLines: 1,
+                      ),
+                      onLongPress: () {},
+                      onTap: () {
+                        setState(() {});
+                      }),
+                ),
+                Container(
+                  decoration: BoxDecoration(),
+                  child: ListTile(
+                    dense: true,
+                    leading: Icon(
+                      Icons.exit_to_app,
+                      color: white,
+                    ),
+                    title: Text(
+                      'SIGN OUT',
+                      textAlign: TextAlign.left,
+                      style: _biggerFont,
+                    ),
+                    onTap: () {
+                      FirebaseAuth.instance.signOut();
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoadingPage()));
+                    }
+                  ),
+                ),
+              ],
+            ),
+          ]),
+        )
+      )
+    );
   }
 
   Widget _buildPMatchesTiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -526,25 +552,61 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   
   /// Gets image from gallery and uploads it to firebase storage
   Future getImageFromGallery() async {
-    setState(() {
-    });
+    
+    // Open gallery to select picture
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
     
+    // making sure a picture was selected from the gallery
     if (image == null) {
       return;
     }
     
+    // Decoding Image before resizing
+    var decodedImage = image_package.decodeImage(image.readAsBytesSync());
     
+    // Making a copy and resizing
+    var resizedImageCopy = image_package.copyResize(decodedImage, width: 1000, height: 1000);
+    
+    // Saving resized copy into a new file
+    var appDocDirectory = await getApplicationDocumentsDirectory();
+    var resizedImage = File('${appDocDirectory.path}/resizedImage.jpg');
+    resizedImage.writeAsBytesSync(image_package.encodeJpg(resizedImageCopy));
+    
+    // Compressing the resized file
+    var compressedResizedFile = await FlutterImageCompress.compressAndGetFile(
+      '${appDocDirectory.path}/resizedImage.jpg',
+      '${appDocDirectory.path}/compressedResizedImage.jpg',
+      quality: 35,
+    );
+    
+    // Notifying user that the image is being uploaded through snackbar
+    final snackBar = SnackBar(
+      content: Text(
+        'Uploading image',
+      ),
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
+    
+    // Creating reference to storage path
     final storageReference = FirebaseStorage().ref().child('users/profile_pictures/pic1.jpg');
     
-    final uploadTask = storageReference.putFile(image);
+    // Uploading picture
+    final uploadTask = storageReference.putFile(compressedResizedFile);
     
+    // Wait until has been completely uploaded
     await uploadTask.onComplete;
     print('image uploaded');
     
-    await FirebaseImage('gs://lise-99703.appspot.com/users/profile_pictures/pic1_700x700.jpg').evict();
+    // Get the link to the picture we just uploaded
+    _profilePicImageLink = await storageReference.getDownloadURL();
     
+    print(_profilePicImageLink);
+    
+    // Update the image widget
     setState(() {
+      print('updating state');
+      // Hide snackbar notification
+      _scaffoldKey.currentState.hideCurrentSnackBar();
     });
   }
   
