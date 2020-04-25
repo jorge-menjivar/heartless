@@ -564,18 +564,18 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     // Decoding Image before resizing
     var decodedImage = image_package.decodeImage(image.readAsBytesSync());
     
-    // Making a copy and resizing
-    var resizedImageCopy = image_package.copyResize(decodedImage, width: 1000, height: 1000);
     
-    // Saving resized copy into a new file
+    // Making a copy of the copy and cropping and resizing
+    var editedImage = image_package.copyResizeCropSquare(decodedImage, 1000);
+    
     var appDocDirectory = await getApplicationDocumentsDirectory();
-    var resizedImage = File('${appDocDirectory.path}/resizedImage.jpg');
-    resizedImage.writeAsBytesSync(image_package.encodeJpg(resizedImageCopy));
+    var croppedResizedImage = File('${appDocDirectory.path}/croppedResizedImage.jpg');
+    croppedResizedImage.writeAsBytesSync(image_package.encodeJpg(editedImage));
     
     // Compressing the resized file
-    var compressedResizedFile = await FlutterImageCompress.compressAndGetFile(
-      '${appDocDirectory.path}/resizedImage.jpg',
-      '${appDocDirectory.path}/compressedResizedImage.jpg',
+    var compressedCroppedResizedFile = await FlutterImageCompress.compressAndGetFile(
+      '${appDocDirectory.path}/croppedResizedImage.jpg',
+      '${appDocDirectory.path}/compressedCroppedResizedImage.jpg',
       quality: 35,
     );
     
@@ -591,7 +591,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     final storageReference = FirebaseStorage().ref().child('users/profile_pictures/pic1.jpg');
     
     // Uploading picture
-    final uploadTask = storageReference.putFile(compressedResizedFile);
+    final uploadTask = storageReference.putFile(compressedCroppedResizedFile);
     
     // Wait until has been completely uploaded
     await uploadTask.onComplete;
