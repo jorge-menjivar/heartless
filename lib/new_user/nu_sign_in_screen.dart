@@ -2,10 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'nu_verification_screen.dart';
-import 'package:lise/home_screen.dart';
 import 'package:lise/main.dart';
-
-import 'nu_username_screen.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,84 +11,83 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class MySignInScreen extends StatefulWidget {
 
   @override
-  SignInScreenState createState() => new SignInScreenState();
+  SignInScreenState createState() => SignInScreenState();
 }
 
 class SignInScreenState extends State<MySignInScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   
-  StreamSubscription<FirebaseUser> _listener;
-
-  final secureStorage = new FlutterSecureStorage();
-
+  final secureStorage = FlutterSecureStorage();
+  
   FirebaseUser user;
-
+  
   bool wrong = false;
-
-
+  
   bool _firstTry = true;
-  int _counter = 0;
-  final TextEditingController _controllerEmail = new TextEditingController();
-  final TextEditingController _controllerPassword = new TextEditingController();
+  
+  final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerPassword = TextEditingController();
   final _emailFieldKey = GlobalKey<FormFieldState>();
   final _passwordFieldKey = GlobalKey<FormFieldState>();
-
+  
   @override
   Widget build(BuildContext context) {
-    return new WillPopScope(
+    return WillPopScope(
       onWillPop: () async => false,
-        child: new Scaffold(
-        appBar: new AppBar(
-          title: new Text("SIGN IN"),
+        child: Scaffold(
+        appBar: AppBar(
+          title: Text('SIGN IN'),
           elevation: 4.0,
         ),
         body: Container(
-              decoration: new BoxDecoration(color: Colors.white),
+              decoration: BoxDecoration(color: Colors.white),
               padding: const EdgeInsets.all(16.0),
-              child: new Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  new TextFormField(
+                  TextFormField(
                     key: _emailFieldKey,
                     controller: _controllerEmail,
                     keyboardType: TextInputType.text,
                     autocorrect: false,
                     autofocus: true,
                     autovalidate: true,
-                    decoration: new InputDecoration(
+                    decoration: InputDecoration(
                       icon: Icon(Icons.email),
-                      labelText: "Email",
+                      labelText: 'Email',
                     ),
                     validator: (email) {
-                      if (_firstTry == false && email.length < 4)
+                      if (_firstTry == false && email.length < 4) {
                         return 'Check length';
-                      else if (_firstTry == false && (!email.contains(new RegExp(r'[@]')) || !email.contains(new RegExp(r'[.]'))))
+                      } 
+                      else if (_firstTry == false && (!email.contains(RegExp(r'[@]')) || !email.contains(RegExp(r'[.]')))) {
                         return 'Email not valid';
+                      } 
                       else {
                         return null;
                       }
                     },
                   ),
 
-                  new TextFormField(
+                  TextFormField(
                     key: _passwordFieldKey,
                     controller: _controllerPassword,
                     keyboardType: TextInputType.text,
                     autocorrect: false,
                     autofocus: true,
                     autovalidate: true,
-                    decoration: new InputDecoration(
+                    decoration: InputDecoration(
                       icon: Icon(Icons.lock),
-                      labelText: "Password",
-                      hintText: "Password",
+                      labelText: 'Password',
+                      hintText: 'Password',
                     ),
                   ),
-                  new Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        (wrong) ? "Information not valid" : '',
+                        (wrong) ? 'Information not valid' : '',
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.red
@@ -99,8 +95,8 @@ class SignInScreenState extends State<MySignInScreen> {
                       )
                     ],
                   ),
-                  new RaisedButton(
-                      child: new Text("CONTINUE TO LISA"),
+                  RaisedButton(
+                      child: Text('CONTINUE TO LISA'),
                       onPressed: () {
                           _firstTry = false;
                           _handleSignIn(_controllerEmail.text.toString(), _controllerPassword.text.toString());
@@ -126,7 +122,11 @@ class SignInScreenState extends State<MySignInScreen> {
 
   Future<FirebaseUser> _handleSignIn(String e, String p) async {
     try {
-      final FirebaseUser user = (await _auth.signInWithEmailAndPassword(email: e, password: p)).user;
+      var signInWithEmailAndPassword = _auth.signInWithEmailAndPassword(email: e, password: p);
+      
+      var authResult = await signInWithEmailAndPassword;
+      final user = (authResult).user;
+      
       (user.isEmailVerified) 
       ? Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()))
       : Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VerifyScreen(user: user, email: e, password: p)));

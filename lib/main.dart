@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
       title: 'LISA',
       theme: ThemeData(
         primarySwatch: black,
-        canvasColor: black,
+        canvasColor: white,
         accentColor: black,
       ),
       home: LoadingPage(),
@@ -73,11 +73,10 @@ class _LoadingPageState extends State<LoadingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: new AppBar(
-        title: new Text(""),
+      appBar: AppBar(
         elevation: 4.0,
       ),
-      body: new Container()
+      body: Container()
     );
   }
 
@@ -97,11 +96,11 @@ class _LoadingPageState extends State<LoadingPage> {
 
   Future<void> _checkVerification() async {
     if (user.isEmailVerified) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => InitPage(user: user, username: user.email)));
+      await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => InitPage(user: user, username: user.email)));
     }
     else {
-      _auth.signOut();
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
+      await _auth.signOut();
+      await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
     }
   }
   

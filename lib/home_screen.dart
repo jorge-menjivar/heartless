@@ -1,11 +1,10 @@
-import 'dart:async';
-import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:image/image.dart' as image_package;
-import 'package:path_provider/path_provider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lise/user_profile/personal_information_screen.dart';
+import 'package:lise/user_profile/profile_pictures_screen.dart';
+import 'package:lise/user_profile/search_information_screen.dart';
 import 'main.dart';
 import 'messages/m_p_matches_screen.dart';
 import 'convo_completion/select_matches_screen.dart';
@@ -21,7 +20,6 @@ import 'package:flutter_advanced_networkimage/provider.dart';
 
 // Tools
 import 'package:flutter/cupertino.dart';
-import 'package:image_picker/image_picker.dart';
 
 Map<int, Color> color = {
   50: Color.fromRGBO(0, 0, 0, .1),
@@ -40,21 +38,27 @@ MaterialColor white = MaterialColor(0xFFFFFFFF, color);
 
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
-  color: Colors.white,
+  color: Colors.black,
 );
 final _subFont = const TextStyle(
-  color: Colors.white,
+  color: Colors.black,
 );
 final _trailFont = const TextStyle(
-  color: Colors.white,
+  color: Colors.black,
 );
+final _listTitleStyle = const TextStyle(
+  color: Colors.black,
+  fontWeight: FontWeight.bold
+);
+var _iconColor = black;
 
 bool isNew = false;
 
 class InitPage extends StatefulWidget {
+  InitPage({@required this.user, this.username});
+  
   final FirebaseUser user;
   final String username;
-  InitPage({this.user, this.username});
 
   @override
   InitPageState createState() => InitPageState(user: user, username: username);
@@ -87,13 +91,13 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   }
   
   
-   void _loadProfilePicture() async {
-      final storageReference = FirebaseStorage().ref().child('users/profile_pictures/pic1.jpg');
-      _profilePicImageLink = await storageReference.getDownloadURL();
-      print(_profilePicImageLink);
-      setState(() {});
-      return;
-   }
+  Future<void> _loadProfilePicture() async {
+    final storageReference = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic1.jpg');
+    _profilePicImageLink = await storageReference.getDownloadURL();
+    print(_profilePicImageLink);
+    setState(() {});
+    return;
+  }
   
   
   
@@ -110,7 +114,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
               SliverOverlapAbsorber(
                 handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
                     context),
-                child: SliverSafeArea(
+                sliver: SliverSafeArea(
                   bottom: false,
                   top: false,
                   sliver: SliverAppBar(
@@ -138,14 +142,20 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                       unselectedLabelColor: Colors.grey,
                       tabs: [
                         Tab(
-                          icon: Icon(Icons.search),
+                          icon: FaIcon(
+                            FontAwesomeIcons.search,
+                          ),
                         ),
                         Tab(
-                          icon: Icon(Icons.message),
+                          icon: FaIcon(
+                            FontAwesomeIcons.solidCommentDots,
+                          ),
                         ),
                         Tab(
-                          icon: Icon(Icons.person),
-                        ),
+                          icon: FaIcon(
+                            FontAwesomeIcons.userAlt,
+                          ),
+                        )
                       ],
                     ),
                   ),
@@ -212,44 +222,61 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                             ),
                           )
                         ),
-                        onPressed: getImageFromGallery
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfilePicturesScreen(user: user,)
+                            )
+                          ).then((value) => _loadProfilePicture());
+                        }
                     )
                   ),
                 ),
                 Divider(),
-                Divider(color: white),
-                Container(
-                  decoration: BoxDecoration(),
-                  child: ListTile(
-                      dense: true,
-                      leading: Icon(
-                        Icons.person,
-                        color: white,
-                      ),
-                      title: Text(
-                        'Personal information',
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      subtitle: Text(
-                        'Age, gender, height, weight, etc.',
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      onLongPress: () {},
-                      onTap: () {
-                        setState(() {});
-                      }),
+                Divider(
+                  color: Colors.transparent
                 ),
-                Divider(),
+                Container(
+                  decoration: BoxDecoration(),
+                  child: ListTile(
+                    dense: true,
+                    leading: FaIcon(
+                        FontAwesomeIcons.userAlt,
+                        color: black,
+                      ),
+                    title: Text(
+                      'Personal information',
+                      textAlign: TextAlign.left,
+                      style: _biggerFont,
+                    ),
+                    subtitle: Text(
+                      'Age, gender, height, weight, etc.',
+                      style: _subFont,
+                      textAlign: TextAlign.left,
+                      maxLines: 1,
+                    ),
+                    onLongPress: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PersonalInformationScreen(user: user,)
+                        )
+                      );
+                    }
+                  ),
+                ),
+                Divider(
+                  color: white
+                ),
                 Container(
                   decoration: BoxDecoration(),
                   child: ListTile(
                       dense: true,
-                      leading: Icon(
-                        Icons.search,
-                        color: white,
+                      leading: FaIcon(
+                        FontAwesomeIcons.search,
+                        color: black,
                       ),
                       title: Text(
                         'I am looking for',
@@ -264,17 +291,24 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                       ),
                       onLongPress: () {},
                       onTap: () {
-                        setState(() {});
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchInformationScreen(user: user,)
+                          )
+                        );
                       }),
                 ),
-                Divider(),
+                Divider(
+                  color: white
+                ),
                 Container(
                   decoration: BoxDecoration(),
                   child: ListTile(
                       dense: true,
-                      leading: Icon(
-                        Icons.compare_arrows,
-                        color: white,
+                      leading: FaIcon(
+                        FontAwesomeIcons.snowboarding,
+                        color: black,
                       ),
                       title: Text(
                         'My way of living',
@@ -292,13 +326,45 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                         setState(() {});
                       }),
                 ),
+                Divider(
+                  color: Colors.transparent
+                ),
                 Container(
                   decoration: BoxDecoration(),
                   child: ListTile(
                     dense: true,
-                    leading: Icon(
-                      Icons.exit_to_app,
-                      color: white,
+                    leading: FaIcon(
+                      FontAwesomeIcons.wrench,
+                      color: black,
+                    ),
+                    title: Text(
+                      'Settings',
+                      textAlign: TextAlign.left,
+                      style: _biggerFont,
+                    ),
+                    subtitle: Text(
+                      'Notifications, Email, Phone Number, etc.',
+                      style: _subFont,
+                      textAlign: TextAlign.left,
+                      maxLines: 1,
+                    ),
+                    onLongPress: () {},
+                    onTap: () {
+                      setState(() {});
+                    }
+                  ),
+                ),
+                Divider(
+                  color: Colors.transparent
+                ),
+                Divider(),
+                Container(
+                  decoration: BoxDecoration(),
+                  child: ListTile(
+                    dense: true,
+                    leading: FaIcon(
+                      FontAwesomeIcons.signOutAlt,
+                      color: black,
                     ),
                     title: Text(
                       'SIGN OUT',
@@ -308,9 +374,11 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                     onTap: () {
                       FirebaseAuth.instance.signOut();
                       Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => LoadingPage()));
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoadingPage()
+                        )
+                      );
                     }
                   ),
                 ),
@@ -330,10 +398,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
           leading: Text(
             'POTENTIAL MATCHES',
             textAlign: TextAlign.left,
-            style: TextStyle(
-              color: white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: _listTitleStyle
           ),
         )
       ];
@@ -390,9 +455,8 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             textAlign: TextAlign.left,
             maxLines: 1,
           ),
-          trailing: Icon(
-            Icons.access_time,
-            color: white,
+          trailing: FaIcon(
+            FontAwesomeIcons.clock,
           ),
           onLongPress: () {},
           onTap: () {},
@@ -408,9 +472,9 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             textAlign: TextAlign.left,
             style: _biggerFont,
           ),
-          trailing: Icon(
-            Icons.person_add,
-            color: white,
+          trailing: FaIcon(
+            FontAwesomeIcons.userPlus,
+            color: black,
           ),
           onLongPress: () {},
           onTap: _sendPotentialMatchRequest,
@@ -446,10 +510,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
           leading: Text(
             'MATCHES',
             textAlign: TextAlign.left,
-            style: TextStyle(
-              color: white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: _listTitleStyle
           ),
         )
       ];
@@ -461,7 +522,9 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
           leading: Container(
             decoration: BoxDecoration(
                 color: Colors.red, shape: BoxShape.circle),
-            child: Icon(Icons.person),
+            child: Icon(
+              Icons.person
+            ),
           ),
           title: Text(
             document['otherUser'],
@@ -549,66 +612,6 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     
   }
   
-  
-  /// Gets image from gallery and uploads it to firebase storage
-  Future getImageFromGallery() async {
-    
-    // Open gallery to select picture
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-    
-    // making sure a picture was selected from the gallery
-    if (image == null) {
-      return;
-    }
-    
-    // Decoding Image before resizing
-    var decodedImage = image_package.decodeImage(image.readAsBytesSync());
-    
-    
-    // Making a copy of the copy and cropping and resizing
-    var editedImage = image_package.copyResizeCropSquare(decodedImage, 1000);
-    
-    var appDocDirectory = await getApplicationDocumentsDirectory();
-    var croppedResizedImage = File('${appDocDirectory.path}/croppedResizedImage.jpg');
-    croppedResizedImage.writeAsBytesSync(image_package.encodeJpg(editedImage));
-    
-    // Compressing the resized file
-    var compressedCroppedResizedFile = await FlutterImageCompress.compressAndGetFile(
-      '${appDocDirectory.path}/croppedResizedImage.jpg',
-      '${appDocDirectory.path}/compressedCroppedResizedImage.jpg',
-      quality: 35,
-    );
-    
-    // Notifying user that the image is being uploaded through snackbar
-    final snackBar = SnackBar(
-      content: Text(
-        'Uploading image',
-      ),
-    );
-    _scaffoldKey.currentState.showSnackBar(snackBar);
-    
-    // Creating reference to storage path
-    final storageReference = FirebaseStorage().ref().child('users/profile_pictures/pic1.jpg');
-    
-    // Uploading picture
-    final uploadTask = storageReference.putFile(compressedCroppedResizedFile);
-    
-    // Wait until has been completely uploaded
-    await uploadTask.onComplete;
-    print('image uploaded');
-    
-    // Get the link to the picture we just uploaded
-    _profilePicImageLink = await storageReference.getDownloadURL();
-    
-    print(_profilePicImageLink);
-    
-    // Update the image widget
-    setState(() {
-      print('updating state');
-      // Hide snackbar notification
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-    });
-  }
   
   
   

@@ -1,21 +1,13 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
-// New Convo
-import 'package:http/http.dart' as http;
-
 // Notifications
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 // Storage
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
@@ -28,11 +20,11 @@ class PMConversationScreen extends StatefulWidget {
   PMConversationScreen({this.user, this.matchName, this.username, this.room});
 
   @override
-  PMConversationScreenState createState() => new PMConversationScreenState(
-        user: this.user,
-        matchName: this.matchName,
-        username: this.username,
-        room: this.room,
+  PMConversationScreenState createState() => PMConversationScreenState(
+        user: user,
+        matchName: matchName,
+        username: username,
+        room: room,
       );
 }
 
@@ -49,18 +41,18 @@ class PMConversationScreenState extends State<PMConversationScreen>
   ScrollController _scrollController;
   final TextEditingController _textController = TextEditingController();
 
-  final String tableName = "Messages";
+  final String tableName = 'Messages';
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   var showTime;
   
   
   // Text styles
-  var sentStyle = new TextStyle(
+  var sentStyle = TextStyle(
     fontSize: 16.0,
     color: Colors.white,
   );
-  var receivedStyle = new TextStyle(
+  var receivedStyle = TextStyle(
     fontSize: 16.0,
     color: Colors.black,
   );
@@ -68,7 +60,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
   @override
   void initState() {
     super.initState();
-    _scrollController = new ScrollController();
+    _scrollController = ScrollController();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -82,29 +74,31 @@ class PMConversationScreenState extends State<PMConversationScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     try {
       var initializationSettingsAndroid =
-          new AndroidInitializationSettings('@mipmap/ic_launcher');
-      var initializationSettingsIOS = new IOSInitializationSettings();
-      var initializationSettings = new InitializationSettings(
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+      var initializationSettingsIOS = IOSInitializationSettings();
+      var initializationSettings = InitializationSettings(
           initializationSettingsAndroid, initializationSettingsIOS);
-      flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+      flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
       flutterLocalNotificationsPlugin.initialize(initializationSettings);
       flutterLocalNotificationsPlugin.cancelAll();
-    } catch (e) {}
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: new AppBar(
-        title: new Text("Conversation with " + matchName),
+      appBar: AppBar(
+        title: Text('Conversation with ' + matchName),
         elevation: 4.0,
       ),
-      body: new Builder(
+      body: Builder(
         builder: (BuildContext context) {
-          return new Column(
+          return Column(
             children: <Widget>[
-              new Flexible(
+              Flexible(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: Firestore.instance
                       .collection('messages')
@@ -114,12 +108,12 @@ class PMConversationScreenState extends State<PMConversationScreen>
                   builder: _buildMessageTiles
                 ),
               ),
-              new Divider(
+              Divider(
                 height: 1.0,
                 color: Colors.black
               ),
-              new Container(
-              decoration: new BoxDecoration(
+              Container(
+              decoration: BoxDecoration(
                 color: Theme.of(context).cardColor),
               child: _buildTextComposer(),
               ),
@@ -146,14 +140,14 @@ class PMConversationScreenState extends State<PMConversationScreen>
       var colorReceived = Colors.blueGrey[50];
       
       
-      List<ListTile> listTiles = snapshot.data.documents.reversed.where((element) => element['message'] != null).map((DocumentSnapshot document) {
+      var listTiles = snapshot.data.documents.reversed.where((element) => element['message'] != null).map((DocumentSnapshot document) {
         if (document['from'] == 'user2') {
           return ListTile(
             contentPadding: EdgeInsets.only(right: 80.0),
-            leading: new CircleAvatar(
-              child: new Text(document['from'].toUpperCase()[0])
+            leading: CircleAvatar(
+              child: Text(document['from'].toUpperCase()[0])
             ),
-            title: new Column(
+            title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
@@ -169,7 +163,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
                     color: colorReceived,
                     borderRadius: radius,
                   ),
-                  child:new Text(
+                  child:Text(
                   document['message'],
                   textAlign: TextAlign.left,
                   style: receivedStyle,
@@ -182,9 +176,9 @@ class PMConversationScreenState extends State<PMConversationScreen>
         }
         
         else {
-          return new ListTile(
+          return ListTile(
             contentPadding: EdgeInsets.only(left: 80.0),
-            title: new Column(
+            title: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
                 Container(
@@ -200,7 +194,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
                     color: colorSent,
                     borderRadius: radius,
                   ),
-                  child:new Text(
+                  child:Text(
                   document['message'],
                   textAlign: TextAlign.left,
                   style: sentStyle,
@@ -217,12 +211,12 @@ class PMConversationScreenState extends State<PMConversationScreen>
       List<Object> completeList = listTiles;
       
       if (snapshot.hasError) {
-        return new Text('Error: ${snapshot.error}');
+        return Text('Error: ${snapshot.error}');
       }
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return new Text('Loading...');
+        return Text('Loading...');
       } else {
-        return new ListView(
+        return ListView(
           physics: BouncingScrollPhysics(),
           reverse: true,
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
@@ -236,11 +230,11 @@ class PMConversationScreenState extends State<PMConversationScreen>
   
   //TODO fix bug where screen doesn't scroll up and gets blocked by keyboard
   Widget _buildTextComposer() {
-    return new Container(
+    return Container(
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: new Row(children: <Widget>[
-          new Flexible(
-            child: new TextField(
+        child: Row(children: <Widget>[
+          Flexible(
+            child: TextField(
               onTap: () {
                 Timer(
                   Duration(milliseconds: 300),
@@ -249,21 +243,21 @@ class PMConversationScreenState extends State<PMConversationScreen>
               },
               maxLines: null,
               controller: _textController,
-              onSubmitted: _handleSubmitted,
+              onSubmitted: _sendMessage,
               decoration:
-                  new InputDecoration.collapsed(hintText: "Write a message"),
+                  InputDecoration.collapsed(hintText: 'Write a message'),
             ),
           ),
-          new Container(
-            margin: new EdgeInsets.symmetric(horizontal: 0.0),
-            child: new IconButton(
-                icon: new Icon(
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 0.0),
+            child: IconButton(
+                icon: Icon(
                   Icons.send,
                   color: Colors.purple),
                   iconSize: 28,
                 onPressed: () {
-                  if (_textController.text.contains(new RegExp(r'\S'))) {
-                    _handleSubmitted(_textController.text);
+                  if (_textController.text.contains(RegExp(r'\S'))) {
+                    _sendMessage(_textController.text);
                   }
                 }),
           ),
@@ -274,22 +268,22 @@ class PMConversationScreenState extends State<PMConversationScreen>
   
   String _getTime (int time) {
     var dt = DateTime.fromMillisecondsSinceEpoch(time);
-    return "${dt.hour}:${dt.minute}";
+    return '${dt.hour}:${dt.minute}';
   }
   
   
   
   Widget _sentTimeRow (int secs) {
     var dt = DateTime.fromMillisecondsSinceEpoch(secs);
-    var time = "${dt.hour}:${dt.minute}";
+    var time = '${dt.hour}:${dt.minute}';
     return Row(mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
-        new Container(
+        Container(
           margin: const EdgeInsets.only(right : 3.0),
-          child: new Text(
+          child: Text(
             time.toString(),
             textAlign: TextAlign.right,
-            style: new TextStyle(
+            style: TextStyle(
               fontSize: 12.0
             ),
           ),
@@ -304,11 +298,11 @@ class PMConversationScreenState extends State<PMConversationScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        new Container(
-          child: new Text(
+        Container(
+          child: Text(
             time.toString(),
             textAlign: TextAlign.left,
-            style: new TextStyle(
+            style: TextStyle(
               fontSize: 12.0
             ),
           ),
@@ -318,12 +312,11 @@ class PMConversationScreenState extends State<PMConversationScreen>
   }
 
   // Creating message and sending its values to cloud firestore.
-  _handleSubmitted(String text) async{
-    
+  void _sendMessage(String text) async{
     print (user.uid.toString());
     _textController.clear();
     var sTime = DateTime.now().millisecondsSinceEpoch.toString();
-    Firestore.instance
+    await Firestore.instance
       .collection('messages')
       .document('rooms')
       .collection(room)
@@ -340,10 +333,11 @@ class PMConversationScreenState extends State<PMConversationScreen>
           Duration(milliseconds: 100),
           () => _scrollController
             .jumpTo(_scrollController.position.minScrollExtent));
-          print("Document successfully written!");
+          print('Document successfully written!');
       })
       .catchError((error) {
-          print("Error writing document: " + error.toString());
-      });
+          print('Error writing document: ' + error.toString());
+      }
+    );
   }
 }

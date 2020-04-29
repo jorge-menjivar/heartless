@@ -20,7 +20,7 @@ class UsernameScreen extends StatefulWidget {
 
   UsernameScreen(this.user);
   @override
-  createState() => UsernameScreenState(user: user);
+  UsernameScreenState createState() => UsernameScreenState(user: user);
 }
 
 class UsernameScreenState extends State<UsernameScreen> {

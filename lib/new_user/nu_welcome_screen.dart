@@ -9,7 +9,7 @@ class WelcomeScreen extends StatefulWidget {
   WelcomeScreen({this.user});
 
   @override
-  WelcomeScreenState createState() => new WelcomeScreenState();
+  WelcomeScreenState createState() => WelcomeScreenState();
 }
 
 class WelcomeScreenState extends State<WelcomeScreen> {
@@ -19,28 +19,28 @@ class WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: new AppBar(
-        title: new Text("LISA"),
+      appBar: AppBar(
+        title: Text('LISA'),
         elevation: 4.0,
       ),
-      body: new Container(
+      body: Container(
         padding: const EdgeInsets.all(16.0),
-        decoration: new BoxDecoration(color: Colors.white),
-        child: new Column(
+        decoration: BoxDecoration(color: Colors.white),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            new Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                new Text("Welcome to LISA"),
+                Text('Welcome to LISA'),
               ],
             ),
-            new SizedBox(
+            SizedBox(
               height: 32.0,
             ),
-            new RaisedButton(
-              child: new Text("SIGN IN"), onPressed: (){
+            RaisedButton(
+              child: Text('SIGN IN'), onPressed: (){
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MySignInScreen()));
               }
             )
