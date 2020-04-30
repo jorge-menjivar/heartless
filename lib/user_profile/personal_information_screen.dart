@@ -13,6 +13,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // Tools
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as image_package;
+import 'package:lise/user_profile/personal/edit_name.dart';
 import 'package:lise/user_profile/personal/gender_screen.dart';
 
 
@@ -75,6 +76,7 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
   
   DateTime _birthday;
   String _gender;
+  String _name;
   
   @override
   void initState() {
@@ -100,6 +102,7 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
         if (!doc.exists) {
           print('No data document!');
         } else {
+          _name = doc.data['name'];
           _birthday = DateTime.fromMillisecondsSinceEpoch(doc.data['birthday']);
           gender = doc.data['gender'];
         }
@@ -141,6 +144,45 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
         controller: _scrollController,
         physics: BouncingScrollPhysics(),
         children: <Widget>[
+          Divider(
+            color: Colors.transparent
+          ),
+          ListTile(
+            leading: FaIcon(
+              FontAwesomeIcons.signature,
+              color: black,
+            ),
+            title: Row(
+              children: <Widget>[
+                Text(
+                  _name,
+                  style: _biggerFont,
+                ),
+              ],
+            ),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditNameScreen(user: user,)
+                )
+              ).then((value) => _downloadData());
+            }
+          ),
+          Container (
+            padding: EdgeInsets.all(10),
+            color: white[50],
+            child: Flexible(
+                child: 
+                  Center(
+                    child: Text(
+                      'Your potential match is able to see your name in the conversation screen,\n\nbut your name will NOT be displayed next to your pictures until you have matched',
+                      textAlign: TextAlign.center,
+                      style: _subFont,
+                    )
+              ),
+            ),
+          ),
           Divider(
             color: Colors.transparent
           ),

@@ -78,9 +78,7 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
   
   RangeValues _ageRange = RangeValues(18, 30);
   
-  double _distance = 4/0.62;
-  
-  Key _sliderKey;
+  double _distance = 20;
   
   
   
@@ -109,6 +107,9 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
           print('No data document!');
         } else {
           gender = doc.data['gender'];
+          _ageRange = RangeValues(doc.data['age_min'].toDouble(), doc.data['age_max'].toDouble());
+          
+          _distance = doc.data['max_distance'].toDouble();
         }
       });
     
@@ -151,7 +152,7 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
           ),
           ListTile(
             leading: FaIcon(
-              FontAwesomeIcons.smile,
+              FontAwesomeIcons.solidHeart,
               color: black,
             ),
             title: Text(
@@ -172,9 +173,12 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
               ).then((value) => _downloadData());
             }
           ),
+          Divider(
+            color: Colors.transparent
+          ),
           ListTile(
             leading: FaIcon(
-              FontAwesomeIcons.calendar,
+              FontAwesomeIcons.calendarAlt,
               color: black,
             ),
             title: Text(
@@ -183,7 +187,10 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
               style: _biggerFont,
             ),
             trailing: Text(
-              '${_ageRange.start.floor()} - ${_ageRange.end.floor()}',
+              (_ageRange.end.round() != 50)
+              ? ('${_ageRange.start.round()} - ${_ageRange.end.round()}')
+              : ('${_ageRange.start.round()} - ${_ageRange.end.round()}+'),
+              textAlign: TextAlign.end,
               style: _biggerFont,
             ),
             onLongPress: () {},
@@ -197,19 +204,106 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
             }
           ),
           RangeSlider(
-            labels: RangeLabels('${_ageRange.start.floor()}','${_ageRange.end.floor()}'),
+            labels: (_ageRange.end.round() != 50)
+              ? RangeLabels('${_ageRange.start.round()}','${_ageRange.end.round()}')
+              : RangeLabels('${_ageRange.start.round()}','${_ageRange.end.round()}+'),
+            divisions: 32,
             min: 18,
-            max: 55,
+            max: 50,
             values: _ageRange,
-            onChanged: (value) => {
+            onChangeEnd: (value) async {
+              await _saveAge();
+            },
+            onChanged: (value) {
               setState(() {
-                _ageRange = RangeValues(value.start.floor().toDouble(), value.end.floor().toDouble());
-              })
+                _ageRange = RangeValues(value.start.round().toDouble(), value.end.round().toDouble());
+              });
             }
           ),
+          Divider(
+            color: Colors.transparent
+          ),
+          ListTile(
+            leading: FaIcon(
+              FontAwesomeIcons.streetView,
+              color: black,
+            ),
+            title: Text(
+              'Maximum Distance',
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            trailing: Text(
+              '${_distance.round()} miles',
+              style: _biggerFont,
+            ),
+            onLongPress: () {},
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GenderSearchScreen(user: user,)
+                )
+              ).then((value) => _downloadData());
+            }
+          ),
+          Slider(
+            label: '${_distance.round()} miles',
+            value: _distance,
+            divisions: 40,
+            min: 0,
+            max: 40,
+            onChangeEnd: (value) async {
+              await _saveDistance();
+            },
+            onChanged: (value) {
+              setState(() {
+                _distance = value.round().toDouble();
+              });
+            }
+          )
           
         ],
       )
+    );
+  }
+  
+  
+  Future<void> _saveAge() async {
+    await Firestore.instance
+      .collection('users')
+      .document(user.uid)
+      .collection('data')
+      .document('search').setData(
+        <String, dynamic>{
+          'age_min': _ageRange.start.round(),
+          'age_max': _ageRange.end.round(),
+        },
+        merge: true
+      )
+      .catchError((error) {
+          print('Error writing document: ' + error.toString());
+      }
+    );
+  }
+  
+  
+  
+  Future<void> _saveDistance() async {
+    await Firestore.instance
+      .collection('users')
+      .document(user.uid)
+      .collection('data')
+      .document('search').setData(
+        <String, dynamic>{
+          'max_distance': _distance,
+          'distance_unit' : 'mile',
+        },
+        merge: true
+      )
+      .catchError((error) {
+          print('Error writing document: ' + error.toString());
+      }
     );
   }
 

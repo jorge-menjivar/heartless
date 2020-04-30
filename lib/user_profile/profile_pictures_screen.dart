@@ -54,11 +54,11 @@ class ProfilePicturesScreenState extends State<ProfilePicturesScreen> {
   @override
   void initState() {
     super.initState();
-    _loadProfilePicture();
+    _loadProfilePictures();
     _scrollController = ScrollController();
   }
   
-   void _loadProfilePicture() async {
+   void _loadProfilePictures() async {
     try {
       _storageReference1 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic1.jpg');
     }

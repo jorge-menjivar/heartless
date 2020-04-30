@@ -24,7 +24,6 @@ class UsernameScreen extends StatefulWidget {
 }
 
 class UsernameScreenState extends State<UsernameScreen> {
-  final TextEditingController _controllerUsername = new TextEditingController();
   final FirebaseUser user;
   final secureStorage = new FlutterSecureStorage();
 
@@ -36,6 +35,7 @@ class UsernameScreenState extends State<UsernameScreen> {
   int _counter = 0;
 
   final TextEditingController _controllerPassword = new TextEditingController();
+  final TextEditingController _controllerUsername = new TextEditingController();
   final _formFieldKey = GlobalKey<FormFieldState>();
 
   final _passwordFieldKey = GlobalKey<FormFieldState>();

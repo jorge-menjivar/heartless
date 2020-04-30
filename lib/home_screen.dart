@@ -1,4 +1,5 @@
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -52,6 +53,8 @@ final _listTitleStyle = const TextStyle(
 );
 var _iconColor = black;
 
+Color _pictureCardColor = Colors.white;
+
 bool isNew = false;
 
 class InitPage extends StatefulWidget {
@@ -74,30 +77,76 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   final secureStorage = FlutterSecureStorage();
 
   ScrollController _scrollController;
+  ScrollController _innerScrollController;
   
-  String _profilePicImageLink = 'http://loading';
-  
-  final double _profilePicSize = 200;
+  final double _profilePicSize = 280;
   
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   
-
+  String _profilePicImageLink1 = 'http://loading';
+  String _profilePicImageLink2 = 'http://loading';
+  String _profilePicImageLink3 = 'http://loading';
+  String _profilePicImageLink4 = 'http://loading';
+  String _profilePicImageLink5 = 'http://loading';
+  
+  StorageReference _storageReference1;
+  StorageReference _storageReference2;
+  StorageReference _storageReference3;
+  StorageReference _storageReference4;
+  StorageReference _storageReference5;
+  
+  
   @override
   void initState() {
     super.initState();
-    _loadProfilePicture();
+    _loadProfilePictures();
     _scrollController = ScrollController();
+    _innerScrollController = ScrollController();
     //TODO _checkCurrentUser();
   }
   
   
-  Future<void> _loadProfilePicture() async {
-    final storageReference = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic1.jpg');
-    _profilePicImageLink = await storageReference.getDownloadURL();
-    print(_profilePicImageLink);
+  void _loadProfilePictures() async {
+    try {
+      _storageReference1 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic1.jpg');
+    }
+    catch (e) {
+      print (e);
+    }
+    try {
+      _storageReference2 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic2.jpg');
+    }
+    catch (e) {
+      print (e);
+    }
+    try {
+      _storageReference3 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic3.jpg');
+    }
+    catch (e) {
+      print (e);
+    }
+    try {
+      _storageReference4 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic4.jpg');
+    }
+    catch (e) {
+      print (e);
+    }
+    try {
+      _storageReference5 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic5.jpg');
+    }
+    catch (e) {
+      print (e);
+    }
+    
+    _profilePicImageLink1 = await _storageReference1.getDownloadURL();
+    _profilePicImageLink2 = await _storageReference2.getDownloadURL();
+    _profilePicImageLink3 = await _storageReference3.getDownloadURL();
+    _profilePicImageLink4 = await _storageReference4.getDownloadURL();
+    _profilePicImageLink5 = await _storageReference5.getDownloadURL();
+
     setState(() {});
     return;
-  }
+   }
   
   
   
@@ -118,12 +167,24 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                   bottom: false,
                   top: false,
                   sliver: SliverAppBar(
+                    primary: true,
                     centerTitle: true,
-                    title: Text(
-                      'LISA',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
+                    title: ListTile(
+                      title: Text(
+                        'LISA',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'A new way to meet people',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16.0,
+                        ),
                       ),
                     ),
                     expandedHeight: 140.0,
@@ -132,13 +193,14 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                     snap: false,
                     flexibleSpace: FlexibleSpaceBar(
                       collapseMode: CollapseMode.pin,
-                      background: Image.network(
-                        'https://c2.staticflickr.com/6/5283/5321712546_e9c3d4d4c1_b.jpg',
+                      background: CachedNetworkImage(
+                        imageUrl: 'https://www.publicdomainpictures.net/pictures/80000/nahled/pale-grey-smoke.jpg',
                         fit: BoxFit.cover,
                       ),
                     ),
                     bottom: TabBar(
-                      labelColor: Colors.white,
+                      indicatorColor: Colors.white,
+                      labelColor: Colors.blue,
                       unselectedLabelColor: Colors.grey,
                       tabs: [
                         Tab(
@@ -190,48 +252,246 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
               builder: _buildMatchesTiles
             ),
             
-            ///------------------------------------------- PROFILE ---------------------------------------------
+            ///------------------------------------------- PROFILE ---------------------------------------------------------
             ListView(
-              controller: _scrollController,
               padding: const EdgeInsets.all(1),
               children: <Widget>[
                 ListTile(
                   leading: Text(
                     'PROFILE',
                     textAlign: TextAlign.left,
-                    style: TextStyle(
-                      color: white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: _listTitleStyle,
                   ),
                 ),
-                Center(
-                  child: SizedBox(
-                    width: _profilePicSize,
-                    height: _profilePicSize,
-                    child: CupertinoButton(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: AdvancedNetworkImage(
-                                _profilePicImageLink,
-                                useDiskCache: true,
+                SizedBox(
+                  height: _profilePicSize+40,
+                  child: ShaderMask(
+                    shaderCallback: (rect) {
+                      return LinearGradient(
+                        begin: Alignment(0, 0.9),
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.white, Colors.transparent],
+                      ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                    },
+                    blendMode: BlendMode.dstIn,
+                    child: ShaderMask(
+                      shaderCallback: (rect) {
+                        return LinearGradient(
+                          begin: Alignment(0, -0.9),
+                          end: Alignment.topCenter,
+                          colors: [Colors.white, Colors.transparent],
+                        ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                      },
+                      blendMode: BlendMode.dstIn,
+                      child: ListView(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.all(12),
+                        primary: false,
+                        physics: BouncingScrollPhysics(),
+                        children: <Widget>[
+                          Center(
+                            child: Card(
+                              color: _pictureCardColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(1000))
                               ),
-                              fit: BoxFit.cover,
+                              child:  SizedBox(
+                                width: _profilePicSize,
+                                height: _profilePicSize,
+                                child: RawMaterialButton(
+                                  highlightColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  padding: EdgeInsets.all(12),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: AdvancedNetworkImage(
+                                          _profilePicImageLink1,
+                                          useDiskCache: true,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  ),
+                                  onLongPress: () {},
+                                  onPressed: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ProfilePicturesScreen(user: user,)
+                                      )
+                                    ).then((value) => _loadProfilePictures());
+                                  }
+                                )
+                              ),
                             ),
-                          )
-                        ),
-                        onPressed: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProfilePicturesScreen(user: user,)
-                            )
-                          ).then((value) => _loadProfilePicture());
-                        }
+                          ),
+                          
+                          Center(
+                            child: Card(
+                              color: _pictureCardColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(1000))
+                              ),
+                              child:  SizedBox(
+                                width: _profilePicSize,
+                                height: _profilePicSize,
+                                child: RawMaterialButton(
+                                  highlightColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  padding: EdgeInsets.all(12),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: AdvancedNetworkImage(
+                                          _profilePicImageLink2,
+                                          useDiskCache: true,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  ),
+                                  onLongPress: () {},
+                                  onPressed: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ProfilePicturesScreen(user: user,)
+                                      )
+                                    ).then((value) => _loadProfilePictures());
+                                  }
+                                )
+                              ),
+                            ),
+                          ),
+                          
+                          Center(
+                            child: Card(
+                              color: _pictureCardColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(1000))
+                              ),
+                              child:  SizedBox(
+                                width: _profilePicSize,
+                                height: _profilePicSize,
+                                child: RawMaterialButton(
+                                  highlightColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  padding: EdgeInsets.all(12),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: AdvancedNetworkImage(
+                                          _profilePicImageLink3,
+                                          useDiskCache: true,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  ),
+                                  onLongPress: () {},
+                                  onPressed: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ProfilePicturesScreen(user: user,)
+                                      )
+                                    ).then((value) => _loadProfilePictures());
+                                  }
+                                )
+                              ),
+                            ),
+                          ),
+                          
+                          Center(
+                            child: Card(
+                              color: _pictureCardColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(1000))
+                              ),
+                              child:  SizedBox(
+                                width: _profilePicSize,
+                                height: _profilePicSize,
+                                child: RawMaterialButton(
+                                  highlightColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  padding: EdgeInsets.all(12),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: AdvancedNetworkImage(
+                                          _profilePicImageLink4,
+                                          useDiskCache: true,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  ),
+                                  onLongPress: () {},
+                                  onPressed: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ProfilePicturesScreen(user: user,)
+                                      )
+                                    ).then((value) => _loadProfilePictures());
+                                  }
+                                )
+                              ),
+                            ),
+                          ),
+                          
+                          Center(
+                            child: Card(
+                              color: _pictureCardColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(1000))
+                              ),
+                              child:  SizedBox(
+                                width: _profilePicSize,
+                                height: _profilePicSize,
+                                child: RawMaterialButton(
+                                  highlightColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  padding: EdgeInsets.all(12),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: AdvancedNetworkImage(
+                                          _profilePicImageLink5,
+                                          useDiskCache: true,
+                                        ),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  ),
+                                  onLongPress: () {},
+                                  onPressed: () async {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ProfilePicturesScreen(user: user,)
+                                      )
+                                    ).then((value) => _loadProfilePictures());
+                                  }
+                                )
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     )
-                  ),
+                  )
                 ),
                 Divider(),
                 Divider(
@@ -382,6 +642,9 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                     }
                   ),
                 ),
+                Divider(
+                  color: Colors.transparent
+                ),
               ],
             ),
           ]),
@@ -457,6 +720,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
           ),
           trailing: FaIcon(
             FontAwesomeIcons.clock,
+            color: black,
           ),
           onLongPress: () {},
           onTap: () {},
