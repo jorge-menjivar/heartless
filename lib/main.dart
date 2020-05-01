@@ -73,27 +73,18 @@ class _LoadingPageState extends State<LoadingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 4.0,
-      ),
-      body: Container()
     );
   }
 
   void _checkCurrentUser() async {
     await _auth.currentUser().then((u) async{
       user = u;
-        (user != null)
+        await (user != null)
         ? _checkVerification()
         : Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
     });
   }
-
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
+  
   Future<void> _checkVerification() async {
     if (user.isEmailVerified) {
       await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => InitPage(user: user, username: user.email)));
@@ -104,13 +95,12 @@ class _LoadingPageState extends State<LoadingPage> {
     }
   }
   
-
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
   //--------------------------------------FIREBASE TOKEN---------------------------------------------------
   void _checkToken() async {
     try {
@@ -125,31 +115,31 @@ class _LoadingPageState extends State<LoadingPage> {
 
   void _checkRefreshedToken(var token) async {
     var id = user.uid.toString();
-    DocumentSnapshot ds = await Firestore.instance.collection('users').document(id).get();
+    var ds = await Firestore.instance.collection('users').document(id).get();
     var dbToken = ds['t'];
     if (dbToken is String) {
       if (token == dbToken){ //Token matches database. Token is up to date.
-        print("TOKEN IS UP TO DATE");
+        print('TOKEN IS UP TO DATE');
       }
       else {
-        print("TOKEN IS NOT UP TO DATE");
+        print('TOKEN IS NOT UP TO DATE');
         updateToken(id, token);
       }
     }
     else {
-      print("TOKEN IS NOT A STRING");
+      print('TOKEN IS NOT A STRING');
     }
   }
 
   void updateToken(var id, var token) async {
-    print("UPDATING TOKEN...");
+    print('UPDATING TOKEN...');
     try {
-      Firestore.instance.collection('users').document(id)
+      await Firestore.instance.collection('users').document(id)
       .updateData({'t': token});  
-      print("UPDATING TOKEN: SUCCESS");
+      print('UPDATING TOKEN: SUCCESS');
     } catch (e) {
       print(e.toString());
-      print("UPDATING TOKEN: FAILURE");
+      print('UPDATING TOKEN: FAILURE');
     }
   }
 }

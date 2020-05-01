@@ -1,22 +1,10 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_advanced_networkimage/provider.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-// Tools
-import 'package:image_picker/image_picker.dart';
-import 'package:image/image.dart' as image_package;
-
-
-// Storage
-import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
@@ -106,11 +94,9 @@ class EditNameScreenState extends State<EditNameScreen> {
           TextFormField(
             key: _formFieldKey,
             controller: _controllerDisplayName,
-            onChanged: (value) {
-              _onChangeHandler(value);
-            },
-            onEditingComplete: () {
-              _saveName(_controllerDisplayName.text);
+            onFieldSubmitted: (value) async {
+              await _saveName(value);
+              Navigator.pop(context);
             },
             keyboardType: TextInputType.text,
             autocorrect: false,
@@ -120,7 +106,7 @@ class EditNameScreenState extends State<EditNameScreen> {
               hintText: 'What is your first name?',
               ),
             validator: (username) {
-              if (username.contains(new RegExp(r'\W'))) {
+              if (username.contains(RegExp(r'\W'))) {
                 return 'Only letter, digits, and _';
               }
             },
@@ -128,14 +114,6 @@ class EditNameScreenState extends State<EditNameScreen> {
         ],
       )
     );
-  }
-  
-  Future<void> _onChangeHandler(value) async{
-    const duration = Duration(milliseconds:1500); // set the duration that you want call search() after that.
-    if (searchOnStoppedTyping != null) {
-        setState(() => searchOnStoppedTyping.cancel()); // clear timer
-    }
-    setState(() => searchOnStoppedTyping = Timer(duration, () => _saveName(value)));
   }
   
   Future<void> _saveName(String name) async {

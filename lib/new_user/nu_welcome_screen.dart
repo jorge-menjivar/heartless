@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'nu_register_screen.dart';
 import 'nu_sign_in_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -41,7 +42,12 @@ class WelcomeScreenState extends State<WelcomeScreen> {
             ),
             RaisedButton(
               child: Text('SIGN IN'), onPressed: (){
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MySignInScreen()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MySignInScreen()));
+              }
+            ),
+            RaisedButton(
+              child: Text('Register'), onPressed: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen()));
               }
             )
           ],

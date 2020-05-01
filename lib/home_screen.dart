@@ -77,8 +77,6 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   final secureStorage = FlutterSecureStorage();
 
   ScrollController _scrollController;
-  ScrollController _innerScrollController;
-  
   final double _profilePicSize = 280;
   
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -101,7 +99,6 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     super.initState();
     _loadProfilePictures();
     _scrollController = ScrollController();
-    _innerScrollController = ScrollController();
     //TODO _checkCurrentUser();
   }
   

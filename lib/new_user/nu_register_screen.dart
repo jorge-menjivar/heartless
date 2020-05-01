@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'nu_information_screen.dart';
+import 'package:lise/new_user/nu_information_screen.dart';
 import 'nu_verification_screen.dart';
 import 'package:lise/main.dart';
 
@@ -9,27 +9,31 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class MySignInScreen extends StatefulWidget {
+class RegisterScreen extends StatefulWidget {
 
   @override
-  SignInScreenState createState() => SignInScreenState();
+  RegisterScreenState createState() => RegisterScreenState();
 }
 
-class SignInScreenState extends State<MySignInScreen> {
+class RegisterScreenState extends State<RegisterScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   
   final secureStorage = FlutterSecureStorage();
   
   FirebaseUser user;
   
-  bool wrong = false;
+  bool notMatched = false;
   
   bool _firstTry = true;
   
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
+  final TextEditingController _controllerConfirmPassword = TextEditingController();
   final _emailFieldKey = GlobalKey<FormFieldState>();
   final _passwordFieldKey = GlobalKey<FormFieldState>();
+  final _confirmPasswordFieldKey = GlobalKey<FormFieldState>();
+  
+  String error = '';
   
   @override
   Widget build(BuildContext context) {
@@ -37,7 +41,7 @@ class SignInScreenState extends State<MySignInScreen> {
       onWillPop: () async => false,
         child: Scaffold(
         appBar: AppBar(
-          title: Text('SIGN IN'),
+          title: Text('Register'),
           elevation: 4.0,
         ),
         body: Container(
@@ -70,7 +74,6 @@ class SignInScreenState extends State<MySignInScreen> {
                       }
                     },
                   ),
-
                   TextFormField(
                     key: _passwordFieldKey,
                     controller: _controllerPassword,
@@ -84,23 +87,36 @@ class SignInScreenState extends State<MySignInScreen> {
                       hintText: 'Password',
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        (wrong) ? 'Information not valid' : '',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.red
-                        ),
-                      )
-                    ],
+                  TextFormField(
+                    key: _confirmPasswordFieldKey,
+                    controller: _controllerConfirmPassword,
+                    keyboardType: TextInputType.text,
+                    autocorrect: false,
+                    autofocus: true,
+                    autovalidate: true,
+                    decoration: InputDecoration(
+                      icon: Icon(Icons.lock),
+                      labelText: 'Password',
+                      hintText: 'Password',
+                    ),
+                  ),
+                  Container (
+                    padding: EdgeInsets.all(10),
+                    child: Flexible(
+                        child: 
+                          Center(
+                            child: Text(
+                              (notMatched) ? error: '',
+                              textAlign: TextAlign.center,
+                            )
+                      ),
+                    ),
                   ),
                   RaisedButton(
-                      child: Text('CONTINUE TO LISA'),
+                      child: Text('Register'),
                       onPressed: () {
                           _firstTry = false;
-                          _handleSignIn(_controllerEmail.text.toString(), _controllerPassword.text.toString());
+                          _handleRegistration(_controllerEmail.text.toString(), _controllerPassword.text.toString(), _controllerConfirmPassword.text.toString());
                         }
                   )
                 ],
@@ -121,44 +137,30 @@ class SignInScreenState extends State<MySignInScreen> {
     super.dispose(); 
   }
 
-  Future<FirebaseUser> _handleSignIn(String e, String p) async {
-    try {
-      var signInWithEmailAndPassword = _auth.signInWithEmailAndPassword(email: e, password: p);
-      
-      var authResult = await signInWithEmailAndPassword;
-      final user = (authResult).user;
-      
-      if (user.isEmailVerified) {
-        var profileCompleted = false;
-        await Firestore.instance
-          .collection('users')
-          .document(user.uid)
-          .collection('data')
-          .document('account')
-          .get()
-          .then((doc) {
-            if (!doc.exists) {
-              print('No data document!');
-            } else {
-              profileCompleted = doc.data['profileCompleted'];
-            }
-          });
-        if (profileCompleted){
-          await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()));
-        }
-        else {
-          await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NewUserInformationScreen(user: user,)));
-        }
+  Future<FirebaseUser> _handleRegistration(String email, String password, String confirmPassword) async {
+    if (password == confirmPassword) {
+      try {
+        
+        // TODO firebase function to automatically set bool profileCompleted = false in the firestore
+        var register = _auth.createUserWithEmailAndPassword(email: email, password: password);
+        
+        var registrationResult = await register;
+        final user = (registrationResult).user;
+        
+        await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VerifyScreen(user: user, newUser: true,)));
       }
-      else {
-        await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => VerifyScreen(user: user, newUser: false,)));
+      catch (e) {
+        notMatched = true;
+        error = e.toString();
+        setState(() {});
       }
     }
-    catch (e) {
-      print (e.toString());
-      wrong = true;
+    else {
+      notMatched = true;
+      error = 'Passwords does not match confirmation';
       setState(() {});
     }
+    
     
     return user;
   }

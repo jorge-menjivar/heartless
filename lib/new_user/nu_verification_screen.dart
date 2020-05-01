@@ -3,22 +3,23 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lise/main.dart';
+import 'package:lise/new_user/nu_information_screen.dart';
 
 class VerifyScreen extends StatefulWidget {
   final FirebaseUser user;
-  final String email, password;
+  final bool newUser;
 
-  VerifyScreen({this.user, this.email, this.password});
+  VerifyScreen({@required this.user, @required this.newUser});
 
   @override
-  VerifyScreenState createState() => VerifyScreenState(user: user, email: email, password: password);
+  VerifyScreenState createState() => VerifyScreenState(user: user, newUser: newUser);
 }
 
 class VerifyScreenState extends State<VerifyScreen> {
-  String email, password;
   FirebaseUser user;
+  final bool newUser;
 
-  VerifyScreenState({this.user, this.email, this.password});
+  VerifyScreenState({@required this.user, @required this.newUser});
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -26,12 +27,16 @@ class VerifyScreenState extends State<VerifyScreen> {
   bool _notVerified = false;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  
+  @override
+  void initState() {
+    super.initState();
+    _sendVerification();
+  }
 
   @override
   Widget build(BuildContext context) {
     var email = user.email;
-    // wait 5 secs and _sendVerification();
-    _sendVerification();
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -65,12 +70,16 @@ class VerifyScreenState extends State<VerifyScreen> {
               ),
             ),
             RaisedButton(
-              child: Text('CONTINUE TO LISA'), 
+              // TODO automatically check every 5 seconds if verified.
+              child: Text('CONTINUE'), 
               onPressed: () async {
                 user = await _auth.currentUser();
+                await user.getIdToken(refresh: true);
                 await user.reload();
                 if (user.isEmailVerified) {
-                  await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()));
+                  (!newUser)
+                  ? await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()))
+                  : await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NewUserInformationScreen(user: user,)));
                 }
                 else {
                   setState(() {

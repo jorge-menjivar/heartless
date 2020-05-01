@@ -1,22 +1,11 @@
 import 'dart:async';
-import 'dart:io';
-
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_advanced_networkimage/provider.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-// Tools
-import 'package:image_picker/image_picker.dart';
-import 'package:image/image.dart' as image_package;
-
-
 // Storage
-import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 

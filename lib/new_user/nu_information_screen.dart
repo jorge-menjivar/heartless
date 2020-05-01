@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lise/new_user/nu_upload_pictures_screen.dart';
 
 // Tools
 import 'package:lise/user_profile/personal/edit_name.dart';
@@ -13,6 +14,7 @@ import 'package:lise/user_profile/personal/gender_screen.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:lise/user_profile/search/gender_search_screen.dart';
 
 
 Map<int, Color> color = {
@@ -48,18 +50,18 @@ var _iconColor = black;
 
 
 
-class PersonalInformationScreen extends StatefulWidget {
-  PersonalInformationScreen({@required this.user});
+class NewUserInformationScreen extends StatefulWidget {
+  NewUserInformationScreen({@required this.user});
   
   final FirebaseUser user;
   
   @override
-  PersonalInformationScreenState createState() => PersonalInformationScreenState(user: user);
+  NewUserInformationScreenState createState() => NewUserInformationScreenState(user: user);
 }
 
-class PersonalInformationScreenState extends State<PersonalInformationScreen> {
+class NewUserInformationScreenState extends State<NewUserInformationScreen> {
   
-  PersonalInformationScreenState({@required this.user});
+  NewUserInformationScreenState({@required this.user});
   
   final FirebaseUser user;
   
@@ -67,8 +69,13 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
   ScrollController _scrollController;
   
   
+  final _formFieldKey = GlobalKey<FormFieldState>();
+  final TextEditingController _controllerDisplayName = TextEditingController();
+  
+  
   DateTime _birthday;
-  String _gender;
+  String _userGender;
+  String _interestGender;
   String _name;
   
   @override
@@ -82,7 +89,8 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
   
   Future<void> _downloadData() async{
     
-    String gender;
+    String myGender;
+    String interestGender;
     
     // Downloading data and synchronizing it with public variables
     await Firestore.instance
@@ -97,27 +105,63 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
         } else {
           _name = doc.data['name'];
           _birthday = DateTime.fromMillisecondsSinceEpoch(doc.data['birthday']);
-          gender = doc.data['gender'];
+          myGender = doc.data['gender'];
         }
       });
     
     
     // Setting gender in readable format
-    if (gender == 'female') {
-      _gender = 'Female';
+    if (myGender == 'female') {
+      _userGender = 'Female';
     }
-    else if (gender == 'male') {
-      _gender = 'Male';
+    else if (myGender == 'male') {
+      _userGender = 'Male';
     }
-    else if (gender == 'trans_female') {
-      _gender = 'Trans Female';
+    else if (myGender == 'trans_female') {
+      _userGender = 'Trans Female';
     }
-    else if (gender == 'trans_male') {
-      _gender = 'Trans Male';
+    else if (myGender == 'trans_male') {
+      _userGender = 'Trans Male';
     }
-    else if (gender == 'other') {
-      _gender = 'Other';
+    else if (myGender == 'other') {
+      _userGender = 'Other';
     }
+    
+    
+    await Firestore.instance
+      .collection('users')
+      .document(user.uid)
+      .collection('data')
+      .document('search')
+      .get()
+      .then((doc) {
+        if (!doc.exists) {
+          print('No data document!');
+        } else {
+          interestGender = doc.data['gender'];
+        }
+      });
+    
+    // Setting gender in readable format
+    if (interestGender == 'female') {
+      _interestGender = 'Women';
+    }
+    else if (interestGender == 'male') {
+      _interestGender = 'Men';
+    }
+    else if (interestGender == 'trans_female') {
+      _interestGender = 'Trans Women';
+    }
+    else if (interestGender == 'trans_male') {
+      _interestGender = 'Trans Men';
+    }
+    else if (interestGender == 'other') {
+      _interestGender = 'Others';
+    }
+    
+    
+    
+    
     
     setState(() {});
   }
@@ -145,13 +189,24 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
               FontAwesomeIcons.signature,
               color: black,
             ),
-            title: Row(
-              children: <Widget>[
-                Text(
-                  _name,
-                  style: _biggerFont,
+            title: TextFormField(
+              key: _formFieldKey,
+              controller: _controllerDisplayName,
+              onFieldSubmitted: (value) async {
+                await _saveName(value);
+              },
+              keyboardType: TextInputType.text,
+              autocorrect: false,
+              autofocus: true,
+              autovalidate: true,
+              decoration: InputDecoration(
+                hintText: 'What is your first name?',
                 ),
-              ],
+              validator: (username) {
+                if (username.contains(RegExp(r'\W'))) {
+                  return 'Only letter, digits, and _';
+                }
+              },
             ),
             onTap: () async {
               await Navigator.push(
@@ -219,7 +274,7 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
               style: _biggerFont,
             ),
             subtitle: Text(
-              (_gender != null) ? _gender : ''
+              (_userGender != null) ? _userGender : ''
             ),
             onLongPress: () {},
             onTap: () async {
@@ -231,8 +286,65 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
               ).then((value) => _downloadData());
             }
           ),
+          ListTile(
+            leading: FaIcon(
+              FontAwesomeIcons.solidHeart,
+              color: black,
+            ),
+            title: Text(
+              'I am interested in',
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            subtitle: Text(
+              (_interestGender != null) ? _interestGender : ''
+            ),
+            onLongPress: () {},
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GenderSearchScreen(user: user,)
+                )
+              ).then((value) => _downloadData());
+            }
+          ),
         ],
-      )
+      ),
+      bottomNavigationBar: BottomAppBar(
+        elevation: 8,
+        color: black,
+        child: ListTile(
+          trailing: Container(
+              child: IconButton(
+                iconSize: 45,
+                icon: Text(
+                  'NEXT',
+                  style: TextStyle(
+                    color: white,
+                    fontSize: 14.0,
+                    letterSpacing: 1,
+                    fontWeight: FontWeight.w600,
+                  )
+                ),
+                onPressed: () async {
+                  if (_name != null && _birthday != null && _userGender != null && _interestGender != null) {
+                    await Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UploadPicturesScreen(user: user,)
+                      )
+                    );
+                  }
+                  else {
+                    print ('not complete');
+                  }
+                  
+                },
+              ),
+            ),
+        ),
+      ),
     );
   }
   
@@ -265,5 +377,26 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
     var year = dateTime.year;
     
     return '${month}/${day}/${year}';
+  }
+  
+  Future<void> _saveName(String name) async {
+    if (_formFieldKey.currentState.validate() == true){
+      await Firestore.instance
+        .collection('users')
+        .document(user.uid)
+        .collection('data')
+        .document('personal').setData(
+          <String, dynamic>{
+            'name': name,
+          },
+          merge: true
+        )
+        .catchError((error) {
+            print('Error writing document: ' + error.toString());
+            print(user.uid);
+            print(user.isEmailVerified);
+        }
+      );
+    }
   }
 }
