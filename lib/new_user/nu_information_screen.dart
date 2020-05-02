@@ -14,6 +14,7 @@ import 'package:lise/user_profile/personal/gender_screen.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:lise/user_profile/personal/race_screen.dart';
 import 'package:lise/user_profile/search/gender_search_screen.dart';
 
 
@@ -77,6 +78,7 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
   String _userGender;
   String _interestGender;
   String _name;
+  String _race;
   
   @override
   void initState() {
@@ -91,6 +93,7 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
     
     String myGender;
     String interestGender;
+    String race;
     
     // Downloading data and synchronizing it with public variables
     await Firestore.instance
@@ -106,6 +109,7 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
           _name = doc.data['name'];
           _birthday = DateTime.fromMillisecondsSinceEpoch(doc.data['birthday']);
           myGender = doc.data['gender'];
+          race = doc.data['race'];
         }
       });
     
@@ -160,6 +164,22 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
     }
     
     
+     // Setting race in readable format
+    if (race == 'asian') {
+      _race = 'Asian';
+    }
+    else if (race == 'black') {
+      _race = 'Black';
+    }
+    else if (race == 'latinx') {
+      _race = 'Latinx';
+    }
+    else if (race == 'white') {
+      _race = 'White';
+    }
+    else if (race == 'other') {
+      _race = 'Other';
+    }
     
     
     
@@ -309,6 +329,32 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
               ).then((value) => _downloadData());
             }
           ),
+          Divider(
+            color: Colors.transparent
+          ),
+          ListTile(
+            leading: FaIcon(
+              FontAwesomeIcons.child,
+              color: black,
+            ),
+            title: Text(
+              'My Race',
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            subtitle: Text(
+              (_race != null) ? _race : ''
+            ),
+            onLongPress: () {},
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RaceScreen(user: user,)
+                )
+              ).then((value) => _downloadData());
+            }
+          ),
         ],
       ),
       bottomNavigationBar: BottomAppBar(
@@ -328,7 +374,7 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                   )
                 ),
                 onPressed: () async {
-                  if (_name != null && _birthday != null && _userGender != null && _interestGender != null) {
+                  if (_name != null && _birthday != null && _userGender != null && _interestGender != null && _race != null) {
                     await Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(

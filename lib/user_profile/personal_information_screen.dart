@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:lise/user_profile/personal/gender_screen.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:lise/user_profile/personal/race_screen.dart';
 
 
 Map<int, Color> color = {
@@ -70,6 +72,7 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
   DateTime _birthday;
   String _gender;
   String _name;
+  String _race;
   
   @override
   void initState() {
@@ -81,8 +84,8 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
   
   
   Future<void> _downloadData() async{
-    
     String gender;
+    String race;
     
     // Downloading data and synchronizing it with public variables
     await Firestore.instance
@@ -98,6 +101,7 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
           _name = doc.data['name'];
           _birthday = DateTime.fromMillisecondsSinceEpoch(doc.data['birthday']);
           gender = doc.data['gender'];
+          race = doc.data['race'];
         }
       });
     
@@ -118,6 +122,25 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
     else if (gender == 'other') {
       _gender = 'Other';
     }
+    
+     // Setting race in readable format
+    if (race == 'asian') {
+      _race = 'Asian';
+    }
+    else if (race == 'black') {
+      _race = 'Black';
+    }
+    else if (race == 'latinx') {
+      _race = 'Latinx';
+    }
+    else if (race == 'white') {
+      _race = 'White';
+    }
+    else if (race == 'other') {
+      _race = 'Other';
+    }
+    
+    
     
     setState(() {});
   }
@@ -148,7 +171,7 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
             title: Row(
               children: <Widget>[
                 Text(
-                  _name,
+                  (_name != null) ? _name : '',
                   style: _biggerFont,
                 ),
               ],
@@ -161,20 +184,14 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
                 )
               ).then((value) => _downloadData());
             }
-          ),
-          Container (
+          ),Container (
             padding: EdgeInsets.all(10),
             color: white[50],
-            child: Flexible(
-                child: 
-                  Center(
-                    child: Text(
-                      'Your potential match is able to see your name in the conversation screen,\n\nbut your name will NOT be displayed next to your pictures until you have matched',
-                      textAlign: TextAlign.center,
-                      style: _subFont,
-                    )
-              ),
-            ),
+            child: Text(
+              'Your potential match is able to see your name in the conversation screen,\n\nbut your name will NOT be displayed next to your pictures until you have matched',
+              textAlign: TextAlign.center,
+              style: _subFont,
+            )
           ),
           Divider(
             color: Colors.transparent
@@ -187,7 +204,7 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
             title: Row(
               children: <Widget>[
                 Text(
-                  'Birthday',
+                  'My Birthday',
                   style: _biggerFont,
                 ),
               ],
@@ -214,7 +231,7 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
               color: black,
             ),
             title: Text(
-              'Gender',
+              'My Gender',
               textAlign: TextAlign.left,
               style: _biggerFont,
             ),
@@ -227,6 +244,32 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => GenderScreen(user: user,)
+                )
+              ).then((value) => _downloadData());
+            }
+          ),
+          Divider(
+            color: Colors.transparent
+          ),
+          ListTile(
+            leading: FaIcon(
+              FontAwesomeIcons.child,
+              color: black,
+            ),
+            title: Text(
+              'My Race',
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            subtitle: Text(
+              (_race != null) ? _race : ''
+            ),
+            onLongPress: () {},
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RaceScreen(user: user,)
                 )
               ).then((value) => _downloadData());
             }

@@ -5,8 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+// Tools
+import 'package:lise/user_profile/search/gender_search_screen.dart';
+
+
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:lise/user_profile/search/race_search_screen.dart';
 
 
 Map<int, Color> color = {
@@ -42,18 +47,18 @@ var _iconColor = black;
 
 
 
-class GenderScreen extends StatefulWidget {
-  GenderScreen({@required this.user});
+class WayOfLivingScreen extends StatefulWidget {
+  WayOfLivingScreen({@required this.user});
   
   final FirebaseUser user;
   
   @override
-  GenderScreenState createState() => GenderScreenState(user: user);
+  WayOfLivingScreenState createState() => WayOfLivingScreenState(user: user);
 }
 
-class GenderScreenState extends State<GenderScreen> {
+class WayOfLivingScreenState extends State<WayOfLivingScreen> {
   
-  GenderScreenState({@required this.user});
+  WayOfLivingScreenState({@required this.user});
   
   final FirebaseUser user;
   
@@ -61,11 +66,18 @@ class GenderScreenState extends State<GenderScreen> {
   ScrollController _scrollController;
   
   
-  DateTime birthday;
+  RangeValues _ageRange = RangeValues(18, 30);
+  
+  double _distance = 20;
+
+  
+  
   
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
+    //TODO _checkCurrentUser();
   }
   
   @override
@@ -74,12 +86,10 @@ class GenderScreenState extends State<GenderScreen> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Gender'),
+        title: Text('My way of living'),
         elevation: 4.0,
       ),
       body: ListView(
-        shrinkWrap: true,
-        primary: false,
         controller: _scrollController,
         physics: BouncingScrollPhysics(),
         children: <Widget>[
@@ -88,109 +98,63 @@ class GenderScreenState extends State<GenderScreen> {
           ),
           ListTile(
             leading: FaIcon(
-              FontAwesomeIcons.venus,
+              FontAwesomeIcons.solidHeart,
               color: black,
             ),
             title: Text(
-              'Female',
+              'I like...',
               textAlign: TextAlign.left,
               style: _biggerFont,
             ),
             onLongPress: () {},
-            onTap: () {
-              _updateGender('female');
-              Navigator.pop(context);
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GenderSearchScreen(user: user,)
+                )
+              );
             }
           ),
           Divider(
-            color: Colors.grey
+            color: Colors.transparent
           ),
           ListTile(
             leading: FaIcon(
-              FontAwesomeIcons.mars,
+              FontAwesomeIcons.heartBroken,
               color: black,
             ),
             title: Text(
-              'Male',
+              'I dislike...',
               textAlign: TextAlign.left,
               style: _biggerFont,
             ),
             onLongPress: () {},
-            onTap: () {
-              _updateGender('male');
-              Navigator.pop(context);
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RaceSearchScreen(user: user,)
+                )
+              );
             }
           ),
-          Divider(
-            color: Colors.grey
-          ),
-          ListTile(
-            leading: FaIcon(
-              FontAwesomeIcons.transgender,
-              color: black,
-            ),
-            title: Text(
-              'Trans Female',
-              textAlign: TextAlign.left,
-              style: _biggerFont,
-            ),
-            onLongPress: () {},
-            onTap: () {
-              _updateGender('trans_female');
-              Navigator.pop(context);
-            }
-          ),
-          Divider(
-            color: Colors.grey
-          ),
-          ListTile(
-            leading: FaIcon(
-              FontAwesomeIcons.transgender,
-              color: black,
-            ),
-            title: Text(
-              'Trans Male',
-              textAlign: TextAlign.left,
-              style: _biggerFont,
-            ),
-            onLongPress: () {},
-            onTap: () {
-              _updateGender('trans_male');
-              Navigator.pop(context);
-            }
-          ),
-          Divider(
-            color: Colors.grey
-          ),
-          ListTile(
-            leading: FaIcon(
-              FontAwesomeIcons.genderless,
-              color: black,
-            ),
-            title: Text(
-              'Other',
-              textAlign: TextAlign.left,
-              style: _biggerFont,
-            ),
-            onLongPress: () {},
-            onTap: () {
-              _updateGender('other');
-              Navigator.pop(context);
-            }
-          ),
+          
         ],
       )
     );
   }
   
-  Future<void> _updateGender(String gender) async {
+  
+  Future<void> _saveAge() async {
     await Firestore.instance
       .collection('users')
       .document(user.uid)
       .collection('data')
-      .document('personal').setData(
+      .document('search').setData(
         <String, dynamic>{
-          'gender': gender,
+          'age_min': _ageRange.start.round(),
+          'age_max': _ageRange.end.round(),
         },
         merge: true
       )
@@ -199,4 +163,25 @@ class GenderScreenState extends State<GenderScreen> {
       }
     );
   }
+  
+  
+  
+  Future<void> _saveDistance() async {
+    await Firestore.instance
+      .collection('users')
+      .document(user.uid)
+      .collection('data')
+      .document('search').setData(
+        <String, dynamic>{
+          'max_distance': _distance,
+          'distance_unit' : 'mile',
+        },
+        merge: true
+      )
+      .catchError((error) {
+          print('Error writing document: ' + error.toString());
+      }
+    );
+  }
+
 }

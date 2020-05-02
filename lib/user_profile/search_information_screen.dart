@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,7 @@ import 'package:lise/user_profile/search/gender_search_screen.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:lise/user_profile/search/race_search_screen.dart';
 
 
 Map<int, Color> color = {
@@ -65,11 +67,10 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
   ScrollController _scrollController;
   
   
-  String _gender;
-  
   RangeValues _ageRange = RangeValues(18, 30);
   
   double _distance = 20;
+
   
   
   
@@ -84,8 +85,6 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
   
   Future<void> _downloadData() async{
     
-    String gender;
-    
     // Downloading data and synchronizing it with public variables
     await Firestore.instance
       .collection('users')
@@ -97,30 +96,10 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
         if (!doc.exists) {
           print('No data document!');
         } else {
-          gender = doc.data['gender'];
           _ageRange = RangeValues(doc.data['age_min'].toDouble(), doc.data['age_max'].toDouble());
-          
           _distance = doc.data['max_distance'].toDouble();
         }
       });
-    
-    
-    // Setting gender in readable format
-    if (gender == 'female') {
-      _gender = 'Women';
-    }
-    else if (gender == 'male') {
-      _gender = 'Men';
-    }
-    else if (gender == 'trans_female') {
-      _gender = 'Trans Women';
-    }
-    else if (gender == 'trans_male') {
-      _gender = 'Trans Men';
-    }
-    else if (gender == 'other') {
-      _gender = 'Others';
-    }
     
     setState(() {});
   }
@@ -143,16 +122,13 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
           ),
           ListTile(
             leading: FaIcon(
-              FontAwesomeIcons.solidHeart,
+              FontAwesomeIcons.genderless,
               color: black,
             ),
             title: Text(
               'I am interested in',
               textAlign: TextAlign.left,
               style: _biggerFont,
-            ),
-            subtitle: Text(
-              (_gender != null) ? _gender : ''
             ),
             onLongPress: () {},
             onTap: () async {
@@ -166,6 +142,28 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
           ),
           Divider(
             color: Colors.transparent
+          ),
+          ListTile(
+            leading: FaIcon(
+              FontAwesomeIcons.child,
+              color: black,
+            ),
+            title: Text(
+              'Races',
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RaceSearchScreen(user: user,)
+                )
+              ).then((value) => _downloadData());
+            }
+          ),
+          Divider(
+            color: Colors.grey
           ),
           ListTile(
             leading: FaIcon(
@@ -184,15 +182,6 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
               textAlign: TextAlign.end,
               style: _biggerFont,
             ),
-            onLongPress: () {},
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GenderSearchScreen(user: user,)
-                )
-              ).then((value) => _downloadData());
-            }
           ),
           RangeSlider(
             labels: (_ageRange.end.round() != 50)
@@ -212,7 +201,7 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
             }
           ),
           Divider(
-            color: Colors.transparent
+            color: Colors.grey
           ),
           ListTile(
             leading: FaIcon(
@@ -228,21 +217,12 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
               '${_distance.round()} miles',
               style: _biggerFont,
             ),
-            onLongPress: () {},
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GenderSearchScreen(user: user,)
-                )
-              ).then((value) => _downloadData());
-            }
           ),
           Slider(
             label: '${_distance.round()} miles',
             value: _distance,
-            divisions: 40,
-            min: 0,
+            divisions: 30,
+            min: 10,
             max: 40,
             onChangeEnd: (value) async {
               await _saveDistance();
@@ -252,7 +232,10 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
                 _distance = value.round().toDouble();
               });
             }
-          )
+          ),
+          Divider(
+            color: Colors.grey
+          ),
           
         ],
       )

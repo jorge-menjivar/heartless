@@ -78,7 +78,7 @@ class EditNameScreenState extends State<EditNameScreen> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Gender'),
+        title: Text('My name'),
         elevation: 4.0,
       ),
       body: ListView(

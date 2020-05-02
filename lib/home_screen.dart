@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lise/user_profile/personal_information_screen.dart';
 import 'package:lise/user_profile/profile_pictures_screen.dart';
 import 'package:lise/user_profile/search_information_screen.dart';
+import 'package:lise/user_profile/wol_screen.dart';
 import 'main.dart';
 import 'messages/m_p_matches_screen.dart';
 import 'convo_completion/select_matches_screen.dart';
@@ -525,7 +526,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                   ),
                 ),
                 Divider(
-                  color: white
+                  color: Colors.transparent
                 ),
                 Container(
                   decoration: BoxDecoration(),
@@ -546,7 +547,6 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                         textAlign: TextAlign.left,
                         maxLines: 1,
                       ),
-                      onLongPress: () {},
                       onTap: () {
                         Navigator.push(
                           context,
@@ -557,7 +557,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                       }),
                 ),
                 Divider(
-                  color: white
+                  color: Colors.transparent
                 ),
                 Container(
                   decoration: BoxDecoration(),
@@ -578,9 +578,13 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                         textAlign: TextAlign.left,
                         maxLines: 1,
                       ),
-                      onLongPress: () {},
                       onTap: () {
-                        setState(() {});
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WayOfLivingScreen(user: user,)
+                          )
+                        );
                       }),
                 ),
                 Divider(
@@ -779,12 +783,19 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
       var listTiles =
           snapshot.data.documents.where((element) => element['otherUser'] != null).map((DocumentSnapshot document) {
         return ListTile(
-          dense: true,
           leading: Container(
             decoration: BoxDecoration(
-                color: Colors.red, shape: BoxShape.circle),
-            child: Icon(
-              Icons.person
+              color: Colors.red, shape: BoxShape.circle
+            ),
+            child: SizedBox(
+              height: 50,
+              width: 50,
+              child: Center(
+                child: FaIcon(
+                  FontAwesomeIcons.userAlt,
+                  color: black,
+                )
+              ),
             ),
           ),
           title: Text(

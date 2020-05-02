@@ -90,7 +90,6 @@ class _LoadingPageState extends State<LoadingPage> {
       await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => InitPage(user: user, username: user.email)));
     }
     else {
-      await _auth.signOut();
       await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
     }
   }
