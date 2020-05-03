@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lise/home_screen.dart';
+import 'new_user/nu_information_screen.dart';
 import 'new_user/nu_welcome_screen.dart';
 
 // Storage
@@ -33,6 +34,7 @@ void main(){
 }
 
 class MyApp extends StatelessWidget {
+  
   // Root Widget.
   //TODO add terms and conditions
   @override
@@ -63,6 +65,8 @@ class _LoadingPageState extends State<LoadingPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseUser user;
   final secureStorage = FlutterSecureStorage();
+  
+  var _profileCompleted = false;
 
   @override
   void initState() {
@@ -86,8 +90,28 @@ class _LoadingPageState extends State<LoadingPage> {
   }
   
   Future<void> _checkVerification() async {
-    if (user.isEmailVerified) {
-      await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => InitPage(user: user, username: user.email)));
+    if (user.isEmailVerified) {// Downloading data and synchronizing it with public variables
+      await Firestore.instance
+        .collection('users')
+        .document(user.uid)
+        .collection('data')
+        .document('account')
+        .get()
+        .then((doc) {
+          if (!doc.exists) {
+            print('No data document!');
+          }
+          else {
+            _profileCompleted = doc.data['profileCompleted'];
+          }
+        });
+        
+        if  (_profileCompleted) {
+          await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => InitPage(user: user, username: user.email)));
+        }
+        else {
+          await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NewUserInformationScreen(user: user,)));
+        }
     }
     else {
       await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));

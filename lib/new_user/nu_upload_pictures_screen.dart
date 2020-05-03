@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -399,6 +400,7 @@ class UploadPicturesScreenState extends State<UploadPicturesScreen> {
                 ),
                 onPressed: () async {
                   if (!pictureMissing1 && !pictureMissing2 && !pictureMissing3 && !pictureMissing4 && !pictureMissing5) {
+                    await _saveProfileCompletion();
                     await Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -515,5 +517,24 @@ class UploadPicturesScreenState extends State<UploadPicturesScreen> {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     });
   }
+  
+  
+  Future<void> _saveProfileCompletion() async {
+    await Firestore.instance
+        .collection('users')
+        .document(user.uid)
+        .collection('data')
+        .document('account').setData(
+          <String, dynamic>{
+            'profileCompleted': true,
+          },
+          merge: true
+        )
+        .catchError((error) {
+            print('Error writing document: ' + error.toString());
+        }
+      );
+  }
+    
   
 }
