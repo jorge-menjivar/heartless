@@ -76,7 +76,6 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
   
   DateTime _birthday;
   String _userGender;
-  String _interestGender;
   String _name;
   String _race;
   
@@ -132,38 +131,6 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
     }
     
     
-    await Firestore.instance
-      .collection('users')
-      .document(user.uid)
-      .collection('data')
-      .document('search')
-      .get()
-      .then((doc) {
-        if (!doc.exists) {
-          print('No data document!');
-        } else {
-          interestGender = doc.data['gender'];
-        }
-      });
-    
-    // Setting gender in readable format
-    if (interestGender == 'female') {
-      _interestGender = 'Women';
-    }
-    else if (interestGender == 'male') {
-      _interestGender = 'Men';
-    }
-    else if (interestGender == 'trans_female') {
-      _interestGender = 'Trans Women';
-    }
-    else if (interestGender == 'trans_male') {
-      _interestGender = 'Trans Men';
-    }
-    else if (interestGender == 'other') {
-      _interestGender = 'Others';
-    }
-    
-    
      // Setting race in readable format
     if (race == 'asian') {
       _race = 'Asian';
@@ -180,8 +147,6 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
     else if (race == 'other') {
       _race = 'Other';
     }
-    
-    
     
     setState(() {});
   }
@@ -316,10 +281,6 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
               textAlign: TextAlign.left,
               style: _biggerFont,
             ),
-            subtitle: Text(
-              (_interestGender != null) ? _interestGender : ''
-            ),
-            onLongPress: () {},
             onTap: () async {
               await Navigator.push(
                 context,
@@ -374,7 +335,7 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                   )
                 ),
                 onPressed: () async {
-                  if (_name != null && _birthday != null && _userGender != null && _interestGender != null && _race != null) {
+                  if (_name != null && _birthday != null && _userGender != null && _race != null) {
                     await Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
