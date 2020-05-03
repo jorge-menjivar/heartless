@@ -91,7 +91,6 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
   Future<void> _downloadData() async{
     
     String myGender;
-    String interestGender;
     String race;
     
     // Downloading data and synchronizing it with public variables

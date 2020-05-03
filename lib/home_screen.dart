@@ -7,6 +7,7 @@ import 'package:lise/user_profile/personal_information_screen.dart';
 import 'package:lise/user_profile/profile_pictures_screen.dart';
 import 'package:lise/user_profile/search_information_screen.dart';
 import 'package:lise/user_profile/wol_screen.dart';
+import 'package:location/location.dart';
 import 'main.dart';
 import 'messages/m_p_matches_screen.dart';
 import 'convo_completion/select_matches_screen.dart';
@@ -839,21 +840,55 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   }
   
   
-  void _sendPotentialMatchRequest() async {
+  /// Updates the location of the device to the database and sends a request for a potential match.
+  Future<bool> _sendPotentialMatchRequest() async {
+    
+    var location = Location();
+    
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
+    
+    // Checking is location is enabled in device
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      
+      serviceEnabled = await location.requestService();
+      
+      if (!serviceEnabled) {
+        return false;
+      }
+    }
+    
+    // Checking if app has permission to get location
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      
+      permissionGranted = await location.requestPermission();
+      
+      if (permissionGranted != PermissionStatus.granted) {
+        return false;
+      }
+    }
+    
+    // Getting location form device.
+    locationData = await location.getLocation();
+    
+    // Getting instance of the server function
     final callable = CloudFunctions.instance.getHttpsCallable(
       functionName: 'getPotentialMatch',
     );
     
-    dynamic resp = await callable.call();
+    
+    // Adding variables to the server to the request and calling the function
+    dynamic resp = await callable.call(<String, dynamic>{
+      'latitude': locationData.latitude,
+      'longitude': locationData.longitude,
+    });
     
     print(resp);
     
-    /**
-     * Calling function with parameters
-    dynamic resp = await callable.call(<String, dynamic>{
-        'YOUR_PARAMETER_NAME': 'YOUR_PARAMETER_VALUE',
-    });
-    **/
+    return true;
   }
   
   
