@@ -1,9 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:lise/new_user/nu_information_screen.dart';
 import 'nu_verification_screen.dart';
-import 'package:lise/main.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -178,31 +176,31 @@ class RegisterScreenState extends State<RegisterScreen> {
 
   void _checkRefreshedToken(var token) async {
     var id = user.uid.toString();
-    DocumentSnapshot ds = await Firestore.instance.collection('users').document(id).get();
+    var ds = await Firestore.instance.collection('users').document(id).get();
     var dbToken = await ds['t'];
     if (dbToken is String) {
       if (token == dbToken){ //Token matches database. Token is up to date.
-        print("TOKEN IS UP TO DATE");
+        print('TOKEN IS UP TO DATE');
       }
       else {
-        print("TOKEN IS NOT UP TO DATE");
+        print('TOKEN IS NOT UP TO DATE');
         updateToken(id, token);
       }
     }
     else {
-      print("TOKEN IS NOT A STRING");
+      print('TOKEN IS NOT A STRING');
     }
   }
 
   void updateToken(var id, var token) async {
-    print("UPDATING TOKEN...");
+    print('UPDATING TOKEN...');
     try {
-      Firestore.instance.collection('users').document(id)
+      await Firestore.instance.collection('users').document(id)
       .updateData({'t': token});  
-      print("UPDATING TOKEN: SUCCESS");
+      print('UPDATING TOKEN: SUCCESS');
     } catch (e) {
       print(e.toString());
-      print("UPDATING TOKEN: FAILURE");
+      print('UPDATING TOKEN: FAILURE');
     }
   }
 }
