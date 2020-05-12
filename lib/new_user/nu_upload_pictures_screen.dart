@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_advanced_networkimage/provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // Tools
 import 'package:image_picker/image_picker.dart';
@@ -200,26 +201,7 @@ class UploadPicturesScreenState extends State<UploadPicturesScreen> {
                     splashColor: Colors.transparent,
                     hoverColor: Colors.transparent,
                     padding: EdgeInsets.all(4),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18.0),
-                        color: Colors.red
-                      ),
-                      padding: EdgeInsets.all(10),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.0),
-                          color: Colors.transparent,
-                          image: DecorationImage(
-                            image: AdvancedNetworkImage(
-                              _profilePicImageLink1,
-                              useDiskCache: true,
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      )
-                    ),
+                    child: _imageOrPlaceHolder(pictureMissing1, _profilePicImageLink1),
                     onLongPress: () {},
                     onPressed: () {
                       getImageFromGallery(1);
@@ -237,26 +219,7 @@ class UploadPicturesScreenState extends State<UploadPicturesScreen> {
                     splashColor: Colors.transparent,
                     hoverColor: Colors.transparent,
                     padding: EdgeInsets.all(4),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18.0),
-                        color: Colors.red
-                      ),
-                      padding: EdgeInsets.all(10),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.0),
-                          color: Colors.transparent,
-                          image: DecorationImage(
-                            image: AdvancedNetworkImage(
-                              _profilePicImageLink2,
-                              useDiskCache: true,
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      )
-                    ),
+                    child: _imageOrPlaceHolder(pictureMissing2, _profilePicImageLink2),
                     onLongPress: () {},
                     onPressed: () {
                       getImageFromGallery(2);
@@ -274,26 +237,7 @@ class UploadPicturesScreenState extends State<UploadPicturesScreen> {
                     splashColor: Colors.transparent,
                     hoverColor: Colors.transparent,
                     padding: EdgeInsets.all(4),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18.0),
-                        color: Colors.red
-                      ),
-                      padding: EdgeInsets.all(10),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.0),
-                          color: Colors.transparent,
-                          image: DecorationImage(
-                            image: AdvancedNetworkImage(
-                              _profilePicImageLink3,
-                              useDiskCache: true,
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      )
-                    ),
+                    child: _imageOrPlaceHolder(pictureMissing3, _profilePicImageLink3),
                     onLongPress: () {},
                     onPressed: () {
                       getImageFromGallery(3);
@@ -311,26 +255,7 @@ class UploadPicturesScreenState extends State<UploadPicturesScreen> {
                     splashColor: Colors.transparent,
                     hoverColor: Colors.transparent,
                     padding: EdgeInsets.all(4),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18.0),
-                        color: Colors.red
-                      ),
-                      padding: EdgeInsets.all(10),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.0),
-                          color: Colors.transparent,
-                          image: DecorationImage(
-                            image: AdvancedNetworkImage(
-                              _profilePicImageLink4,
-                              useDiskCache: true,
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      )
-                    ),
+                    child: _imageOrPlaceHolder(pictureMissing4, _profilePicImageLink4),
                     onLongPress: () {},
                     onPressed: () {
                       getImageFromGallery(4);
@@ -348,26 +273,7 @@ class UploadPicturesScreenState extends State<UploadPicturesScreen> {
                     splashColor: Colors.transparent,
                     hoverColor: Colors.transparent,
                     padding: EdgeInsets.all(4),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18.0),
-                        color: Colors.red
-                      ),
-                      padding: EdgeInsets.all(10),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.0),
-                          color: Colors.transparent,
-                          image: DecorationImage(
-                            image: AdvancedNetworkImage(
-                              _profilePicImageLink5,
-                              useDiskCache: true,
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                      )
-                    ),
+                    child: _imageOrPlaceHolder(pictureMissing5, _profilePicImageLink5),
                     onLongPress: () {},
                     onPressed: () {
                       getImageFromGallery(5);
@@ -535,6 +441,37 @@ class UploadPicturesScreenState extends State<UploadPicturesScreen> {
         }
       );
   }
-    
+  
+  
+  Widget _imageOrPlaceHolder(bool pictureMissing, String profilePicImageLink) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18.0),
+        color: Colors.red
+      ),
+      padding: EdgeInsets.all(10),
+      child: (pictureMissing)
+      ? Center(
+        child: FaIcon(
+          FontAwesomeIcons.solidImage,
+          color: white,
+          size: 60,
+        ),
+      )
+      : Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15.0),
+          color: Colors.transparent,
+          image: DecorationImage(
+            image: AdvancedNetworkImage(
+              profilePicImageLink,
+              useDiskCache: true,
+            ),
+            fit: BoxFit.cover,
+          ),
+        )
+      )
+    );
+  }
   
 }

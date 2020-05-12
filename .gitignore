@@ -33,7 +33,6 @@ lise.iml
 pubspec.lock
 /android/key.properties
 /android/.gradle
-*.code-workspace
 /test/
 .vscode
 

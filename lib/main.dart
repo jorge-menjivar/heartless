@@ -83,9 +83,9 @@ class _LoadingPageState extends State<LoadingPage> {
   void _checkCurrentUser() async {
     await _auth.currentUser().then((u) async{
       user = u;
-        await (user != null)
-        ? _checkVerification()
-        : Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
+        (user != null)
+        ? await _checkVerification()
+        : await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
     });
   }
   
