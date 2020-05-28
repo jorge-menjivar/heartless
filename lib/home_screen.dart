@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -49,10 +48,8 @@ final _subFont = const TextStyle(
 final _trailFont = const TextStyle(
   color: Colors.black,
 );
-final _listTitleStyle = const TextStyle(
-  color: Colors.black,
-  fontWeight: FontWeight.bold
-);
+final _listTitleStyle =
+    const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
 var _iconColor = black;
 
 Color _pictureCardColor = Colors.white;
@@ -61,7 +58,7 @@ bool isNew = false;
 
 class InitPage extends StatefulWidget {
   InitPage({@required this.user, this.username});
-  
+
   final FirebaseUser user;
   final String username;
 
@@ -70,7 +67,6 @@ class InitPage extends StatefulWidget {
 }
 
 class InitPageState extends State<InitPage> with WidgetsBindingObserver {
-
   InitPageState({this.user, this.username});
 
   FirebaseUser user;
@@ -80,22 +76,21 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
   ScrollController _scrollController;
   final double _profilePicSize = 280;
-  
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  
+
   String _profilePicImageLink1 = 'http://loading';
   String _profilePicImageLink2 = 'http://loading';
   String _profilePicImageLink3 = 'http://loading';
   String _profilePicImageLink4 = 'http://loading';
   String _profilePicImageLink5 = 'http://loading';
-  
+
   StorageReference _storageReference1;
   StorageReference _storageReference2;
   StorageReference _storageReference3;
   StorageReference _storageReference4;
   StorageReference _storageReference5;
-  
-  
+
   @override
   void initState() {
     super.initState();
@@ -103,40 +98,44 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     _scrollController = ScrollController();
     //TODO _checkCurrentUser();
   }
-  
-  
+
   void _loadProfilePictures() async {
     try {
-      _storageReference1 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic1.jpg');
-    }
-    catch (e) {
-      print (e);
-    }
-    try {
-      _storageReference2 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic2.jpg');
-    }
-    catch (e) {
-      print (e);
+      _storageReference1 = FirebaseStorage()
+          .ref()
+          .child('users/${user.uid}/profile_pictures/pic1.jpg');
+    } catch (e) {
+      print(e);
     }
     try {
-      _storageReference3 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic3.jpg');
-    }
-    catch (e) {
-      print (e);
-    }
-    try {
-      _storageReference4 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic4.jpg');
-    }
-    catch (e) {
-      print (e);
+      _storageReference2 = FirebaseStorage()
+          .ref()
+          .child('users/${user.uid}/profile_pictures/pic2.jpg');
+    } catch (e) {
+      print(e);
     }
     try {
-      _storageReference5 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic5.jpg');
+      _storageReference3 = FirebaseStorage()
+          .ref()
+          .child('users/${user.uid}/profile_pictures/pic3.jpg');
+    } catch (e) {
+      print(e);
     }
-    catch (e) {
-      print (e);
+    try {
+      _storageReference4 = FirebaseStorage()
+          .ref()
+          .child('users/${user.uid}/profile_pictures/pic4.jpg');
+    } catch (e) {
+      print(e);
     }
-    
+    try {
+      _storageReference5 = FirebaseStorage()
+          .ref()
+          .child('users/${user.uid}/profile_pictures/pic5.jpg');
+    } catch (e) {
+      print(e);
+    }
+
     _profilePicImageLink1 = await _storageReference1.getDownloadURL();
     _profilePicImageLink2 = await _storageReference2.getDownloadURL();
     _profilePicImageLink3 = await _storageReference3.getDownloadURL();
@@ -145,569 +144,534 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
     setState(() {});
     return;
-   }
-  
-  
-  
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      body: DefaultTabController(
-        length: 3,
-        child: NestedScrollView(
-          headerSliverBuilder:
-              (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverOverlapAbsorber(
-                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                    context),
-                sliver: SliverSafeArea(
-                  bottom: false,
-                  top: false,
-                  sliver: SliverAppBar(
-                    primary: true,
-                    centerTitle: true,
-                    title: ListTile(
-                      title: Text(
-                        'LISA',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.0,
+        key: _scaffoldKey,
+        body: DefaultTabController(
+            length: 3,
+            child: NestedScrollView(
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) {
+                return <Widget>[
+                  SliverOverlapAbsorber(
+                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                        context),
+                    sliver: SliverSafeArea(
+                      bottom: false,
+                      top: false,
+                      sliver: SliverAppBar(
+                        primary: true,
+                        centerTitle: true,
+                        title: ListTile(
+                          title: Text(
+                            'LISA',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                          subtitle: Text(
+                            'A new way to meet people',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.0,
+                            ),
+                          ),
                         ),
-                      ),
-                      subtitle: Text(
-                        'A new way to meet people',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.0,
+                        expandedHeight: 100.0,
+                        floating: true,
+                        pinned: true,
+                        snap: false,
+                        flexibleSpace: FlexibleSpaceBar(
+                            collapseMode: CollapseMode.pin,
+                            background: Container(
+                              decoration: BoxDecoration(color: white),
+                            )),
+                        bottom: TabBar(
+                          indicatorColor: Colors.white,
+                          labelColor: Colors.blue,
+                          unselectedLabelColor: Colors.grey,
+                          tabs: [
+                            Tab(
+                              icon: FaIcon(
+                                FontAwesomeIcons.search,
+                              ),
+                            ),
+                            Tab(
+                              icon: FaIcon(
+                                FontAwesomeIcons.solidCommentDots,
+                              ),
+                            ),
+                            Tab(
+                              icon: FaIcon(
+                                FontAwesomeIcons.userAlt,
+                              ),
+                            )
+                          ],
                         ),
                       ),
                     ),
-                    expandedHeight: 140.0,
-                    floating: true,
-                    pinned: true,
-                    snap: false,
-                    flexibleSpace: FlexibleSpaceBar(
-                      collapseMode: CollapseMode.pin,
-                      background: CachedNetworkImage(
-                        imageUrl: 'https://www.publicdomainpictures.net/pictures/80000/nahled/pale-grey-smoke.jpg',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    bottom: TabBar(
-                      indicatorColor: Colors.white,
-                      labelColor: Colors.blue,
-                      unselectedLabelColor: Colors.grey,
-                      tabs: [
-                        Tab(
-                          icon: FaIcon(
-                            FontAwesomeIcons.search,
-                          ),
-                        ),
-                        Tab(
-                          icon: FaIcon(
-                            FontAwesomeIcons.solidCommentDots,
-                          ),
-                        ),
-                        Tab(
-                          icon: FaIcon(
-                            FontAwesomeIcons.userAlt,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            ];
-          },
-          body: TabBarView(children: [
-            
-            ///------------------------------------ POTENTIAL MATCHES -----------------------------------------
-            StreamBuilder<QuerySnapshot>(
-              stream: Firestore.instance
-                  .collection('users')
-                  .document('user1')
-                  .collection('data_generated')
-                  .document('user_rooms')
-                  .collection('p_matches')
-                  .snapshots(),
-              builder: _buildPMatchesTiles
-            ),
-            
-            
-            ///------------------------------------------- MATCHES ---------------------------------------------
-            StreamBuilder<QuerySnapshot>(
-              stream: Firestore.instance
-                  .collection('users')
-                  .document('user1')
-                  .collection('data_generated')
-                  .document('user_rooms')
-                  .collection('matches')
-                  .snapshots(),
-              builder: _buildMatchesTiles
-            ),
-            
-            ///------------------------------------------- PROFILE ---------------------------------------------------------
-            ListView(
-              padding: const EdgeInsets.all(1),
-              children: <Widget>[
-                ListTile(
-                  leading: Text(
-                    'PROFILE',
-                    textAlign: TextAlign.left,
-                    style: _listTitleStyle,
-                  ),
-                ),
-                SizedBox(
-                  height: _profilePicSize+40,
-                  child: ShaderMask(
-                    shaderCallback: (rect) {
-                      return LinearGradient(
-                        begin: Alignment(0, 0.9),
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.white, Colors.transparent],
-                      ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-                    },
-                    blendMode: BlendMode.dstIn,
-                    child: ShaderMask(
-                      shaderCallback: (rect) {
-                        return LinearGradient(
-                          begin: Alignment(0, -0.9),
-                          end: Alignment.topCenter,
-                          colors: [Colors.white, Colors.transparent],
-                        ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-                      },
-                      blendMode: BlendMode.dstIn,
-                      child: ListView(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.all(12),
-                        primary: false,
-                        physics: BouncingScrollPhysics(),
-                        children: <Widget>[
-                          Center(
-                            child: Card(
-                              color: _pictureCardColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(1000))
-                              ),
-                              child:  SizedBox(
-                                width: _profilePicSize,
-                                height: _profilePicSize,
-                                child: RawMaterialButton(
-                                  highlightColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  padding: EdgeInsets.all(12),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image: AdvancedNetworkImage(
-                                          _profilePicImageLink1,
-                                          useDiskCache: true,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  ),
-                                  onLongPress: () {},
-                                  onPressed: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ProfilePicturesScreen(user: user,)
-                                      )
-                                    ).then((value) => _loadProfilePictures());
-                                  }
-                                )
-                              ),
-                            ),
-                          ),
-                          
-                          Center(
-                            child: Card(
-                              color: _pictureCardColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(1000))
-                              ),
-                              child:  SizedBox(
-                                width: _profilePicSize,
-                                height: _profilePicSize,
-                                child: RawMaterialButton(
-                                  highlightColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  padding: EdgeInsets.all(12),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image: AdvancedNetworkImage(
-                                          _profilePicImageLink2,
-                                          useDiskCache: true,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  ),
-                                  onLongPress: () {},
-                                  onPressed: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ProfilePicturesScreen(user: user,)
-                                      )
-                                    ).then((value) => _loadProfilePictures());
-                                  }
-                                )
-                              ),
-                            ),
-                          ),
-                          
-                          Center(
-                            child: Card(
-                              color: _pictureCardColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(1000))
-                              ),
-                              child:  SizedBox(
-                                width: _profilePicSize,
-                                height: _profilePicSize,
-                                child: RawMaterialButton(
-                                  highlightColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  padding: EdgeInsets.all(12),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image: AdvancedNetworkImage(
-                                          _profilePicImageLink3,
-                                          useDiskCache: true,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  ),
-                                  onLongPress: () {},
-                                  onPressed: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ProfilePicturesScreen(user: user,)
-                                      )
-                                    ).then((value) => _loadProfilePictures());
-                                  }
-                                )
-                              ),
-                            ),
-                          ),
-                          
-                          Center(
-                            child: Card(
-                              color: _pictureCardColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(1000))
-                              ),
-                              child:  SizedBox(
-                                width: _profilePicSize,
-                                height: _profilePicSize,
-                                child: RawMaterialButton(
-                                  highlightColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  padding: EdgeInsets.all(12),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image: AdvancedNetworkImage(
-                                          _profilePicImageLink4,
-                                          useDiskCache: true,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  ),
-                                  onLongPress: () {},
-                                  onPressed: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ProfilePicturesScreen(user: user,)
-                                      )
-                                    ).then((value) => _loadProfilePictures());
-                                  }
-                                )
-                              ),
-                            ),
-                          ),
-                          
-                          Center(
-                            child: Card(
-                              color: _pictureCardColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(1000))
-                              ),
-                              child:  SizedBox(
-                                width: _profilePicSize,
-                                height: _profilePicSize,
-                                child: RawMaterialButton(
-                                  highlightColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                  hoverColor: Colors.transparent,
-                                  padding: EdgeInsets.all(12),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image: AdvancedNetworkImage(
-                                          _profilePicImageLink5,
-                                          useDiskCache: true,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  ),
-                                  onLongPress: () {},
-                                  onPressed: () async {
-                                    await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ProfilePicturesScreen(user: user,)
-                                      )
-                                    ).then((value) => _loadProfilePictures());
-                                  }
-                                )
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
                   )
-                ),
-                Divider(),
-                Divider(
-                  color: Colors.transparent
-                ),
-                Container(
-                  decoration: BoxDecoration(),
-                  child: ListTile(
-                    dense: true,
-                    leading: FaIcon(
-                        FontAwesomeIcons.userAlt,
-                        color: black,
-                      ),
-                    title: Text(
-                      'Personal information',
-                      textAlign: TextAlign.left,
-                      style: _biggerFont,
-                    ),
-                    subtitle: Text(
-                      'Age, gender, height, weight, etc.',
-                      style: _subFont,
-                      textAlign: TextAlign.left,
-                      maxLines: 1,
-                    ),
-                    onLongPress: () {},
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PersonalInformationScreen(user: user,)
-                        )
-                      );
-                    }
-                  ),
-                ),
-                Divider(
-                  color: Colors.transparent
-                ),
-                Container(
-                  decoration: BoxDecoration(),
-                  child: ListTile(
-                      dense: true,
-                      leading: FaIcon(
-                        FontAwesomeIcons.search,
-                        color: black,
-                      ),
-                      title: Text(
-                        'I am looking for',
+                ];
+              },
+              body: TabBarView(children: [
+                ///------------------------------------ POTENTIAL MATCHES -----------------------------------------
+                StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance
+                        .collection('users')
+                        .document('${user.uid}')
+                        .collection('data_generated')
+                        .document('user_rooms')
+                        .collection('p_matches')
+                        .snapshots(),
+                    builder: _buildPMatchesTiles),
+
+                ///------------------------------------------- MATCHES ---------------------------------------------
+                StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance
+                        .collection('users')
+                        .document(user.uid)
+                        .collection('data_generated')
+                        .document('user_rooms')
+                        .collection('matches')
+                        .snapshots(),
+                    builder: _buildMatchesTiles),
+
+                ///------------------------------------------- PROFILE ---------------------------------------------------------
+                ListView(
+                  padding: const EdgeInsets.all(1),
+                  children: <Widget>[
+                    ListTile(
+                      leading: Text(
+                        'PROFILE',
                         textAlign: TextAlign.left,
-                        style: _biggerFont,
+                        style: _listTitleStyle,
                       ),
-                      subtitle: Text(
-                        'Gender, type of relationship, etc.',
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SearchInformationScreen(user: user,)
-                          )
-                        );
-                      }),
-                ),
-                Divider(
-                  color: Colors.transparent
-                ),
-                Container(
-                  decoration: BoxDecoration(),
-                  child: ListTile(
-                      dense: true,
-                      leading: FaIcon(
-                        FontAwesomeIcons.snowboarding,
-                        color: black,
-                      ),
-                      title: Text(
-                        'My way of living',
-                        textAlign: TextAlign.left,
-                        style: _biggerFont,
-                      ),
-                      subtitle: Text(
-                        'Interests, passions, hobbies, kinks, etc.',
-                        style: _subFont,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => WayOfLivingScreen(user: user,)
-                          )
-                        );
-                      }),
-                ),
-                Divider(
-                  color: Colors.transparent
-                ),
-                Container(
-                  decoration: BoxDecoration(),
-                  child: ListTile(
-                    dense: true,
-                    leading: FaIcon(
-                      FontAwesomeIcons.wrench,
-                      color: black,
                     ),
-                    title: Text(
-                      'Settings',
-                      textAlign: TextAlign.left,
-                      style: _biggerFont,
+                    SizedBox(
+                        height: _profilePicSize + 40,
+                        child: ShaderMask(
+                            shaderCallback: (rect) {
+                              return LinearGradient(
+                                begin: Alignment(0, 0.9),
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.white, Colors.transparent],
+                              ).createShader(
+                                  Rect.fromLTRB(0, 0, rect.width, rect.height));
+                            },
+                            blendMode: BlendMode.dstIn,
+                            child: ShaderMask(
+                              shaderCallback: (rect) {
+                                return LinearGradient(
+                                  begin: Alignment(0, -0.9),
+                                  end: Alignment.topCenter,
+                                  colors: [Colors.white, Colors.transparent],
+                                ).createShader(Rect.fromLTRB(
+                                    0, 0, rect.width, rect.height));
+                              },
+                              blendMode: BlendMode.dstIn,
+                              child: ListView(
+                                shrinkWrap: true,
+                                padding: EdgeInsets.all(12),
+                                primary: false,
+                                physics: BouncingScrollPhysics(),
+                                children: <Widget>[
+                                  Center(
+                                    child: Card(
+                                      color: _pictureCardColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(1000))),
+                                      child: SizedBox(
+                                          width: _profilePicSize,
+                                          height: _profilePicSize,
+                                          child: RawMaterialButton(
+                                              highlightColor:
+                                                  Colors.transparent,
+                                              splashColor: Colors.transparent,
+                                              hoverColor: Colors.transparent,
+                                              padding: EdgeInsets.all(12),
+                                              child: Container(
+                                                  decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                  image: AdvancedNetworkImage(
+                                                    _profilePicImageLink1,
+                                                    useDiskCache: true,
+                                                  ),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )),
+                                              onPressed: () async {
+                                                await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ProfilePicturesScreen(
+                                                              user: user,
+                                                            ))).then((value) =>
+                                                    _loadProfilePictures());
+                                              })),
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Card(
+                                      color: _pictureCardColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(1000))),
+                                      child: SizedBox(
+                                          width: _profilePicSize,
+                                          height: _profilePicSize,
+                                          child: RawMaterialButton(
+                                              highlightColor:
+                                                  Colors.transparent,
+                                              splashColor: Colors.transparent,
+                                              hoverColor: Colors.transparent,
+                                              padding: EdgeInsets.all(12),
+                                              child: Container(
+                                                  decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                  image: AdvancedNetworkImage(
+                                                    _profilePicImageLink2,
+                                                    useDiskCache: true,
+                                                  ),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )),
+                                              onPressed: () async {
+                                                await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ProfilePicturesScreen(
+                                                              user: user,
+                                                            ))).then((value) =>
+                                                    _loadProfilePictures());
+                                              })),
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Card(
+                                      color: _pictureCardColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(1000))),
+                                      child: SizedBox(
+                                          width: _profilePicSize,
+                                          height: _profilePicSize,
+                                          child: RawMaterialButton(
+                                              highlightColor:
+                                                  Colors.transparent,
+                                              splashColor: Colors.transparent,
+                                              hoverColor: Colors.transparent,
+                                              padding: EdgeInsets.all(12),
+                                              child: Container(
+                                                  decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                  image: AdvancedNetworkImage(
+                                                    _profilePicImageLink3,
+                                                    useDiskCache: true,
+                                                  ),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )),
+                                              onPressed: () async {
+                                                await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ProfilePicturesScreen(
+                                                              user: user,
+                                                            ))).then((value) =>
+                                                    _loadProfilePictures());
+                                              })),
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Card(
+                                      color: _pictureCardColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(1000))),
+                                      child: SizedBox(
+                                          width: _profilePicSize,
+                                          height: _profilePicSize,
+                                          child: RawMaterialButton(
+                                              highlightColor:
+                                                  Colors.transparent,
+                                              splashColor: Colors.transparent,
+                                              hoverColor: Colors.transparent,
+                                              padding: EdgeInsets.all(12),
+                                              child: Container(
+                                                  decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                  image: AdvancedNetworkImage(
+                                                    _profilePicImageLink4,
+                                                    useDiskCache: true,
+                                                  ),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )),
+                                              onPressed: () async {
+                                                await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ProfilePicturesScreen(
+                                                              user: user,
+                                                            ))).then((value) =>
+                                                    _loadProfilePictures());
+                                              })),
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Card(
+                                      color: _pictureCardColor,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(1000))),
+                                      child: SizedBox(
+                                          width: _profilePicSize,
+                                          height: _profilePicSize,
+                                          child: RawMaterialButton(
+                                              highlightColor:
+                                                  Colors.transparent,
+                                              splashColor: Colors.transparent,
+                                              hoverColor: Colors.transparent,
+                                              padding: EdgeInsets.all(12),
+                                              child: Container(
+                                                  decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                  image: AdvancedNetworkImage(
+                                                    _profilePicImageLink5,
+                                                    useDiskCache: true,
+                                                  ),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )),
+                                              onPressed: () async {
+                                                await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ProfilePicturesScreen(
+                                                              user: user,
+                                                            ))).then((value) =>
+                                                    _loadProfilePictures());
+                                              })),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ))),
+                    Divider(),
+                    Divider(color: Colors.transparent),
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: FaIcon(
+                            FontAwesomeIcons.userAlt,
+                            color: black,
+                          ),
+                          title: Text(
+                            'Personal information',
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          subtitle: Text(
+                            'Age, gender, height, weight, etc.',
+                            style: _subFont,
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        PersonalInformationScreen(
+                                          user: user,
+                                        )));
+                          }),
                     ),
-                    subtitle: Text(
-                      'Notifications, Email, Phone Number, etc.',
-                      style: _subFont,
-                      textAlign: TextAlign.left,
-                      maxLines: 1,
+                    Divider(color: Colors.transparent),
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: FaIcon(
+                            FontAwesomeIcons.search,
+                            color: black,
+                          ),
+                          title: Text(
+                            'I am looking for',
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          subtitle: Text(
+                            'Gender, type of relationship, etc.',
+                            style: _subFont,
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        SearchInformationScreen(
+                                          user: user,
+                                        )));
+                          }),
                     ),
-                    onLongPress: () {},
-                    onTap: () {
-                      setState(() {});
-                    }
-                  ),
-                ),
-                Divider(
-                  color: Colors.transparent
-                ),
-                Divider(),
-                Container(
-                  decoration: BoxDecoration(),
-                  child: ListTile(
-                    dense: true,
-                    leading: FaIcon(
-                      FontAwesomeIcons.signOutAlt,
-                      color: black,
+                    Divider(color: Colors.transparent),
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: FaIcon(
+                            FontAwesomeIcons.snowboarding,
+                            color: black,
+                          ),
+                          title: Text(
+                            'My way of living',
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          subtitle: Text(
+                            'Interests, passions, hobbies, kinks, etc.',
+                            style: _subFont,
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => WayOfLivingScreen(
+                                          user: user,
+                                        )));
+                          }),
                     ),
-                    title: Text(
-                      'SIGN OUT',
-                      textAlign: TextAlign.left,
-                      style: _biggerFont,
+                    Divider(color: Colors.transparent),
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: FaIcon(
+                            FontAwesomeIcons.wrench,
+                            color: black,
+                          ),
+                          title: Text(
+                            'Settings',
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          subtitle: Text(
+                            'Notifications, Email, Phone Number, etc.',
+                            style: _subFont,
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                          ),
+                          onTap: () {
+                            setState(() {});
+                          }),
                     ),
-                    onTap: () {
-                      FirebaseAuth.instance.signOut();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoadingPage()
-                        )
-                      );
-                    }
-                  ),
+                    Divider(color: Colors.transparent),
+                    Divider(),
+                    Container(
+                      decoration: BoxDecoration(),
+                      child: ListTile(
+                          dense: true,
+                          leading: FaIcon(
+                            FontAwesomeIcons.signOutAlt,
+                            color: black,
+                          ),
+                          title: Text(
+                            'SIGN OUT',
+                            textAlign: TextAlign.left,
+                            style: _biggerFont,
+                          ),
+                          onTap: () {
+                            FirebaseAuth.instance.signOut();
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoadingPage()));
+                          }),
+                    ),
+                    Divider(color: Colors.transparent),
+                  ],
                 ),
-                Divider(
-                  color: Colors.transparent
-                ),
-              ],
-            ),
-          ]),
-        )
-      )
-    );
+              ]),
+            )));
   }
 
-  Widget _buildPMatchesTiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-    
-      if (snapshot.hasData) {
+  Widget _buildPMatchesTiles(
+      BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    if (snapshot.hasData) {
       var header = <ListTile>[
         ListTile(
-          leading: Text(
-            'POTENTIAL MATCHES',
-            textAlign: TextAlign.left,
-            style: _listTitleStyle
-          ),
+          leading: Text('POTENTIAL MATCHES',
+              textAlign: TextAlign.left, style: _listTitleStyle),
         )
       ];
 
-      var listTiles =
-          snapshot.data.documents.where((element) => element['otherUser'] != null).map((DocumentSnapshot document) {
+      var listTiles = snapshot.data.documents
+          .where((element) => element['otherUser'] != null)
+          .map((DocumentSnapshot document) {
         return ListTile(
-          title: Text(
-            document['otherUser'],
-            style: _biggerFont,
-          ),
-          subtitle: Text(
-            '',
-            style: _subFont,
-            textAlign: TextAlign.left,
-            maxLines: 1,
-          ),
-          trailing: Text(
-            convertTime(int.parse(document.documentID)),
-            style: _trailFont,
-            textAlign: TextAlign.left,
-          ),
-          onLongPress: () {},
-          onTap: () {
-            setState(() {
-              (convertTime(int.parse(document.documentID)) != 'COMPLETED') ?
-                Navigator.push(context, MaterialPageRoute(builder:
-                (context) => PMConversationScreen(
-                  user: user,
-                  matchName: document['otherUser'],
-                  username: user.displayName,
-                  room: document['room'],
-                )))
-              
-              : Navigator.push(context, MaterialPageRoute(builder:
-                (context) => SelectMatchesScreen(
-                  room: document['room'],
-                )));
+            title: Text(
+              document['otherUser'],
+              style: _biggerFont,
+            ),
+            subtitle: Text(
+              '',
+              style: _subFont,
+              textAlign: TextAlign.left,
+              maxLines: 1,
+            ),
+            trailing: Text(
+              convertTime(int.parse(document.documentID)),
+              style: _trailFont,
+              textAlign: TextAlign.left,
+            ),
+            onTap: () {
+              setState(() {
+                (convertTime(int.parse(document.documentID)) != 'COMPLETED')
+                    ? Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PMConversationScreen(
+                                  user: user,
+                                  matchName: document['otherUser'],
+                                  username: user.displayName,
+                                  room: document['room'],
+                                )))
+                    : Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SelectMatchesScreen(
+                                  room: document['room'],
+                                )));
+              });
             });
-          });
       }).toList();
-      
-      var pendingTiles =
-          snapshot.data.documents.where((element) => element['pending'] == true).map((DocumentSnapshot document) {
+
+      var pendingTiles = snapshot.data.documents
+          .where((element) => element['pending'] == true)
+          .map((DocumentSnapshot document) {
         return ListTile(
           title: Text(
             'Searching the world',
@@ -724,15 +688,12 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             FontAwesomeIcons.clock,
             color: black,
           ),
-          onLongPress: () {},
           onTap: () {},
         );
       }).toList();
-      
-      
-      var availableTiles =
-          snapshot.data.documents.where((element) => element['available'] == true).map((DocumentSnapshot document) {
-        return ListTile(
+
+      var availableTiles = [
+        ListTile(
           title: Text(
             'Find someone new',
             textAlign: TextAlign.left,
@@ -742,13 +703,12 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             FontAwesomeIcons.userPlus,
             color: black,
           ),
-          onLongPress: () {},
           onTap: _sendPotentialMatchRequest,
-        );
-      }).toList();
-      
-      
-      List<Object> completeList = header + listTiles + pendingTiles + availableTiles;
+        )
+      ];
+
+      List<Object> completeList =
+          header + listTiles + pendingTiles + availableTiles;
 
       if (snapshot.hasError) {
         return Text('Error: ${snapshot.error}');
@@ -757,70 +717,63 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
         return Text('Loading...');
       } else {
         return ListView(
-          padding: const EdgeInsets.all(1),
-          controller: _scrollController,
-          children: completeList);
+            padding: const EdgeInsets.all(1),
+            controller: _scrollController,
+            children: completeList);
       }
     }
-    
+
     return CircularProgressIndicator();
   }
-  
-  
-  
-  Widget _buildMatchesTiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-    
-      if (snapshot.hasData) {
+
+  Widget _buildMatchesTiles(
+      BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    if (snapshot.hasData) {
       var header = <ListTile>[
         ListTile(
-          leading: Text(
-            'MATCHES',
-            textAlign: TextAlign.left,
-            style: _listTitleStyle
-          ),
+          leading: Text('MATCHES',
+              textAlign: TextAlign.left, style: _listTitleStyle),
         )
       ];
 
-      var listTiles =
-          snapshot.data.documents.where((element) => element['otherUser'] != null).map((DocumentSnapshot document) {
+      var listTiles = snapshot.data.documents
+          .where((element) => element['otherUser'] != null)
+          .map((DocumentSnapshot document) {
         return ListTile(
-          leading: Container(
-            decoration: BoxDecoration(
-              color: Colors.red, shape: BoxShape.circle
-            ),
-            child: SizedBox(
-              height: 50,
-              width: 50,
-              child: Center(
-                child: FaIcon(
+            leading: Container(
+              decoration:
+                  BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+              child: SizedBox(
+                height: 50,
+                width: 50,
+                child: Center(
+                    child: FaIcon(
                   FontAwesomeIcons.userAlt,
                   color: black,
-                )
+                )),
               ),
             ),
-          ),
-          title: Text(
-            document['otherUser'],
-            textAlign: TextAlign.left,
-            style: _biggerFont,
-          ),
-          subtitle: Text(
-            'At the park behind the tree with the big white flowers',
-            style: _subFont,
-            textAlign: TextAlign.left,
-            maxLines: 1,
-          ),
-          trailing: Text(
-            '48 mins',
-            style: _trailFont,
-            textAlign: TextAlign.left,
-          ),
-          onLongPress: () {},
-          onTap: () {
-            setState(() {});
-          });
+            title: Text(
+              document['otherUser'],
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            subtitle: Text(
+              'At the park behind the tree with the big white flowers',
+              style: _subFont,
+              textAlign: TextAlign.left,
+              maxLines: 1,
+            ),
+            trailing: Text(
+              '48 mins',
+              style: _trailFont,
+              textAlign: TextAlign.left,
+            ),
+            onTap: () {
+              setState(() {});
+            });
       }).toList();
-      
+
       List<Object> completeList = header + listTiles;
 
       if (snapshot.hasError) {
@@ -830,98 +783,90 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
         return Text('Loading...');
       } else {
         return ListView(
-          padding: const EdgeInsets.all(1),
-          controller: _scrollController,
-          children: completeList);
+            padding: const EdgeInsets.all(1),
+            controller: _scrollController,
+            children: completeList);
       }
     }
-    
+
     return CircularProgressIndicator();
   }
-  
-  
+
   /// Updates the location of the device to the database and sends a request for a potential match.
   Future<bool> _sendPotentialMatchRequest() async {
-    
     var location = Location();
-    
+
     bool serviceEnabled;
     PermissionStatus permissionGranted;
     LocationData locationData;
-    
+
     // Checking is location is enabled in device
     serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
-      
       serviceEnabled = await location.requestService();
-      
+
       if (!serviceEnabled) {
         return false;
       }
     }
-    
+
     // Checking if app has permission to get location
     permissionGranted = await location.hasPermission();
     if (permissionGranted == PermissionStatus.denied) {
-      
       permissionGranted = await location.requestPermission();
-      
+
       if (permissionGranted != PermissionStatus.granted) {
         return false;
       }
     }
-    
+
     // Getting location form device.
     locationData = await location.getLocation();
-    
+
     // Getting instance of the server function
     final callable = CloudFunctions.instance.getHttpsCallable(
       functionName: 'getPotentialMatch',
     );
-    
-    
+
     // Adding variables to the server to the request and calling the function
     dynamic resp = await callable.call(<String, dynamic>{
       'latitude': locationData.latitude,
       'longitude': locationData.longitude,
     });
-    
+
     print(resp);
-    
+
     return true;
   }
-  
-  
+
   String convertTime(int time) {
-    var minutes = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inMinutes;
-    
-    var hours = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inHours;
-    
-    var days = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inDays;
-    
+    var minutes = DateTime.fromMillisecondsSinceEpoch(time)
+        .difference(DateTime.now())
+        .inMinutes;
+
+    var hours = DateTime.fromMillisecondsSinceEpoch(time)
+        .difference(DateTime.now())
+        .inHours;
+
+    var days = DateTime.fromMillisecondsSinceEpoch(time)
+        .difference(DateTime.now())
+        .inDays;
+
     if (minutes < 0) {
       return 'COMPLETED';
     }
-    
+
     if (minutes < 60) {
       return '$minutes mins left';
-    }
-    
-    else if (hours < 24) {
+    } else if (hours < 24) {
       return '$hours hours left';
-    }
-    
-    else if (days > 0){
+    } else if (days > 0) {
       return '$days days left';
     }
-    
+
     return ' ';
-    
   }
-  
-  
-  
-  
+
   /**
   Future<void> _checkCurrentUser() async {
     await _auth.currentUser().then((u) async{

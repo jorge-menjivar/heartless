@@ -141,11 +141,11 @@ class PMConversationScreenState extends State<PMConversationScreen>
       
       
       var listTiles = snapshot.data.documents.reversed.where((element) => element['message'] != null).map((DocumentSnapshot document) {
-        if (document['from'] == 'user2') {
+        if (document['from'] != user.uid) {
           return ListTile(
             contentPadding: EdgeInsets.only(right: 80.0),
             leading: CircleAvatar(
-              child: Text(document['from'].toUpperCase()[0])
+              child: Text(matchName.toUpperCase()[0])
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
