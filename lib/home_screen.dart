@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -666,6 +668,16 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                                   room: document['room'],
                                 )));
               });
+            },
+            onLongPress: () {
+              setState(() {
+                showDeleteDialog(context, document['otherUser']).then((v) {
+                  if (v) {
+                    _deletePotentialMatch(
+                        int.parse(document.documentID), document['room']);
+                  }
+                });
+              });
             });
       }).toList();
 
@@ -679,7 +691,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             style: _biggerFont,
           ),
           subtitle: Text(
-            'We will let you know when we find someone for you',
+            'We will let you know when we find someone',
             style: _subFont,
             textAlign: TextAlign.left,
             maxLines: 1,
@@ -689,6 +701,15 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             color: black,
           ),
           onTap: () {},
+          onLongPress: () {
+            setState(() {
+              showDeleteDialog(context, 'Request').then((v) {
+                if (v) {
+                  _deleteRequest(document.documentID);
+                }
+              });
+            });
+          },
         );
       }).toList();
 
@@ -723,7 +744,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
       }
     }
 
-    return CircularProgressIndicator();
+    return Center(child: CircularProgressIndicator());
   }
 
   Widget _buildMatchesTiles(
@@ -788,12 +809,59 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             children: completeList);
       }
     }
+    return Center(child: CircularProgressIndicator());
+  }
 
-    return CircularProgressIndicator();
+  Future<bool> _deletePotentialMatch(int time, String room) async {
+    final snackBar = SnackBar(
+      content: Text(
+        'Deleting Potential Match',
+      ),
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
+    // Getting instance of the server function
+    final callable = CloudFunctions.instance.getHttpsCallable(
+      functionName: 'deletePotentialMatch',
+    );
+
+    // Adding variables to the server to the request and calling the function
+    dynamic resp = await callable.call(<String, dynamic>{
+      'time': time,
+      'room': room,
+    });
+
+    print(resp.data['success']);
+    
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+    return (resp.data['success']);
+  }
+
+  Future<bool> _deleteRequest(String id) async {
+    final snackBar = SnackBar(
+      content: Text(
+        'Deleting Request',
+      ),
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
+    
+    // Getting instance of the server function
+    final callable = CloudFunctions.instance.getHttpsCallable(
+      functionName: 'deleteRequest',
+    );
+
+    // Adding variables to the server to the request and calling the function
+    dynamic resp = await callable.call(<String, dynamic>{
+      'requestId': id,
+    });
+
+    print(resp.data['success']);
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+    return (resp.data['success']);
   }
 
   /// Updates the location of the device to the database and sends a request for a potential match.
   Future<bool> _sendPotentialMatchRequest() async {
+    
     var location = Location();
 
     bool serviceEnabled;
@@ -822,7 +890,15 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
     // Getting location form device.
     locationData = await location.getLocation();
-
+    
+    
+    final snackBar = SnackBar(
+      content: Text(
+        'Sending Request',
+      ),
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
+    
     // Getting instance of the server function
     final callable = CloudFunctions.instance.getHttpsCallable(
       functionName: 'getPotentialMatch',
@@ -834,9 +910,10 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
       'longitude': locationData.longitude,
     });
 
-    print(resp);
-
-    return true;
+    print(resp.data['success']);
+    
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+    return (resp.data['success']);
   }
 
   String convertTime(int time) {
@@ -861,10 +938,78 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     } else if (hours < 24) {
       return '$hours hours left';
     } else if (days > 0) {
-      return '$days days left';
+      return '$days days, ${hours % 24} hours left';
     }
 
     return ' ';
+  }
+
+  /// Shows the an alert asking the user if delete should really be done
+  Future<bool> showDeleteDialog(BuildContext context, String name) async {
+    var choice = false;
+
+    // Await for the dialog to be dismissed before returning
+    (Platform.isAndroid)
+        ? await showDialog<bool>(
+            context: context,
+            barrierDismissible: true, // user can type outside box to dismiss
+            builder: (BuildContext context) {
+              return AlertDialog(
+                  title: Text('Are you sure?'),
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text(
+                            'Do you really want to delete the conversation with $name?'),
+                      ],
+                    ),
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    FlatButton(
+                      child: Text("I\'m sure"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        choice = true;
+                      },
+                    ),
+                  ]);
+            })
+        : await showCupertinoDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return CupertinoAlertDialog(
+                  title: Text('Are you sure?'),
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text(
+                            'Do you really want to delete the conversation with $name?'),
+                      ],
+                    ),
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    FlatButton(
+                      child: Text("I\'m sure"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        choice = true;
+                      },
+                    ),
+                  ]);
+            });
+    return choice;
   }
 
   /**
