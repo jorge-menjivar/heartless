@@ -90,7 +90,8 @@ class _LoadingPageState extends State<LoadingPage> {
   }
   
   Future<void> _checkVerification() async {
-    if (user.isEmailVerified) {// Downloading data and synchronizing it with public variables
+    // Downloading data and synchronizing it with public variables
+    if (user.isEmailVerified) {
       await Firestore.instance
         .collection('users')
         .document(user.uid)

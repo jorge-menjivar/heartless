@@ -36,7 +36,7 @@ class RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => false,
+      onWillPop: () async => true,
         child: Scaffold(
         appBar: AppBar(
           title: Text('Register'),

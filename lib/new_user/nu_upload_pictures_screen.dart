@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as image_package;
 import 'package:lise/main.dart';
+import 'package:location/location.dart';
 
 
 // Storage
@@ -426,20 +428,57 @@ class UploadPicturesScreenState extends State<UploadPicturesScreen> {
   
   
   Future<void> _saveProfileCompletion() async {
-    await Firestore.instance
-        .collection('users')
-        .document(user.uid)
-        .collection('data')
-        .document('account').setData(
-          <String, dynamic>{
-            'profileCompleted': true,
-          },
-          merge: true
-        )
-        .catchError((error) {
-            print('Error writing document: ' + error.toString());
-        }
-      );
+    var location = Location();
+
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
+
+    // Checking is location is enabled in device
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+
+      if (!serviceEnabled) {
+        return false;
+      }
+    }
+
+    // Checking if app has permission to get location
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+
+      if (permissionGranted != PermissionStatus.granted) {
+        return false;
+      }
+    }
+
+    // Getting location form device.
+    locationData = await location.getLocation();
+
+    final snackBar = SnackBar(
+      content: Text(
+        'Completing Profile',
+      ),
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
+
+    // Getting instance of the server function
+    final callable = CloudFunctions.instance.getHttpsCallable(
+      functionName: 'onProfileComplete',
+    );
+
+    // Adding variables to the server to the request and calling the function
+    dynamic resp = await callable.call(<String, dynamic>{
+      'latitude': locationData.latitude,
+      'longitude': locationData.longitude,
+    });
+
+    print(resp.data['success']);
+
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+    return (resp.data['success']);
   }
   
   

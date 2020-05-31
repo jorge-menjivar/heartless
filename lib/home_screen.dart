@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -831,7 +830,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     });
 
     print(resp.data['success']);
-    
+
     _scaffoldKey.currentState.hideCurrentSnackBar();
     return (resp.data['success']);
   }
@@ -843,7 +842,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
       ),
     );
     _scaffoldKey.currentState.showSnackBar(snackBar);
-    
+
     // Getting instance of the server function
     final callable = CloudFunctions.instance.getHttpsCallable(
       functionName: 'deleteRequest',
@@ -861,7 +860,6 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
   /// Updates the location of the device to the database and sends a request for a potential match.
   Future<bool> _sendPotentialMatchRequest() async {
-    
     var location = Location();
 
     bool serviceEnabled;
@@ -890,15 +888,14 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
     // Getting location form device.
     locationData = await location.getLocation();
-    
-    
+
     final snackBar = SnackBar(
       content: Text(
         'Sending Request',
       ),
     );
     _scaffoldKey.currentState.showSnackBar(snackBar);
-    
+
     // Getting instance of the server function
     final callable = CloudFunctions.instance.getHttpsCallable(
       functionName: 'getPotentialMatch',
@@ -911,7 +908,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     });
 
     print(resp.data['success']);
-    
+
     _scaffoldKey.currentState.hideCurrentSnackBar();
     return (resp.data['success']);
   }

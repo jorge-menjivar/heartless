@@ -245,25 +245,28 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
   }
   
   Future<void> _save() async {
-    await Firestore.instance
-      .collection('users')
-      .document(user.uid)
-      .collection('data')
-      .document('search').setData(
-        <String, dynamic>{
-          'gender': {
-            'female': _women,
-            'male': _men,
-            'trans_female': _transWomen,
-            'trans_male': _transMen,
-            'other': _others,
+    // If user made a choice, save it to the cloud
+    if (_women || _men || _transWomen || _transMen || _others) {
+      await Firestore.instance
+        .collection('users')
+        .document(user.uid)
+        .collection('data')
+        .document('search').setData(
+          <String, dynamic>{
+            'gender': {
+              'female': _women,
+              'male': _men,
+              'trans_female': _transWomen,
+              'trans_male': _transMen,
+              'other': _others,
+            },
           },
-        },
-        merge: true
-      )
-      .catchError((error) {
-          print('Error writing document: ' + error.toString());
-      }
-    );
+          merge: true
+        )
+        .catchError((error) {
+            print('Error writing document: ' + error.toString());
+        }
+      );
+    }
   }
 }

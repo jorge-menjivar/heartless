@@ -70,6 +70,12 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
   String _userGender;
   String _name;
   String _race;
+  
+  bool _women = false;
+  bool _men = false;
+  bool _transWomen = false;
+  bool _transMen = false;
+  bool _others = false;
 
   @override
   void initState() {
@@ -126,6 +132,24 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
     } else if (race == 'other') {
       _race = 'Other';
     }
+    
+    await Firestore.instance
+      .collection('users')
+      .document(user.uid)
+      .collection('data')
+      .document('search')
+      .get()
+      .then((doc) {
+        if (!doc.exists) {
+          print('No data document!');
+        } else {
+          _women = doc.data['gender']['female'];
+          _men = doc.data['gender']['male'];
+          _transWomen = doc.data['gender']['trans_female'];
+          _transMen = doc.data['gender']['trans_male'];
+          _others = doc.data['gender']['other'];
+        }
+    });
 
     setState(() {});
   }
@@ -151,24 +175,16 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                 FontAwesomeIcons.signature,
                 color: black,
               ),
-              title: TextFormField(
-                key: _formFieldKey,
-                controller: _controllerDisplayName,
-                onFieldSubmitted: (value) async {
-                  await _saveName(value);
-                },
-                keyboardType: TextInputType.text,
-                autocorrect: false,
-                autofocus: true,
-                autovalidate: true,
-                decoration: InputDecoration(
-                  hintText: 'What is your first name?',
-                ),
-                validator: (username) {
-                  if (username.contains(RegExp(r'\W'))) {
-                    return 'Only letter, digits, and _';
-                  }
-                },
+              title: Row(
+                children: <Widget>[
+                  Text(
+                    (_name != null) ? _name : '',
+                    style: TextStyle(
+                      fontSize: 26.0,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
               ),
               onTap: () async {
                 await Navigator.push(
@@ -297,16 +313,13 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                     fontWeight: FontWeight.w600,
                   )),
               onPressed: () async {
-                if (_name != null &&
-                    _birthday != null &&
-                    _userGender != null &&
-                    _race != null) {
-                  await Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => UploadPicturesScreen(
-                                user: user,
-                              )));
+                if ((_women || _men || _transWomen || _transMen || _others) && (_name != null && _birthday != null && _userGender != null && _race != null)) {
+                    await Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => UploadPicturesScreen(
+                                  user: user,
+                                )));
                 } else {
                   print('not complete');
                 }
