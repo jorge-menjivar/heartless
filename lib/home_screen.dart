@@ -8,6 +8,7 @@ import 'package:lise/user_profile/profile_pictures_screen.dart';
 import 'package:lise/user_profile/search_information_screen.dart';
 import 'package:lise/user_profile/wol_screen.dart';
 import 'package:location/location.dart';
+import 'package:pedantic/pedantic.dart';
 import 'main.dart';
 import 'messages/m_p_matches_screen.dart';
 import 'convo_completion/select_matches_screen.dart';
@@ -644,13 +645,13 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
               maxLines: 1,
             ),
             trailing: Text(
-              convertTime(int.parse(document.documentID)),
+              convertTime(int.parse(document.documentID), document.documentID),
               style: _trailFont,
               textAlign: TextAlign.left,
             ),
             onTap: () {
               setState(() {
-                (convertTime(int.parse(document.documentID)) != 'COMPLETED')
+                (convertTime(int.parse(document.documentID), document.documentID) != 'COMPLETED')
                     ? Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -664,7 +665,9 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                         context,
                         MaterialPageRoute(
                             builder: (context) => SelectMatchesScreen(
+                                  user: user,
                                   room: document['room'],
+                                  roomKey: document.documentID,
                                 )));
               });
             },
@@ -913,7 +916,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     return (resp.data['success']);
   }
 
-  String convertTime(int time) {
+  String convertTime(int time, String roomKey) {
     var minutes = DateTime.fromMillisecondsSinceEpoch(time)
         .difference(DateTime.now())
         .inMinutes;
@@ -926,6 +929,27 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
         .difference(DateTime.now())
         .inDays;
 
+    // Sending connection request 24 hours before the connection screen is shown to have profiles ready and prevent slowdown in the app
+    if (hours < 36) {
+      Firestore.instance
+          .collection('users')
+          .document('${user.uid}')
+          .collection('data_generated')
+          .document('user_rooms')
+          .collection('p_matches')
+          .document('$roomKey')
+          .get()
+          .then((doc) {
+        if (!doc.exists) {
+          print('No data document!');
+        } else {
+          if (doc.data['connections'] == null ||
+              doc.data['connections'].length == 0) {
+            unawaited(_sendConnectionsRequest(roomKey));
+          }
+        }
+      });
+    }
     if (minutes < 0) {
       return 'COMPLETED';
     }
@@ -939,6 +963,52 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     }
 
     return ' ';
+  }
+
+  Future<void> _sendConnectionsRequest(String roomKey) async {
+    // If the connections array has not been created yet, request the server to create it
+    var location = Location();
+
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
+
+    // Checking is location is enabled in device
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+
+      if (!serviceEnabled) {
+        return false;
+      }
+    }
+
+    // Checking if app has permission to get location
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+
+      if (permissionGranted != PermissionStatus.granted) {
+        return false;
+      }
+    }
+
+    // Getting location form device.
+    locationData = await location.getLocation();
+
+    // Getting instance of the server function
+    final callable = CloudFunctions.instance.getHttpsCallable(
+      functionName: 'getConnectionUsers',
+    );
+
+    // Adding variables to the server to the request and calling the function
+    dynamic resp = await callable.call(<String, dynamic>{
+      'latitude': locationData.latitude,
+      'longitude': locationData.longitude,
+      'key': roomKey
+    });
+
+    print(resp.data['connections']);
   }
 
   /// Shows the an alert asking the user if delete should really be done
