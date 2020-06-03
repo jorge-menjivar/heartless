@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lise/messages/m_matches_screen.dart';
 import 'package:lise/user_profile/personal_information_screen.dart';
 import 'package:lise/user_profile/profile_pictures_screen.dart';
 import 'package:lise/user_profile/search_information_screen.dart';
@@ -93,10 +94,16 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   StorageReference _storageReference4;
   StorageReference _storageReference5;
 
+  var _matches = [];
+  var _pMatches = [];
+
+  final _matchesImageLinks = [];
+  final _matchesPreviousMessage = [];
+
   @override
   void initState() {
     super.initState();
-    _loadProfilePictures();
+    _downloadData();
     _scrollController = ScrollController();
     //TODO _checkCurrentUser();
   }
@@ -234,15 +241,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                     builder: _buildPMatchesTiles),
 
                 ///------------------------------------------- MATCHES ---------------------------------------------
-                StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance
-                        .collection('users')
-                        .document(user.uid)
-                        .collection('data_generated')
-                        .document('user_rooms')
-                        .collection('matches')
-                        .snapshots(),
-                    builder: _buildMatchesTiles),
+                _buildMatchedConvos(),
 
                 ///------------------------------------------- PROFILE ---------------------------------------------------------
                 ListView(
@@ -645,13 +644,16 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
               maxLines: 1,
             ),
             trailing: Text(
-              convertTime(int.parse(document.documentID), document.documentID),
+              convertPMatchTime(
+                  int.parse(document.documentID), document.documentID),
               style: _trailFont,
               textAlign: TextAlign.left,
             ),
             onTap: () {
               setState(() {
-                (convertTime(int.parse(document.documentID), document.documentID) != 'COMPLETED')
+                (convertPMatchTime(int.parse(document.documentID),
+                            document.documentID) !=
+                        'COMPLETED')
                     ? Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -749,6 +751,138 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     return Center(child: CircularProgressIndicator());
   }
 
+  Future<void> _downloadData() async {
+    // Downloading data and synchronizing it with public variables
+    var pMatchesDocs = await Firestore.instance
+        .collection('users')
+        .document('${user.uid}')
+        .collection('data_generated')
+        .document('user_rooms')
+        .collection('p_matches')
+        .getDocuments();
+
+    _pMatches = pMatchesDocs.documents;
+
+    var matchesDocs = await Firestore.instance
+        .collection('users')
+        .document('${user.uid}')
+        .collection('data_generated')
+        .document('user_rooms')
+        .collection('matches')
+        .getDocuments();
+
+    _matches = matchesDocs.documents;
+
+    _loadMatchesData();
+  }
+
+  void _loadMatchesData() async {
+    if (_matchesImageLinks.isNotEmpty) {
+      _matchesImageLinks.clear();
+    }
+    if (_matchesPreviousMessage.isNotEmpty) {
+      _matchesPreviousMessage.clear();
+    }
+    // Getting the picture download URL for each user from the downloaded array
+    for (var doc in _matches) {
+      try {
+        _matchesImageLinks.add(await FirebaseStorage()
+            .ref()
+            .child('users/${doc['otherUserId']}/profile_pictures/pic1.jpg')
+            .getDownloadURL());
+
+        var lastMessage = await Firestore.instance
+            .collection('messages')
+            .document('rooms')
+            .collection('${doc['room']}')
+            .where('image', isEqualTo: false)
+            .orderBy('__name__', descending: true) // This orders the message by document ID in desc order
+            .limit(1)
+            .getDocuments();
+
+        _matchesPreviousMessage.add(lastMessage.documents[0]);
+      } catch (e) {
+        print(e);
+      }
+    }
+
+    setState(() {});
+    return;
+  }
+
+  Widget _buildMatchedConvos() {
+    return ListView.builder(
+        physics: BouncingScrollPhysics(),
+        itemCount: _matches.length,
+        itemBuilder: (context, i) {
+          var lastMessage;
+          if (_matchesPreviousMessage.isNotEmpty) {
+            if (_matchesPreviousMessage[i]['from'] == user.uid) {
+              lastMessage = 'You: ${_matchesPreviousMessage[i]['message']}';
+            }
+            else {
+              lastMessage = _matchesPreviousMessage[i]['message'];
+            }
+          } else {
+            lastMessage = 'Start Conversation';
+          }
+          return ListTile(
+              leading: Container(
+                decoration:
+                    BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                child: SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: Container(
+                      decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: _matchesImageLinks.isNotEmpty
+                        ? DecorationImage(
+                            image: AdvancedNetworkImage(
+                              _matchesImageLinks[i],
+                              useDiskCache: true,
+                            ),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  )),
+                ),
+              ),
+              title: Text(
+                _matches[i]['otherUser'],
+                textAlign: TextAlign.left,
+                style: _biggerFont,
+              ),
+              subtitle: Text(
+                lastMessage,
+                style: _subFont,
+                textAlign: TextAlign.left,
+              ),
+              trailing: Text(
+                (_matchesPreviousMessage.isNotEmpty)
+                    ? convertMatchTime(
+                        int.parse(_matchesPreviousMessage[i].documentID))
+                    : 'Start Conversation',
+                style: _trailFont,
+                textAlign: TextAlign.left,
+              ),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MatchedConversationScreen(
+                              user: user,
+                              matchName: _matches[i]['otherUser'],
+                              otherUserId: _matches[i]['otherUserId'],
+                              username: user.displayName,
+                              room: _matches[i]['room'],
+                            ))).then((value) {
+                  _downloadData();
+                });
+              });
+        });
+  }
+
   Widget _buildMatchesTiles(
       BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
     if (snapshot.hasData) {
@@ -781,19 +915,23 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
               textAlign: TextAlign.left,
               style: _biggerFont,
             ),
-            subtitle: Text(
-              'At the park behind the tree with the big white flowers',
-              style: _subFont,
-              textAlign: TextAlign.left,
-              maxLines: 1,
-            ),
             trailing: Text(
               '48 mins',
               style: _trailFont,
               textAlign: TextAlign.left,
             ),
             onTap: () {
-              setState(() {});
+              setState(() {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MatchedConversationScreen(
+                              user: user,
+                              matchName: document['otherUser'],
+                              username: user.displayName,
+                              room: document['room'],
+                            )));
+              });
             });
       }).toList();
 
@@ -916,7 +1054,37 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     return (resp.data['success']);
   }
 
-  String convertTime(int time, String roomKey) {
+  String convertMatchTime(int time) {
+    var dateTime = DateTime.fromMillisecondsSinceEpoch(time);
+
+    var minutes = DateTime.now()
+        .difference(DateTime.fromMillisecondsSinceEpoch(time))
+        .inMinutes;
+
+    var hours = DateTime.now()
+        .difference(DateTime.fromMillisecondsSinceEpoch(time))
+        .inHours;
+
+    var days = DateTime.now()
+        .difference(DateTime.fromMillisecondsSinceEpoch(time))
+        .inDays;
+
+    if (minutes < 1) {
+      return 'Just now';
+    } else if (minutes < 60) {
+      return (minutes > 1) ? '$minutes minutes ago' : '$minutes minute ago';
+    } else if (hours < 24) {
+      return (hours > 1) ? '$hours hours ago' : '$hours hour ago';
+    } else if (days < 7) {
+      return (days > 1) ? '${dateTime} days ago' : '${dateTime} day ago';
+    } else if (days > 7) {
+      return '${dateTime}';
+    }
+
+    return '';
+  }
+
+  String convertPMatchTime(int time, String roomKey) {
     var minutes = DateTime.fromMillisecondsSinceEpoch(time)
         .difference(DateTime.now())
         .inMinutes;
@@ -955,11 +1123,23 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     }
 
     if (minutes < 60) {
-      return '$minutes mins left';
+      return (minutes > 1) ? '$minutes mins left' : '$minutes min left';
     } else if (hours < 24) {
-      return '$hours hours left';
+      return (hours > 1) ? '$hours hours left' : '$hours hour left';
     } else if (days > 0) {
-      return '$days days, ${hours % 24} hours left';
+      if (days > 1) {
+        if (hours % 24 > 1) {
+          return '$days days, ${hours % 24} hours left';
+        } else {
+          return '$days days, ${hours % 24} hour left';
+        }
+      } else {
+        if (hours % 24 > 1) {
+          return '$days day, ${hours % 24} hours left';
+        } else {
+          return '$days day, ${hours % 24} hour left';
+        }
+      }
     }
 
     return ' ';

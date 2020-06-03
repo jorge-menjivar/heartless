@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -35,7 +37,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
 
   ScrollController _scrollController;
 
-  var _profiles;
+  final _profiles = Map();
   final _picSize = 370.0;
 
   final _profilePicImageLinks = [];
@@ -48,7 +50,6 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
     _downloadData();
     _loadProfilePictures();
     _scrollController = ScrollController();
-    _profiles = [false, false, false];
   }
 
   Future<void> _downloadData() async {
@@ -125,6 +126,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
     // Getting the picture download URL for each user from the downloaded array
     for (var userId in _users) {
       try {
+        _profiles[userId] = false;
         _profilePicImageLinks.add(await FirebaseStorage()
             .ref()
             .child('users/${userId}/profile_pictures/pic1.jpg')
@@ -206,7 +208,17 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
                                     'CONTINUE',
                                     style: TextStyle(color: Colors.white),
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    setState(() {
+                                      // Double checking to see if user is sure
+                                      _showVerificationDialog(context).then((v) {
+                                        // If the user is sure
+                                        if (v) {
+                                          _verifyConnections();
+                                        }
+                                      });
+                                    });
+                                  },
                                 )
                               ]))
                     ]));
@@ -223,7 +235,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
       itemBuilder: (context, i) {
         return Center(
           child: Card(
-            color: (_profiles[i]) ? Colors.green : Colors.white,
+            color: (_profiles[_users[i]]) ? Colors.green : Colors.white,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(1000))),
             child: SizedBox(
@@ -249,7 +261,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
                     )),
                     onPressed: () {
                       setState(() {
-                        _profiles[i] = !_profiles[i];
+                        _profiles[_users[i]] = !_profiles[_users[i]];
                       });
                     })),
           ),
@@ -257,6 +269,97 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
       }
     );
   }
+  
+  /// Shows the an alert asking the user if delete should really be done
+  Future<bool> _showVerificationDialog(BuildContext context) async {
+    var choice = false;
+
+    // Await for the dialog to be dismissed before returning
+    (Platform.isAndroid)
+        ? await showDialog<bool>(
+            context: context,
+            barrierDismissible: true, // user can type outside box to dismiss
+            builder: (BuildContext context) {
+              return AlertDialog(
+                  title: Text('CONTINUE'),
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text(
+                            'Are you sure?'),
+                      ],
+                    ),
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    FlatButton(
+                      child: Text("I\'m sure"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        choice = true;
+                      },
+                    ),
+                  ]);
+            })
+        : await showCupertinoDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return CupertinoAlertDialog(
+                  title: Text('CONTINUE'),
+                  content: SingleChildScrollView(
+                    child: ListBody(
+                      children: <Widget>[
+                        Text(
+                            'Are you sure?'),
+                      ],
+                    ),
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    FlatButton(
+                      child: Text("I\'m sure"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        choice = true;
+                      },
+                    ),
+                  ]);
+            });
+    return choice;
+  }
+  
+  /// Updates the location of the device to the database and sends a request for a potential match.
+  Future<bool> _verifyConnections() async {
+
+    // Getting instance of the server function
+    final callable = CloudFunctions.instance.getHttpsCallable(
+      functionName: 'verifyConnections',
+    );
+
+    // Adding variables to the server to the request and calling the function
+    dynamic resp = await callable.call(<String, dynamic>{
+      'usersAccepted': _profiles,
+      'room': room,
+      'key': roomKey
+    });
+
+    print(resp.data['success']);
+
+    return (resp.data['success']);
+    
+    
+  }
+
 
   @override
   void dispose() {
