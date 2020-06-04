@@ -292,7 +292,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
   void _sendMessage(String text) async {
     print(user.uid.toString());
     _textController.clear();
-    var sTime = DateTime.now().millisecondsSinceEpoch.toString();
+    var sTime = DateTime.now().millisecondsSinceEpoch;
     await Firestore.instance
         .collection('messages')
         .document('rooms')
@@ -302,6 +302,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
       'from': user.uid.toString(),
       'image': false,
       'message': text,
+      'time': sTime
     }, merge: false).then((r) {
       Timer(
           Duration(milliseconds: 100),

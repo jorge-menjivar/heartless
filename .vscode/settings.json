@@ -9,5 +9,9 @@
         "convo",
         "latinx",
         "mipmap"
-    ]
+    ],
+    "editor.tabSize": 2,
+    "[dart]": {
+    
+    }
 }

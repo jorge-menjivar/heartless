@@ -83,27 +83,23 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String _profilePicImageLink1 = 'http://loading';
-  String _profilePicImageLink2 = 'http://loading';
-  String _profilePicImageLink3 = 'http://loading';
-  String _profilePicImageLink4 = 'http://loading';
-  String _profilePicImageLink5 = 'http://loading';
 
   StorageReference _storageReference1;
-  StorageReference _storageReference2;
-  StorageReference _storageReference3;
-  StorageReference _storageReference4;
-  StorageReference _storageReference5;
 
   var _matches = [];
   var _pMatches = [];
 
-  final _matchesImageLinks = [];
-  final _matchesPreviousMessage = [];
+  var matchesInitialized = false;
+  var pMatchesInitialized = false;
+  final _matchImageLinks = [];
+  final _matchLastMessages = [];
+  final _pMatchLastMessages = [];
 
   @override
   void initState() {
     super.initState();
     _downloadData();
+    _loadProfilePictures();
     _scrollController = ScrollController();
     //TODO _checkCurrentUser();
   }
@@ -116,40 +112,8 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     } catch (e) {
       print(e);
     }
-    try {
-      _storageReference2 = FirebaseStorage()
-          .ref()
-          .child('users/${user.uid}/profile_pictures/pic2.jpg');
-    } catch (e) {
-      print(e);
-    }
-    try {
-      _storageReference3 = FirebaseStorage()
-          .ref()
-          .child('users/${user.uid}/profile_pictures/pic3.jpg');
-    } catch (e) {
-      print(e);
-    }
-    try {
-      _storageReference4 = FirebaseStorage()
-          .ref()
-          .child('users/${user.uid}/profile_pictures/pic4.jpg');
-    } catch (e) {
-      print(e);
-    }
-    try {
-      _storageReference5 = FirebaseStorage()
-          .ref()
-          .child('users/${user.uid}/profile_pictures/pic5.jpg');
-    } catch (e) {
-      print(e);
-    }
 
     _profilePicImageLink1 = await _storageReference1.getDownloadURL();
-    _profilePicImageLink2 = await _storageReference2.getDownloadURL();
-    _profilePicImageLink3 = await _storageReference3.getDownloadURL();
-    _profilePicImageLink4 = await _storageReference4.getDownloadURL();
-    _profilePicImageLink5 = await _storageReference5.getDownloadURL();
 
     setState(() {});
     return;
@@ -230,15 +194,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
               },
               body: TabBarView(children: [
                 ///------------------------------------ POTENTIAL MATCHES -----------------------------------------
-                StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance
-                        .collection('users')
-                        .document('${user.uid}')
-                        .collection('data_generated')
-                        .document('user_rooms')
-                        .collection('p_matches')
-                        .snapshots(),
-                    builder: _buildPMatchesTiles),
+                _buildPMatchesTiles(),
 
                 ///------------------------------------------- MATCHES ---------------------------------------------
                 _buildMatchedConvos(),
@@ -303,158 +259,6 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                                                 image: DecorationImage(
                                                   image: AdvancedNetworkImage(
                                                     _profilePicImageLink1,
-                                                    useDiskCache: true,
-                                                  ),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )),
-                                              onPressed: () async {
-                                                await Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ProfilePicturesScreen(
-                                                              user: user,
-                                                            ))).then((value) =>
-                                                    _loadProfilePictures());
-                                              })),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Card(
-                                      color: _pictureCardColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(1000))),
-                                      child: SizedBox(
-                                          width: _profilePicSize,
-                                          height: _profilePicSize,
-                                          child: RawMaterialButton(
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              splashColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              padding: EdgeInsets.all(12),
-                                              child: Container(
-                                                  decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                image: DecorationImage(
-                                                  image: AdvancedNetworkImage(
-                                                    _profilePicImageLink2,
-                                                    useDiskCache: true,
-                                                  ),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )),
-                                              onPressed: () async {
-                                                await Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ProfilePicturesScreen(
-                                                              user: user,
-                                                            ))).then((value) =>
-                                                    _loadProfilePictures());
-                                              })),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Card(
-                                      color: _pictureCardColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(1000))),
-                                      child: SizedBox(
-                                          width: _profilePicSize,
-                                          height: _profilePicSize,
-                                          child: RawMaterialButton(
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              splashColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              padding: EdgeInsets.all(12),
-                                              child: Container(
-                                                  decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                image: DecorationImage(
-                                                  image: AdvancedNetworkImage(
-                                                    _profilePicImageLink3,
-                                                    useDiskCache: true,
-                                                  ),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )),
-                                              onPressed: () async {
-                                                await Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ProfilePicturesScreen(
-                                                              user: user,
-                                                            ))).then((value) =>
-                                                    _loadProfilePictures());
-                                              })),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Card(
-                                      color: _pictureCardColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(1000))),
-                                      child: SizedBox(
-                                          width: _profilePicSize,
-                                          height: _profilePicSize,
-                                          child: RawMaterialButton(
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              splashColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              padding: EdgeInsets.all(12),
-                                              child: Container(
-                                                  decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                image: DecorationImage(
-                                                  image: AdvancedNetworkImage(
-                                                    _profilePicImageLink4,
-                                                    useDiskCache: true,
-                                                  ),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )),
-                                              onPressed: () async {
-                                                await Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ProfilePicturesScreen(
-                                                              user: user,
-                                                            ))).then((value) =>
-                                                    _loadProfilePictures());
-                                              })),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Card(
-                                      color: _pictureCardColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(1000))),
-                                      child: SizedBox(
-                                          width: _profilePicSize,
-                                          height: _profilePicSize,
-                                          child: RawMaterialButton(
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              splashColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              padding: EdgeInsets.all(12),
-                                              child: Container(
-                                                  decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                image: DecorationImage(
-                                                  image: AdvancedNetworkImage(
-                                                    _profilePicImageLink5,
                                                     useDiskCache: true,
                                                   ),
                                                   fit: BoxFit.cover,
@@ -619,237 +423,185 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             )));
   }
 
-  Widget _buildPMatchesTiles(
-      BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-    if (snapshot.hasData) {
-      var header = <ListTile>[
-        ListTile(
-          leading: Text('POTENTIAL MATCHES',
-              textAlign: TextAlign.left, style: _listTitleStyle),
-        )
-      ];
-
-      var listTiles = snapshot.data.documents
-          .where((element) => element['otherUser'] != null)
-          .map((DocumentSnapshot document) {
-        return ListTile(
-            title: Text(
-              document['otherUser'],
-              style: _biggerFont,
-            ),
-            subtitle: Text(
-              '',
-              style: _subFont,
-              textAlign: TextAlign.left,
-              maxLines: 1,
-            ),
-            trailing: Text(
-              convertPMatchTime(
-                  int.parse(document.documentID), document.documentID),
-              style: _trailFont,
-              textAlign: TextAlign.left,
-            ),
-            onTap: () {
-              setState(() {
-                (convertPMatchTime(int.parse(document.documentID),
-                            document.documentID) !=
-                        'COMPLETED')
-                    ? Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => PMConversationScreen(
-                                  user: user,
-                                  matchName: document['otherUser'],
-                                  username: user.displayName,
-                                  room: document['room'],
-                                )))
-                    : Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => SelectMatchesScreen(
-                                  user: user,
-                                  room: document['room'],
-                                  roomKey: document.documentID,
-                                )));
-              });
-            },
-            onLongPress: () {
-              setState(() {
-                showDeleteDialog(context, document['otherUser']).then((v) {
-                  if (v) {
-                    _deletePotentialMatch(
-                        int.parse(document.documentID), document['room']);
-                  }
-                });
-              });
-            });
-      }).toList();
-
-      var pendingTiles = snapshot.data.documents
-          .where((element) => element['pending'] == true)
-          .map((DocumentSnapshot document) {
-        return ListTile(
-          title: Text(
-            'Searching the world',
-            textAlign: TextAlign.left,
-            style: _biggerFont,
-          ),
-          subtitle: Text(
-            'We will let you know when we find someone',
-            style: _subFont,
-            textAlign: TextAlign.left,
-            maxLines: 1,
-          ),
-          trailing: FaIcon(
-            FontAwesomeIcons.clock,
-            color: black,
-          ),
-          onTap: () {},
-          onLongPress: () {
-            setState(() {
-              showDeleteDialog(context, 'Request').then((v) {
-                if (v) {
-                  _deleteRequest(document.documentID);
-                }
-              });
-            });
-          },
-        );
-      }).toList();
-
-      var availableTiles = [
-        ListTile(
-          title: Text(
-            'Find someone new',
-            textAlign: TextAlign.left,
-            style: _biggerFont,
-          ),
-          trailing: FaIcon(
-            FontAwesomeIcons.userPlus,
-            color: black,
-          ),
-          onTap: _sendPotentialMatchRequest,
-        )
-      ];
-
-      List<Object> completeList =
-          header + listTiles + pendingTiles + availableTiles;
-
-      if (snapshot.hasError) {
-        return Text('Error: ${snapshot.error}');
-      }
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Text('Loading...');
-      } else {
-        return ListView(
-            padding: const EdgeInsets.all(1),
-            controller: _scrollController,
-            children: completeList);
-      }
-    }
-
-    return Center(child: CircularProgressIndicator());
-  }
-
   Future<void> _downloadData() async {
     // Downloading data and synchronizing it with public variables
-    var pMatchesDocs = await Firestore.instance
-        .collection('users')
-        .document('${user.uid}')
-        .collection('data_generated')
-        .document('user_rooms')
-        .collection('p_matches')
-        .getDocuments();
 
-    _pMatches = pMatchesDocs.documents;
+    if (!pMatchesInitialized) {
+      Firestore.instance
+          .collection('users')
+          .document('${user.uid}')
+          .collection('data_generated')
+          .document('user_rooms')
+          .collection('p_matches')
+          .snapshots()
+          .listen((querySnapshot) {
+        _pMatches = querySnapshot.documents;
+        _loadPMatchesData();
+      });
 
-    var matchesDocs = await Firestore.instance
-        .collection('users')
-        .document('${user.uid}')
-        .collection('data_generated')
-        .document('user_rooms')
-        .collection('matches')
-        .getDocuments();
+      pMatchesInitialized = true;
+    }
 
-    _matches = matchesDocs.documents;
+    if (!matchesInitialized) {
+      Firestore.instance
+          .collection('users')
+          .document('${user.uid}')
+          .collection('data_generated')
+          .document('user_rooms')
+          .collection('matches')
+          .snapshots()
+          .listen((querySnapshot) {
+        _matches = querySnapshot.documents;
+        _loadMatchesData();
+      });
 
-    _loadMatchesData();
+      matchesInitialized = true;
+    }
   }
 
   void _loadMatchesData() async {
-    if (_matchesImageLinks.isNotEmpty) {
-      _matchesImageLinks.clear();
+    if (_matchImageLinks.isNotEmpty) {
+      _matchImageLinks.clear();
     }
-    if (_matchesPreviousMessage.isNotEmpty) {
-      _matchesPreviousMessage.clear();
+    if (_matchLastMessages.isNotEmpty) {
+      _matchLastMessages.clear();
     }
-    // Getting the picture download URL for each user from the downloaded array
-    for (var doc in _matches) {
+
+    for (var match in _matches) {
       try {
-        _matchesImageLinks.add(await FirebaseStorage()
+        // Getting the picture download URL for each user from the downloaded array
+        _matchImageLinks.add(await FirebaseStorage()
             .ref()
-            .child('users/${doc['otherUserId']}/profile_pictures/pic1.jpg')
+            .child('users/${match['otherUserId']}/profile_pictures/pic1.jpg')
             .getDownloadURL());
 
+        // Getting the last message sent in each conversation
         var lastMessage = await Firestore.instance
             .collection('messages')
             .document('rooms')
-            .collection('${doc['room']}')
-            .where('image', isEqualTo: false)
-            .orderBy('__name__', descending: true) // This orders the message by document ID in desc order
+            .collection('${match['room']}')
+            .where('time', isGreaterThanOrEqualTo: 0)
+            .orderBy('time', descending: true)
             .limit(1)
             .getDocuments();
+            
+        _matchLastMessages.add(lastMessage.documents[0]);
+      } catch (e) {
+        print(e);
+      }
+    }
+    
+    setState(() {});
+  }
 
-        _matchesPreviousMessage.add(lastMessage.documents[0]);
+  void _loadPMatchesData() async {
+    if (_pMatchLastMessages.isNotEmpty) {
+      _pMatchLastMessages.clear();
+    }
+
+    for (var match in _pMatches) {
+      try {
+        // Getting the last message sent in each conversation
+        var lastMessage = await Firestore.instance
+            .collection('messages')
+            .document('rooms')
+            .collection('${match['room']}')
+            .where('time', isGreaterThanOrEqualTo: 0)
+            .orderBy('time', descending: true)
+            .limit(1)
+            .getDocuments();
+            
+
+        _pMatchLastMessages.add(lastMessage.documents[0]);
       } catch (e) {
         print(e);
       }
     }
 
     setState(() {});
+
     return;
   }
 
-  Widget _buildMatchedConvos() {
+  Widget _buildPMatchesTiles() {
     return ListView.builder(
         physics: BouncingScrollPhysics(),
-        itemCount: _matches.length,
+        padding: const EdgeInsets.all(1),
+        controller: _scrollController,
+        itemCount: _pMatches.length + 2,
         itemBuilder: (context, i) {
-          var lastMessage;
-          if (_matchesPreviousMessage.isNotEmpty) {
-            if (_matchesPreviousMessage[i]['from'] == user.uid) {
-              lastMessage = 'You: ${_matchesPreviousMessage[i]['message']}';
-            }
-            else {
-              lastMessage = _matchesPreviousMessage[i]['message'];
-            }
-          } else {
-            lastMessage = 'Start Conversation';
+          if (i == 0) {
+            return ListTile(
+              leading: Text('POTENTIAL MATCHES',
+                  textAlign: TextAlign.left, style: _listTitleStyle),
+            );
           }
-          return ListTile(
-              leading: Container(
-                decoration:
-                    BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                child: SizedBox(
-                  height: 50,
-                  width: 50,
-                  child: Container(
-                      decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: _matchesImageLinks.isNotEmpty
-                        ? DecorationImage(
-                            image: AdvancedNetworkImage(
-                              _matchesImageLinks[i],
-                              useDiskCache: true,
-                            ),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
-                  )),
-                ),
-              ),
+
+          if (i == _pMatches.length + 1) {
+            return ListTile(
               title: Text(
-                _matches[i]['otherUser'],
+                'Find someone new',
+                textAlign: TextAlign.left,
+                style: _biggerFont,
+              ),
+              trailing: FaIcon(
+                FontAwesomeIcons.userPlus,
+                color: black,
+              ),
+              onTap: _sendPotentialMatchRequest,
+            );
+          }
+
+          final pMatch = _pMatches[i - 1];
+          var lastMessage;
+          var time;
+
+          if (pMatch['pending'] == true) {
+            return ListTile(
+              title: Text(
+                'Searching the world',
+                textAlign: TextAlign.left,
+                style: _biggerFont,
+              ),
+              subtitle: Text(
+                'We will let you know when we find someone',
+                style: _subFont,
+                textAlign: TextAlign.left,
+                maxLines: 1,
+              ),
+              trailing: FaIcon(
+                FontAwesomeIcons.clock,
+                color: black,
+              ),
+              onTap: () {},
+              onLongPress: () {
+                setState(() {
+                  showDeleteDialog(context, 'Request').then((v) {
+                    if (v) {
+                      _deleteRequest(pMatch.documentID);
+                    }
+                  });
+                });
+              },
+            );
+          } else {
+            if (_pMatchLastMessages.isNotEmpty) {
+              time = _pMatchLastMessages[i - 1]['time'];
+            }
+            if (_pMatchLastMessages.isNotEmpty && time > 0) {
+              if (_pMatchLastMessages[i - 1]['from'] == user.uid) {
+                lastMessage = 'You: ${_pMatchLastMessages[i - 1]['message']}';
+              } else {
+                lastMessage = _pMatchLastMessages[i - 1]['message'];
+              }
+            } else {
+              lastMessage = 'Start Conversation';
+            }
+            return ListTile(
+              leading: CircleAvatar(
+                  child: Text(pMatch['otherUser'].toUpperCase()[0])),
+              title: Text(
+                pMatch['otherUser'],
                 textAlign: TextAlign.left,
                 style: _biggerFont,
               ),
@@ -859,28 +611,275 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                 textAlign: TextAlign.left,
               ),
               trailing: Text(
-                (_matchesPreviousMessage.isNotEmpty)
-                    ? convertMatchTime(
-                        int.parse(_matchesPreviousMessage[i].documentID))
-                    : 'Start Conversation',
+                convertPMatchTime(
+                    int.parse(pMatch.documentID), pMatch.documentID),
                 style: _trailFont,
                 textAlign: TextAlign.left,
               ),
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MatchedConversationScreen(
-                              user: user,
-                              matchName: _matches[i]['otherUser'],
-                              otherUserId: _matches[i]['otherUserId'],
-                              username: user.displayName,
-                              room: _matches[i]['room'],
-                            ))).then((value) {
-                  _downloadData();
+                (convertPMatchTime(int.parse(pMatch.documentID), pMatch.documentID) != 'COMPLETED')
+                    ? Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PMConversationScreen(
+                                  user: user,
+                                  matchName: pMatch['otherUser'],
+                                  username: user.displayName,
+                                  room: pMatch['room'],
+                                ))).then((value) {
+                        _loadPMatchesData();
+                      })
+                    : Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SelectMatchesScreen(
+                                  user: user,
+                                  room: pMatch['room'],
+                                  roomKey: pMatch.documentID,
+                                )));
+              },
+              onLongPress: () {
+                setState(() {
+                  showDeleteDialog(context, pMatch['otherUser'])
+                      .then((v) {
+                    if (v) {
+                      _deletePotentialMatch(
+                          int.parse(pMatch.documentID), pMatch['room']);
+                    }
+                  });
                 });
-              });
+              }
+            );
+          }
         });
+    /*
+    return StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance
+            .collection('users')
+            .document('${user.uid}')
+            .collection('data_generated')
+            .document('user_rooms')
+            .collection('p_matches')
+            .snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasData) {
+            var header = <ListTile>[
+              ListTile(
+                leading: Text('POTENTIAL MATCHES',
+                    textAlign: TextAlign.left, style: _listTitleStyle),
+              )
+            ];
+
+            var listTiles = snapshot.data.documents
+                .where((element) => element['otherUser'] != null)
+                .map((DocumentSnapshot document) {
+              return ListTile(
+                  title: Text(
+                    document['otherUser'],
+                    style: _biggerFont,
+                  ),
+                  subtitle: Text(
+                    '',
+                    style: _subFont,
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                  ),
+                  trailing: Text(
+                    convertPMatchTime(
+                        int.parse(document.documentID), document.documentID),
+                    style: _trailFont,
+                    textAlign: TextAlign.left,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      (convertPMatchTime(int.parse(document.documentID),
+                                  document.documentID) !=
+                              'COMPLETED')
+                          ? Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PMConversationScreen(
+                                        user: user,
+                                        matchName: document['otherUser'],
+                                        username: user.displayName,
+                                        room: document['room'],
+                                      )))
+                          : Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SelectMatchesScreen(
+                                        user: user,
+                                        room: document['room'],
+                                        roomKey: document.documentID,
+                                      )));
+                    });
+                  },
+                  onLongPress: () {
+                    setState(() {
+                      showDeleteDialog(context, document['otherUser'])
+                          .then((v) {
+                        if (v) {
+                          _deletePotentialMatch(
+                              int.parse(document.documentID), document['room']);
+                        }
+                      });
+                    });
+                  });
+            }).toList();
+
+            var pendingTiles = snapshot.data.documents
+                .where((element) => element['pending'] == true)
+                .map((DocumentSnapshot document) {
+              return ListTile(
+                title: Text(
+                  'Searching the world',
+                  textAlign: TextAlign.left,
+                  style: _biggerFont,
+                ),
+                subtitle: Text(
+                  'We will let you know when we find someone',
+                  style: _subFont,
+                  textAlign: TextAlign.left,
+                  maxLines: 1,
+                ),
+                trailing: FaIcon(
+                  FontAwesomeIcons.clock,
+                  color: black,
+                ),
+                onTap: () {},
+                onLongPress: () {
+                  setState(() {
+                    showDeleteDialog(context, 'Request').then((v) {
+                      if (v) {
+                        _deleteRequest(document.documentID);
+                      }
+                    });
+                  });
+                },
+              );
+            }).toList();
+
+            var availableTiles = [
+              ListTile(
+                title: Text(
+                  'Find someone new',
+                  textAlign: TextAlign.left,
+                  style: _biggerFont,
+                ),
+                trailing: FaIcon(
+                  FontAwesomeIcons.userPlus,
+                  color: black,
+                ),
+                onTap: _sendPotentialMatchRequest,
+              )
+            ];
+
+            List<Object> completeList =
+                header + listTiles + pendingTiles + availableTiles;
+
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Text('Loading...');
+            } else {
+              return ListView(
+                  padding: const EdgeInsets.all(1),
+                  controller: _scrollController,
+                  children: completeList);
+            }
+          }
+
+          return Center(child: CircularProgressIndicator());
+        });
+        */
+  }
+
+  Widget _buildMatchedConvos() {
+    return ListView.builder(
+      physics: BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(1),
+      controller: _scrollController,
+      itemCount: _matches.length + 1,
+      itemBuilder: (context, i) {
+        if (i == 0) {
+          return ListTile(
+            leading: Text('MATCHES',
+                textAlign: TextAlign.left, style: _listTitleStyle),
+          );
+        }
+
+        final match = _matches[i - 1];
+        var lastMessage;
+        var time;
+        if (_matchLastMessages.isNotEmpty) {
+          time = _matchLastMessages[i - 1]['time'];
+        }
+        if (_matchLastMessages.isNotEmpty && time > 0) {
+          if (_matchLastMessages[i - 1]['from'] == user.uid) {
+            lastMessage = 'You: ${_matchLastMessages[i - 1]['message']}';
+          } else {
+            lastMessage = _matchLastMessages[i - 1]['message'];
+          }
+        } else {
+          lastMessage = 'Start Conversation';
+        }
+        return ListTile(
+            leading: Container(
+              decoration:
+                  BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+              child: SizedBox(
+                height: 50,
+                width: 50,
+                child: Container(
+                    decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: _matchImageLinks.isNotEmpty
+                      ? DecorationImage(
+                          image: AdvancedNetworkImage(
+                            _matchImageLinks[i - 1],
+                            useDiskCache: true,
+                          ),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                )),
+              ),
+            ),
+            title: Text(
+              match['otherUser'],
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            subtitle: Text(
+              lastMessage,
+              style: _subFont,
+              textAlign: TextAlign.left,
+            ),
+            trailing: Text(
+              (_matchLastMessages.isNotEmpty && time > 0)
+                  ? convertMatchTime(
+                      int.parse(_matchLastMessages[i - 1].documentID))
+                  : '',
+              style: _trailFont,
+              textAlign: TextAlign.left,
+            ),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MatchedConversationScreen(
+                            user: user,
+                            matchName: match['otherUser'],
+                            otherUserId: match['otherUserId'],
+                            username: user.displayName,
+                            room: match['room'],
+                          ))).then((value) {
+                _loadMatchesData();
+              });
+            });
+      }
+    );
   }
 
   Widget _buildMatchesTiles(
@@ -927,6 +926,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                     MaterialPageRoute(
                         builder: (context) => MatchedConversationScreen(
                               user: user,
+                              otherUserId: document['otherUserId'],
                               matchName: document['otherUser'],
                               username: user.displayName,
                               room: document['room'],
@@ -976,7 +976,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     return (resp.data['success']);
   }
 
-  Future<bool> _deleteRequest(String id) async {
+  Future<void> _deleteRequest(String id) async {
     final snackBar = SnackBar(
       content: Text(
         'Deleting Request',
@@ -990,13 +990,12 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     );
 
     // Adding variables to the server to the request and calling the function
-    dynamic resp = await callable.call(<String, dynamic>{
+    await callable.call(<String, dynamic>{
       'requestId': id,
     });
 
-    print(resp.data['success']);
     _scaffoldKey.currentState.hideCurrentSnackBar();
-    return (resp.data['success']);
+    return;
   }
 
   /// Updates the location of the device to the database and sends a request for a potential match.

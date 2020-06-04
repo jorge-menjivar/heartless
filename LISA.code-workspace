@@ -23,6 +23,7 @@
 			"statusBar.border": "#ffffff",
 			"titleBar.border": "#ffffff"
 		},
-		"peacock.color": "#ffffff"
+		"peacock.color": "#ffffff",
+		"editor.tabSize": 2
 	}
 }
