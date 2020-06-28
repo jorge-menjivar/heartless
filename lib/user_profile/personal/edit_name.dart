@@ -52,13 +52,14 @@ class EditNameScreen extends StatefulWidget {
 
 class EditNameScreenState extends State<EditNameScreen> {
   
-  EditNameScreenState({@required this.user});
+  EditNameScreenState({@required this.user, this.onTap});
   
   final FirebaseUser user;
   
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ScrollController _scrollController;
   
+  final VoidCallback onTap;
   
   DateTime birthday;
   
@@ -107,7 +108,7 @@ class EditNameScreenState extends State<EditNameScreen> {
               ),
             validator: (username) {
               if (username.contains(RegExp(r'\W'))) {
-                return 'Only letter, digits, and _';
+                return 'Only letters';
               }
             },
           ),
@@ -122,7 +123,7 @@ class EditNameScreenState extends State<EditNameScreen> {
         .collection('users')
         .document(user.uid)
         .collection('data')
-        .document('personal').setData(
+        .document('userSettings').setData(
           <String, dynamic>{
             'name': name,
           },

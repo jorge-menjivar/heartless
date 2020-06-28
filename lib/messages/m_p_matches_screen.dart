@@ -12,16 +12,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class PMConversationScreen extends StatefulWidget {
-  final FirebaseUser user;
+  final String alias;
   final String matchName;
   final String username;
   final String room;
 
-  PMConversationScreen({this.user, this.matchName, this.username, this.room});
+  PMConversationScreen({this.alias, this.matchName, this.username, this.room});
 
   @override
   PMConversationScreenState createState() => PMConversationScreenState(
-        user: user,
+        alias: alias,
         matchName: matchName,
         username: username,
         room: room,
@@ -30,13 +30,13 @@ class PMConversationScreen extends StatefulWidget {
 
 class PMConversationScreenState extends State<PMConversationScreen>
     with WidgetsBindingObserver {
-  final FirebaseUser user;
+  final String alias;
   final String matchName;
   final String username;
   String room;
 
   PMConversationScreenState(
-      {this.user, this.matchName, this.username, this.room});
+      {this.alias, this.matchName, this.username, this.room});
 
   ScrollController _scrollController;
   final TextEditingController _textController = TextEditingController();
@@ -133,7 +133,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
       var listTiles = snapshot.data.documents.reversed
           .where((element) => element['message'] != null)
           .map((DocumentSnapshot document) {
-        if (document['from'] != user.uid) {
+        if (document['from'] != alias) {
           return ListTile(
             contentPadding: EdgeInsets.only(right: 80.0),
             leading: CircleAvatar(child: Text(matchName.toUpperCase()[0])),
@@ -290,7 +290,6 @@ class PMConversationScreenState extends State<PMConversationScreen>
 
   // Creating message and sending its values to cloud firestore.
   void _sendMessage(String text) async {
-    print(user.uid.toString());
     _textController.clear();
     var sTime = DateTime.now().millisecondsSinceEpoch;
     await Firestore.instance
@@ -299,7 +298,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
         .collection(room)
         .document(sTime.toString())
         .setData(<String, dynamic>{
-      'from': user.uid.toString(),
+      'from': alias,
       'image': false,
       'message': text,
       'time': sTime

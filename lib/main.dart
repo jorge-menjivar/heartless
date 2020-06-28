@@ -5,14 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lise/home_screen.dart';
+import 'package:lise/localizations.dart';
 import 'new_user/nu_information_screen.dart';
 import 'new_user/nu_welcome_screen.dart';
 
+
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 // Storage
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
 
 Map<int, Color> color = {
   50: Color.fromRGBO(0, 0, 0, .1),
@@ -29,17 +31,26 @@ Map<int, Color> color = {
 MaterialColor black = MaterialColor(0xFF1c1c1c, color);
 MaterialColor white = MaterialColor(0xFFFFFFFF, color);
 
-void main(){
+void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  
   // Root Widget.
   //TODO add terms and conditions
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('en', 'US'),
+        Locale('es', ''),
+        Locale('fr', ''),
+      ],
       title: 'LISA',
       theme: ThemeData(
         primarySwatch: black,
@@ -54,7 +65,6 @@ class MyApp extends StatelessWidget {
 class LoadingPage extends StatefulWidget {
   LoadingPage({Key key, this.title}) : super(key: key);
 
-
   final String title;
 
   @override
@@ -65,7 +75,7 @@ class _LoadingPageState extends State<LoadingPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseUser user;
   final secureStorage = FlutterSecureStorage();
-  
+
   var _profileCompleted = false;
 
   @override
@@ -76,55 +86,58 @@ class _LoadingPageState extends State<LoadingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-    );
+    return Scaffold();
   }
 
   void _checkCurrentUser() async {
-    await _auth.currentUser().then((u) async{
+    await _auth.currentUser().then((u) async {
       user = u;
-        (user != null)
-        ? await _checkVerification()
-        : await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
+      (user != null)
+          ? await _checkVerification()
+          : await Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => WelcomeScreen(user: user)));
     });
   }
-  
+
   Future<void> _checkVerification() async {
     // Downloading data and synchronizing it with public variables
     if (user.isEmailVerified) {
       await Firestore.instance
-        .collection('users')
-        .document(user.uid)
-        .collection('data')
-        .document('account')
-        .get()
-        .then((doc) {
-          if (!doc.exists) {
-            print('No data document!');
-          }
-          else {
-            _profileCompleted = doc.data['profileCompleted'];
-          }
-        });
-        
-        if  (_profileCompleted) {
-          await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => InitPage(user: user, username: user.email)));
+          .collection('users')
+          .document(user.uid)
+          .collection('data')
+          .document('private')
+          .get()
+          .then((doc) {
+        if (!doc.exists) {
+          print('USER SETTINGS DOES NOT EXIST');
+        } else {
+          _profileCompleted = doc.data['profileCompleted'];
         }
-        else {
-          await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => NewUserInformationScreen(user: user,)));
-        }
-    }
-    else {
-      await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
+      });
+
+      if (_profileCompleted) {
+        await Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    InitPage(user: user, username: user.email)));
+      } else {
+        await Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => NewUserInformationScreen(
+                      user: user,
+                    )));
+      }
+    } else {
+      await Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
     }
   }
-  
-  
-  
-  
-  
-  
-  
+
   //--------------------------------------FIREBASE TOKEN---------------------------------------------------
   void _checkToken() async {
     try {
@@ -142,15 +155,14 @@ class _LoadingPageState extends State<LoadingPage> {
     var ds = await Firestore.instance.collection('users').document(id).get();
     var dbToken = ds['t'];
     if (dbToken is String) {
-      if (token == dbToken){ //Token matches database. Token is up to date.
+      if (token == dbToken) {
+        //Token matches database. Token is up to date.
         print('TOKEN IS UP TO DATE');
-      }
-      else {
+      } else {
         print('TOKEN IS NOT UP TO DATE');
         updateToken(id, token);
       }
-    }
-    else {
+    } else {
       print('TOKEN IS NOT A STRING');
     }
   }
@@ -158,8 +170,10 @@ class _LoadingPageState extends State<LoadingPage> {
   void updateToken(var id, var token) async {
     print('UPDATING TOKEN...');
     try {
-      await Firestore.instance.collection('users').document(id)
-      .updateData({'t': token});  
+      await Firestore.instance
+          .collection('users')
+          .document(id)
+          .updateData({'t': token});
       print('UPDATING TOKEN: SUCCESS');
     } catch (e) {
       print(e.toString());

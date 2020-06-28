@@ -188,7 +188,7 @@ class RaceScreenState extends State<RaceScreen> {
       .collection('users')
       .document(user.uid)
       .collection('data')
-      .document('personal').setData(
+      .document('userSettings').setData(
         <String, dynamic>{
           'race': race,
         },

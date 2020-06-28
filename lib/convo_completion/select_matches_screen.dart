@@ -37,7 +37,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
 
   ScrollController _scrollController;
 
-  final _profiles = Map();
+  final _profiles = {};
   final _picSize = 370.0;
 
   final _profilePicImageLinks = [];
@@ -353,11 +353,9 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
       'key': roomKey
     });
 
-    print(resp.data['success']);
+    print('Connection possible: ${resp.data['connection']}');
 
     return (resp.data['success']);
-    
-    
   }
 
 

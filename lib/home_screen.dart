@@ -9,7 +9,7 @@ import 'package:lise/user_profile/profile_pictures_screen.dart';
 import 'package:lise/user_profile/search_information_screen.dart';
 import 'package:lise/user_profile/wol_screen.dart';
 import 'package:location/location.dart';
-import 'package:pedantic/pedantic.dart';
+import 'localizations.dart';
 import 'main.dart';
 import 'messages/m_p_matches_screen.dart';
 import 'convo_completion/select_matches_screen.dart';
@@ -95,6 +95,9 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   final _matchLastMessages = [];
   final _pMatchLastMessages = [];
 
+  var variablesInitialized = false;
+  String _alias;
+
   @override
   void initState() {
     super.initState();
@@ -148,7 +151,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                             ),
                           ),
                           subtitle: Text(
-                            'A new way to meet people',
+                            AppLocalizations.of(context).translate('app_moto'),
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black,
@@ -205,7 +208,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                   children: <Widget>[
                     ListTile(
                       leading: Text(
-                        'PROFILE',
+                        AppLocalizations.of(context).translate('PROFILE'),
                         textAlign: TextAlign.left,
                         style: _listTitleStyle,
                       ),
@@ -290,12 +293,14 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                             color: black,
                           ),
                           title: Text(
-                            'Personal information',
+                            AppLocalizations.of(context)
+                                .translate('Personal_Information_title'),
                             textAlign: TextAlign.left,
                             style: _biggerFont,
                           ),
                           subtitle: Text(
-                            'Age, gender, height, weight, etc.',
+                            AppLocalizations.of(context)
+                                .translate('Personal_Information_subtitle'),
                             style: _subFont,
                             textAlign: TextAlign.left,
                             maxLines: 1,
@@ -320,12 +325,14 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                             color: black,
                           ),
                           title: Text(
-                            'I am looking for',
+                            AppLocalizations.of(context)
+                                .translate('I_am_looking_for_title'),
                             textAlign: TextAlign.left,
                             style: _biggerFont,
                           ),
                           subtitle: Text(
-                            'Gender, type of relationship, etc.',
+                            AppLocalizations.of(context)
+                                .translate('I_am_looking_for_subtitle'),
                             style: _subFont,
                             textAlign: TextAlign.left,
                             maxLines: 1,
@@ -350,12 +357,14 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                             color: black,
                           ),
                           title: Text(
-                            'My way of living',
+                            AppLocalizations.of(context)
+                                .translate('My_way_of_living_title'),
                             textAlign: TextAlign.left,
                             style: _biggerFont,
                           ),
                           subtitle: Text(
-                            'Interests, passions, hobbies, kinks, etc.',
+                            AppLocalizations.of(context)
+                                .translate('My_way_of_living_subtitle'),
                             style: _subFont,
                             textAlign: TextAlign.left,
                             maxLines: 1,
@@ -379,12 +388,14 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                             color: black,
                           ),
                           title: Text(
-                            'Settings',
+                            AppLocalizations.of(context)
+                                .translate('Settings_title'),
                             textAlign: TextAlign.left,
                             style: _biggerFont,
                           ),
                           subtitle: Text(
-                            'Notifications, Email, Phone Number, etc.',
+                            AppLocalizations.of(context)
+                                .translate('Settings_subtitle'),
                             style: _subFont,
                             textAlign: TextAlign.left,
                             maxLines: 1,
@@ -404,7 +415,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                             color: black,
                           ),
                           title: Text(
-                            'SIGN OUT',
+                            AppLocalizations.of(context).translate('Log_Out'),
                             textAlign: TextAlign.left,
                             style: _biggerFont,
                           ),
@@ -484,14 +495,31 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             .orderBy('time', descending: true)
             .limit(1)
             .getDocuments();
-            
+
         _matchLastMessages.add(lastMessage.documents[0]);
       } catch (e) {
         print(e);
       }
     }
-    
+
     setState(() {});
+
+    if (!variablesInitialized) {
+      await Firestore.instance
+          .collection('users')
+          .document('${user.uid}')
+          .collection('data')
+          .document('private')
+          .get()
+          .then((doc) {
+        if (!doc.exists) {
+          print('No data document!');
+        } else {
+          _alias = doc.data['alias'];
+        }
+      });
+      variablesInitialized = true;
+    }
   }
 
   void _loadPMatchesData() async {
@@ -510,7 +538,6 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             .orderBy('time', descending: true)
             .limit(1)
             .getDocuments();
-            
 
         _pMatchLastMessages.add(lastMessage.documents[0]);
       } catch (e) {
@@ -532,15 +559,17 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
         itemBuilder: (context, i) {
           if (i == 0) {
             return ListTile(
-              leading: Text('POTENTIAL MATCHES',
-                  textAlign: TextAlign.left, style: _listTitleStyle),
+              leading: Text(
+                  AppLocalizations.of(context).translate('POTENTIAL_MATCHES'),
+                  textAlign: TextAlign.left,
+                  style: _listTitleStyle),
             );
           }
 
           if (i == _pMatches.length + 1) {
             return ListTile(
               title: Text(
-                'Find someone new',
+                AppLocalizations.of(context).translate('Find_someone_new'),
                 textAlign: TextAlign.left,
                 style: _biggerFont,
               ),
@@ -559,12 +588,12 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
           if (pMatch['pending'] == true) {
             return ListTile(
               title: Text(
-                'Searching the world',
+                AppLocalizations.of(context).translate('Searching_the_world_title'),
                 textAlign: TextAlign.left,
                 style: _biggerFont,
               ),
               subtitle: Text(
-                'We will let you know when we find someone',
+                AppLocalizations.of(context).translate('Searching_the_world_subtitle'),
                 style: _subFont,
                 textAlign: TextAlign.left,
                 maxLines: 1,
@@ -585,74 +614,80 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
               },
             );
           } else {
-            if (_pMatchLastMessages.isNotEmpty) {
+            if (_pMatchLastMessages.isNotEmpty &&
+                _pMatchLastMessages[i - 1]['time'] != null) {
               time = _pMatchLastMessages[i - 1]['time'];
             }
-            if (_pMatchLastMessages.isNotEmpty && time > 0) {
+            if (_pMatchLastMessages.isNotEmpty &&
+                _pMatchLastMessages[i - 1]['time'] != null &&
+                time > 0) {
               if (_pMatchLastMessages[i - 1]['from'] == user.uid) {
                 lastMessage = 'You: ${_pMatchLastMessages[i - 1]['message']}';
               } else {
                 lastMessage = _pMatchLastMessages[i - 1]['message'];
               }
             } else {
-              lastMessage = 'Start Conversation';
+              lastMessage = AppLocalizations.of(context).translate('Start_Conversation');
             }
             return ListTile(
-              leading: CircleAvatar(
-                  child: Text(pMatch['otherUser'].toUpperCase()[0])),
-              title: Text(
-                pMatch['otherUser'],
-                textAlign: TextAlign.left,
-                style: _biggerFont,
-              ),
-              subtitle: Text(
-                lastMessage,
-                style: _subFont,
-                textAlign: TextAlign.left,
-              ),
-              trailing: Text(
-                convertPMatchTime(
-                    int.parse(pMatch.documentID), pMatch.documentID),
-                style: _trailFont,
-                textAlign: TextAlign.left,
-              ),
-              onTap: () {
-                (convertPMatchTime(int.parse(pMatch.documentID), pMatch.documentID) != 'COMPLETED')
-                    ? Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => PMConversationScreen(
-                                  user: user,
-                                  matchName: pMatch['otherUser'],
-                                  username: user.displayName,
-                                  room: pMatch['room'],
-                                ))).then((value) {
-                        _loadPMatchesData();
-                      })
-                    : Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => SelectMatchesScreen(
-                                  user: user,
-                                  room: pMatch['room'],
-                                  roomKey: pMatch.documentID,
-                                )));
-              },
-              onLongPress: () {
-                setState(() {
-                  showDeleteDialog(context, pMatch['otherUser'])
-                      .then((v) {
-                    if (v) {
-                      _deletePotentialMatch(
-                          int.parse(pMatch.documentID), pMatch['room']);
-                    }
+                leading: CircleAvatar(
+                    child: Text(pMatch['otherUser'].toUpperCase()[0])),
+                title: Text(
+                  pMatch['otherUser'],
+                  textAlign: TextAlign.left,
+                  style: _biggerFont,
+                ),
+                subtitle: Text(
+                  lastMessage,
+                  style: _subFont,
+                  textAlign: TextAlign.left,
+                ),
+                trailing: Text(
+                  convertPMatchTime(
+                      int.parse(pMatch.documentID), pMatch.documentID),
+                  style: _trailFont,
+                  textAlign: TextAlign.left,
+                ),
+                onTap: () {
+                  (convertPMatchTime(int.parse(pMatch.documentID),
+                              pMatch.documentID) !=
+                          'COMPLETED')
+                      ? Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PMConversationScreen(
+                                    alias: _alias,
+                                    matchName: pMatch['otherUser'],
+                                    username: user.displayName,
+                                    room: pMatch['room'],
+                                  ))).then((value) {
+                          _loadPMatchesData();
+                        })
+                      : Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SelectMatchesScreen(
+                                    user: user,
+                                    room: pMatch['room'],
+                                    roomKey: pMatch.documentID,
+                                  )));
+                },
+                onLongPress: () {
+                  setState(() {
+                    showDeleteDialog(context, pMatch['otherUser']).then((v) {
+                      if (v) {
+                        _deletePotentialMatch(
+                            int.parse(pMatch.documentID), pMatch['room']);
+                      }
+                    });
                   });
                 });
-              }
-            );
           }
         });
-    /*
+  }
+
+/*
+  Widget stb() {
     return StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance
             .collection('users')
@@ -784,177 +819,114 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
               return Text('Loading...');
             } else {
               return ListView(
-                  padding: const EdgeInsets.all(1),
-                  controller: _scrollController,
-                  children: completeList);
+                  padding: const EdgeInsets.all(1), children: completeList);
             }
           }
 
           return Center(child: CircularProgressIndicator());
         });
-        */
   }
+  */
 
   Widget _buildMatchedConvos() {
     return ListView.builder(
-      physics: BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(1),
-      controller: _scrollController,
-      itemCount: _matches.length + 1,
-      itemBuilder: (context, i) {
-        if (i == 0) {
-          return ListTile(
-            leading: Text('MATCHES',
-                textAlign: TextAlign.left, style: _listTitleStyle),
-          );
-        }
-
-        final match = _matches[i - 1];
-        var lastMessage;
-        var time;
-        if (_matchLastMessages.isNotEmpty) {
-          time = _matchLastMessages[i - 1]['time'];
-        }
-        if (_matchLastMessages.isNotEmpty && time > 0) {
-          if (_matchLastMessages[i - 1]['from'] == user.uid) {
-            lastMessage = 'You: ${_matchLastMessages[i - 1]['message']}';
-          } else {
-            lastMessage = _matchLastMessages[i - 1]['message'];
+        physics: BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(1),
+        controller: _scrollController,
+        itemCount: _matches.length + 1,
+        itemBuilder: (context, i) {
+          if (i == 0) {
+            return ListTile(
+              leading: Text(AppLocalizations.of(context).translate('MATCHES'),
+                  textAlign: TextAlign.left, style: _listTitleStyle),
+            );
           }
-        } else {
-          lastMessage = 'Start Conversation';
-        }
-        return ListTile(
-            leading: Container(
-              decoration:
-                  BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-              child: SizedBox(
-                height: 50,
-                width: 50,
-                child: Container(
-                    decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: _matchImageLinks.isNotEmpty
-                      ? DecorationImage(
-                          image: AdvancedNetworkImage(
-                            _matchImageLinks[i - 1],
-                            useDiskCache: true,
-                          ),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                )),
-              ),
-            ),
-            title: Text(
-              match['otherUser'],
-              textAlign: TextAlign.left,
-              style: _biggerFont,
-            ),
-            subtitle: Text(
-              lastMessage,
-              style: _subFont,
-              textAlign: TextAlign.left,
-            ),
-            trailing: Text(
-              (_matchLastMessages.isNotEmpty && time > 0)
-                  ? convertMatchTime(
-                      int.parse(_matchLastMessages[i - 1].documentID))
-                  : '',
-              style: _trailFont,
-              textAlign: TextAlign.left,
-            ),
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MatchedConversationScreen(
-                            user: user,
-                            matchName: match['otherUser'],
-                            otherUserId: match['otherUserId'],
-                            username: user.displayName,
-                            room: match['room'],
-                          ))).then((value) {
-                _loadMatchesData();
-              });
-            });
-      }
-    );
-  }
 
-  Widget _buildMatchesTiles(
-      BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-    if (snapshot.hasData) {
-      var header = <ListTile>[
-        ListTile(
-          leading: Text('MATCHES',
-              textAlign: TextAlign.left, style: _listTitleStyle),
-        )
-      ];
-
-      var listTiles = snapshot.data.documents
-          .where((element) => element['otherUser'] != null)
-          .map((DocumentSnapshot document) {
-        return ListTile(
-            leading: Container(
-              decoration:
-                  BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-              child: SizedBox(
-                height: 50,
-                width: 50,
-                child: Center(
-                    child: FaIcon(
-                  FontAwesomeIcons.userAlt,
-                  color: black,
-                )),
+          final match = _matches[i - 1];
+          var lastMessage;
+          var time;
+          if (_matchLastMessages.isNotEmpty) {
+            time = _matchLastMessages[i - 1]['time'];
+          }
+          if (_matchLastMessages.isNotEmpty && time > 0) {
+            if (_matchLastMessages[i - 1]['from'] == user.uid) {
+              lastMessage = 'You: ${_matchLastMessages[i - 1]['message']}';
+            } else {
+              lastMessage = _matchLastMessages[i - 1]['message'];
+            }
+          } else {
+            lastMessage = AppLocalizations.of(context).translate('Start_Conversation');
+          }
+          return ListTile(
+              leading: Container(
+                decoration:
+                    BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                child: SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: Container(
+                      decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: _matchImageLinks.isNotEmpty
+                        ? DecorationImage(
+                            image: AdvancedNetworkImage(
+                              _matchImageLinks[i - 1],
+                              useDiskCache: true,
+                            ),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  )),
+                ),
               ),
-            ),
-            title: Text(
-              document['otherUser'],
-              textAlign: TextAlign.left,
-              style: _biggerFont,
-            ),
-            trailing: Text(
-              '48 mins',
-              style: _trailFont,
-              textAlign: TextAlign.left,
-            ),
-            onTap: () {
-              setState(() {
+              title: Text(
+                match['otherUser'],
+                textAlign: TextAlign.left,
+                style: _biggerFont,
+              ),
+              subtitle: Text(
+                lastMessage,
+                style: _subFont,
+                textAlign: TextAlign.left,
+              ),
+              trailing: Text(
+                (_matchLastMessages.isNotEmpty && time > 0)
+                    ? convertMatchTime(
+                        int.parse(_matchLastMessages[i - 1].documentID))
+                    : '',
+                style: _trailFont,
+                textAlign: TextAlign.left,
+              ),
+              onTap: () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => MatchedConversationScreen(
-                              user: user,
-                              otherUserId: document['otherUserId'],
-                              matchName: document['otherUser'],
+                              alias: _alias,
+                              matchName: match['otherUser'],
+                              otherUserId: match['otherUserId'],
                               username: user.displayName,
-                              room: document['room'],
-                            )));
+                              room: match['room'],
+                            ))).then((value) {
+                  _loadMatchesData();
+                });
+              },
+              onLongPress: () {
+                setState(() {
+                  showDeleteDialog(context, match['otherUser']).then((v) {
+                    if (v) {
+                      _deleteMatch(int.parse(match.documentID), match['room']);
+                    }
+                  });
+                });
               });
-            });
-      }).toList();
-
-      List<Object> completeList = header + listTiles;
-
-      if (snapshot.hasError) {
-        return Text('Error: ${snapshot.error}');
-      }
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Text('Loading...');
-      } else {
-        return ListView(
-            padding: const EdgeInsets.all(1),
-            controller: _scrollController,
-            children: completeList);
-      }
-    }
-    return Center(child: CircularProgressIndicator());
+        });
   }
 
-  Future<bool> _deletePotentialMatch(int time, String room) async {
+  Future<void> _deletePotentialMatch(int time, String room) async {
     final snackBar = SnackBar(
       content: Text(
+        //TODO
         'Deleting Potential Match',
       ),
     );
@@ -965,20 +937,42 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     );
 
     // Adding variables to the server to the request and calling the function
-    dynamic resp = await callable.call(<String, dynamic>{
+    await callable.call(<String, dynamic>{
       'time': time,
       'room': room,
     });
 
-    print(resp.data['success']);
-
     _scaffoldKey.currentState.hideCurrentSnackBar();
-    return (resp.data['success']);
+    return;
   }
 
-  Future<void> _deleteRequest(String id) async {
+  Future<void> _deleteMatch(int time, String room) async {
     final snackBar = SnackBar(
       content: Text(
+        //TODO
+        'Deleting Match',
+      ),
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
+    // Getting instance of the server function
+    final callable = CloudFunctions.instance.getHttpsCallable(
+      functionName: 'deleteMatch',
+    );
+
+    // Adding variables to the server to the request and calling the function
+    await callable.call(<String, dynamic>{
+      'time': time,
+      'room': room,
+    });
+
+    _scaffoldKey.currentState.hideCurrentSnackBar();
+    return;
+  }
+
+  Future<void> _deleteRequest(String key) async {
+    final snackBar = SnackBar(
+      content: Text(
+        //TODO
         'Deleting Request',
       ),
     );
@@ -991,7 +985,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
     // Adding variables to the server to the request and calling the function
     await callable.call(<String, dynamic>{
-      'requestId': id,
+      'requestKey': key,
     });
 
     _scaffoldKey.currentState.hideCurrentSnackBar();
@@ -1031,6 +1025,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
     final snackBar = SnackBar(
       content: Text(
+        //TODO
         'Sending Request',
       ),
     );
@@ -1069,15 +1064,21 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
         .inDays;
 
     if (minutes < 1) {
-      return 'Just now';
+      return  AppLocalizations.of(context).translate('Just_now');
     } else if (minutes < 60) {
-      return (minutes > 1) ? '$minutes minutes ago' : '$minutes minute ago';
+      return (minutes > 1)
+          ? '$minutes ${AppLocalizations.of(context).translate('minutes_ago')}'
+          : '$minutes ${AppLocalizations.of(context).translate('minute_ago')}';
     } else if (hours < 24) {
-      return (hours > 1) ? '$hours hours ago' : '$hours hour ago';
+      return (hours > 1) 
+          ? '$hours ${AppLocalizations.of(context).translate('hours_ago')}' 
+          : '$hours ${AppLocalizations.of(context).translate('hour_ago')}';
     } else if (days < 7) {
-      return (days > 1) ? '${dateTime} days ago' : '${dateTime} day ago';
+      return (days > 1) 
+          ? '${days} ${AppLocalizations.of(context).translate('days_ago')}' 
+          : '${days} ${AppLocalizations.of(context).translate('day_ago')}';
     } else if (days > 7) {
-      return '${dateTime}';
+      return '${dateTime.month}/${dateTime.day}/${dateTime.year}';
     }
 
     return '';
@@ -1112,31 +1113,35 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
         } else {
           if (doc.data['connections'] == null ||
               doc.data['connections'].length == 0) {
-            unawaited(_sendConnectionsRequest(roomKey));
+            _sendConnectionsRequest(roomKey);
           }
         }
       });
     }
     if (minutes < 0) {
-      return 'COMPLETED';
+      return AppLocalizations.of(context).translate('COMPLETED');
     }
 
     if (minutes < 60) {
-      return (minutes > 1) ? '$minutes mins left' : '$minutes min left';
+      return (minutes > 1) 
+          ? '$minutes ${AppLocalizations.of(context).translate('minutes_left')}' 
+          : '$minutes ${AppLocalizations.of(context).translate('minute_left')}';
     } else if (hours < 24) {
-      return (hours > 1) ? '$hours hours left' : '$hours hour left';
+      return (hours > 1) 
+          ? '$hours ${AppLocalizations.of(context).translate('hours_left')}' 
+          : '$hours ${AppLocalizations.of(context).translate('hour_left')}';
     } else if (days > 0) {
       if (days > 1) {
         if (hours % 24 > 1) {
-          return '$days days, ${hours % 24} hours left';
+          return '$days days, ${hours % 24} ${AppLocalizations.of(context).translate('hours_left')}';
         } else {
-          return '$days days, ${hours % 24} hour left';
+          return '$days days, ${hours % 24} ${AppLocalizations.of(context).translate('hour_left')}';
         }
       } else {
         if (hours % 24 > 1) {
-          return '$days day, ${hours % 24} hours left';
+          return '$days day, ${hours % 24} ${AppLocalizations.of(context).translate('hours_left')}';
         } else {
-          return '$days day, ${hours % 24} hour left';
+          return '$days day, ${hours % 24} ${AppLocalizations.of(context).translate('hour_left')}';
         }
       }
     }
@@ -1181,13 +1186,13 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     );
 
     // Adding variables to the server to the request and calling the function
-    dynamic resp = await callable.call(<String, dynamic>{
+    await callable.call(<String, dynamic>{
       'latitude': locationData.latitude,
       'longitude': locationData.longitude,
       'key': roomKey
     });
 
-    print(resp.data['connections']);
+    return;
   }
 
   /// Shows the an alert asking the user if delete should really be done

@@ -1,0 +1,43 @@
+{
+  "app_moto": "Une nouvelle façon de rencontrer des gens!",
+  
+  "day_ago": "jour",
+  "days_ago": "jours",
+  "hour_ago": "heure",
+  "hours_ago": "heures",
+  "minute_ago": "minute",
+  "minutes_ago": "minutes",
+  "Just_now": "a l'instant",
+  
+  "day_left": "jour restant",
+  "days_left": "jours restants",
+  "hour_left": "heure restante",
+  "hours_left": "heures restantes",
+  "minute_left": "minute restante",
+  "minutes_left": "minutes restants",
+  "COMPLETED": "FINIE",
+  
+  "POTENTIAL_MATCHES": "CONNEXIONS POTENTIELS",
+  
+  "Find_someone_new": "Trouver quelqu'un",
+  "Searching_the_world_title": "Cherche des gens",
+  "Searching_the_world_subtitle": "Nous vous informerons lorsque nous trouverons quelqu'un",
+  "Start_Conversation": "Démarrer la conversation",
+  
+  "MATCHES": "CONNEXIONS",
+  "PROFILE": "PROFIL",
+  
+  "Personal_Information_title": "Informations personnelles",
+  "Personal_Information_subtitle": "Âge, sexe, etc.",
+  
+  "I_am_looking_for_title": "Je cherche",
+  "I_am_looking_for_subtitle": "Sexe, distance, etc.",
+  
+  "My_way_of_living_title": "Ma façon de vivre",
+  "My_way_of_living_subtitle": "Intérêts, passions, passe-temps, fantasmes, etc.",
+  
+  "Settings_title": "Paramètres",
+  "Settings_subtitle": "Notifications, e-mail, numéro de téléphone, etc.",
+  
+  "Log_Out": "Déconnexion"
+}

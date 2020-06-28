@@ -74,8 +74,8 @@ class VerifyScreenState extends State<VerifyScreen> {
               child: Text('CONTINUE'), 
               onPressed: () async {
                 user = await _auth.currentUser();
-                await user.getIdToken(refresh: true);
                 await user.reload();
+                await user.getIdToken(refresh: true);
                 if (user.isEmailVerified) {
                   (!newUser)
                   ? await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()))

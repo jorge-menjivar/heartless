@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -8,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // Tools
-import 'package:lise/user_profile/personal/edit_name.dart';
 import 'package:lise/user_profile/personal/gender_screen.dart';
 
 // Storage
@@ -72,7 +69,6 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
     super.initState();
     _downloadData();
     _scrollController = ScrollController();
-    //TODO _checkCurrentUser();
   }
 
   Future<void> _downloadData() async {
@@ -84,7 +80,7 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
         .collection('users')
         .document(user.uid)
         .collection('data')
-        .document('personal')
+        .document('userSettings')
         .get()
         .then((doc) {
       if (!doc.exists) {
@@ -128,6 +124,14 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+
+    // 100 years maximum for DatePicker
+    final dateStart = DateTime(now.year - 100, now.month, now.day);
+
+    // 18 years minimum for DatePicker
+    final dateEnd = DateTime(now.year - 18, now.month, now.day);
+
     return Scaffold(
         key: _scaffoldKey,
         backgroundColor: Colors.white,
@@ -160,17 +164,17 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
               ),
             ),
             Container(
-              padding: EdgeInsets.all(10),
-              color: white[50],
-              child: Text(
-                'We got your back!\nYour name and pictures are never shown together to strangers.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12.0,
-                  color: Colors.black,
-                ),
-              )),
-            Divider(color: Colors.transparent),
+                padding: EdgeInsets.all(10),
+                color: white,
+                child: Text(
+                  'We got your back!\nYour name and pictures are never shown together to strangers.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    color: Colors.black,
+                  ),
+                )),
+            Divider(color: Colors.grey),
             ListTile(
               leading: FaIcon(
                 FontAwesomeIcons.birthdayCake,
@@ -190,13 +194,14 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
                     : _readableTimeString(DateTime(2000, 1, 1)),
               ),
               onTap: () => showDatePicker(
-                //TODO 100 years
-                firstDate: DateTime(1900, 1),
+                helpText: 'SELECT BIRTHDAY',
+                fieldLabelText: 'Birthday',
+                initialEntryMode: DatePickerEntryMode.input,
+                initialDatePickerMode: DatePickerMode.year,
+                firstDate: dateStart,
                 initialDate:
                     (_birthday != null) ? _birthday : DateTime(2000, 1, 1),
-
-                //TODO 18 years
-                lastDate: DateTime(2002, 1),
+                lastDate: dateEnd,
                 context: context,
               ).then((v) async {
                 if (v != null) {
@@ -261,10 +266,10 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
         .collection('users')
         .document(user.uid)
         .collection('data')
-        .document('personal')
-        .setData(<String, dynamic>{
+        .document('userSettings')
+        .updateData(<String, dynamic>{
       'birthday': epochBirthday,
-    }, merge: true).catchError((error) {
+    }).catchError((error) {
       print('Error writing document: ' + error.toString());
     });
   }
@@ -274,6 +279,11 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
     var day = dateTime.day;
     var year = dateTime.year;
 
+    var monthString;
+    switch (month) {
+      case 1:
+        monthString = 'January';
+    }
     return '${month}/${day}/${year}';
   }
 }

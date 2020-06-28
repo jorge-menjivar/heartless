@@ -1,0 +1,43 @@
+{
+  "app_moto": "A new way to meet people!",
+  
+  "day_ago": "day ago",
+  "days_ago": "days ago",
+  "hour_ago": "hour ago",
+  "hours_ago": "hours ago",
+  "minute_ago": "minute ago",
+  "minutes_ago": "minutes ago",
+  "Just_now": "Just now",
+  
+  "day_left": "day remaining",
+  "days_left": "days remaining",
+  "hour_left": "hour remaining",
+  "hours_left": "hours remaining",
+  "minute_left": "minute remaining",
+  "minutes_left": "minutes remaining",
+  "COMPLETED": "FINISHED",
+  
+  "POTENTIAL_MATCHES": "POTENTIAL CONNECTIONS",
+  
+  "Find_someone_new": "Find someone new",
+  "Searching_the_world_title": "Searching the world",
+  "Searching_the_world_subtitle": "We will let you know when we find someone",
+  "Start_Conversation": "Start Conversation",
+  
+  "MATCHES": "CONNECTIONS",
+  "PROFILE": "PROFILE",
+  
+  "Personal_Information_title": "Personal Information",
+  "Personal_Information_subtitle": "Age, gender, etc.",
+  
+  "I_am_looking_for_title": "I am looking for",
+  "I_am_looking_for_subtitle": "Gender, distance, etc.",
+  
+  "My_way_of_living_title": "My way of living",
+  "My_way_of_living_subtitle": "Interests, passions, hobbies, kinks, etc.",
+  
+  "Settings_title":  "Settings",
+  "Settings_subtitle": "Notifications, email, phone number, etc.",
+  
+  "Log_Out": "Log Out"
+}

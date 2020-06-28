@@ -126,7 +126,7 @@ class SignInScreenState extends State<MySignInScreen> {
             .collection('users')
             .document(user.uid)
             .collection('data')
-            .document('account')
+            .document('private')
             .get()
             .then((doc) {
           if (!doc.exists) {

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -79,7 +78,6 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
     super.initState();
     _downloadData();
     _scrollController = ScrollController();
-    //TODO _checkCurrentUser();
   }
   
   
@@ -90,14 +88,14 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
       .collection('users')
       .document(user.uid)
       .collection('data')
-      .document('search')
+      .document('userSettings')
       .get()
       .then((doc) {
         if (!doc.exists) {
           print('No data document!');
         } else {
-          _ageRange = RangeValues(doc.data['age_min'].toDouble(), doc.data['age_max'].toDouble());
-          _distance = doc.data['max_distance'].toDouble();
+          _ageRange = RangeValues(doc.data['searchMinAge'].toDouble(), doc.data['searchMaxAge'].toDouble());
+          _distance = doc.data['searchMaxDistance'].toDouble();
         }
       });
     
@@ -177,8 +175,8 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
             ),
             trailing: Text(
               (_ageRange.end.round() != 50)
-              ? ('${_ageRange.start.round()} - ${_ageRange.end.round()}')
-              : ('${_ageRange.start.round()} - ${_ageRange.end.round()}+'),
+              ? ('${_ageRange.start.round()} - ${_ageRange.end.round()} years')
+              : ('${_ageRange.start.round()} - ${_ageRange.end.round()}+ years'),
               textAlign: TextAlign.end,
               style: _biggerFont,
             ),
@@ -187,7 +185,7 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
             labels: (_ageRange.end.round() != 50)
               ? RangeLabels('${_ageRange.start.round()}','${_ageRange.end.round()}')
               : RangeLabels('${_ageRange.start.round()}','${_ageRange.end.round()}+'),
-            divisions: 32,
+            //divisions: 32,
             min: 18,
             max: 50,
             values: _ageRange,
@@ -221,7 +219,7 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
           Slider(
             label: '${_distance.round()} miles',
             value: _distance,
-            divisions: 30,
+            //divisions: 30,
             min: 10,
             max: 40,
             onChangeEnd: (value) async {
@@ -248,10 +246,10 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
       .collection('users')
       .document(user.uid)
       .collection('data')
-      .document('search').setData(
+      .document('userSettings').setData(
         <String, dynamic>{
-          'age_min': _ageRange.start.round(),
-          'age_max': _ageRange.end.round(),
+          'searchMinAge': _ageRange.start.round(),
+          'searchMaxAge': _ageRange.end.round(),
         },
         merge: true
       )
@@ -268,10 +266,10 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
       .collection('users')
       .document(user.uid)
       .collection('data')
-      .document('search').setData(
+      .document('userSettings').setData(
         <String, dynamic>{
-          'max_distance': _distance,
-          'distance_unit' : 'mile',
+          'searchMaxDistance': _distance,
+          'searchDistanceUnit' : 'mile',
         },
         merge: true
       )

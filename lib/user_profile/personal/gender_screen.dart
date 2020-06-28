@@ -188,7 +188,7 @@ class GenderScreenState extends State<GenderScreen> {
       .collection('users')
       .document(user.uid)
       .collection('data')
-      .document('personal').setData(
+      .document('userSettings').setData(
         <String, dynamic>{
           'gender': gender,
         },

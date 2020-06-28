@@ -70,7 +70,7 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
   String _userGender;
   String _name;
   String _race;
-  
+
   bool _women = false;
   bool _men = false;
   bool _transWomen = false;
@@ -94,20 +94,44 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
         .collection('users')
         .document(user.uid)
         .collection('data')
-        .document('personal')
+        .document('userSettings')
         .get()
         .then((doc) {
       if (!doc.exists) {
         print('No data document!');
       } else {
-        _name = doc.data['name'];
-        _birthday = DateTime.fromMillisecondsSinceEpoch(doc.data['birthday']);
-        myGender = doc.data['gender'];
-        race = doc.data['race'];
+        if (doc.data['name'] != null) {
+          _name = doc.data['name'];
+        }
+
+        if (doc.data['birthday'] != null) {
+          _birthday = DateTime.fromMillisecondsSinceEpoch(doc.data['birthday']);
+        }
+
+        if (doc.data['gender'] != null) {
+          myGender = doc.data['gender'];
+        }
+
+        if (doc.data['race'] != null) {
+          race = doc.data['race'];
+        }
+
+        if (doc.data['searchGender'] != null) {
+          _women = doc.data['searchGender']['female'];
+          _women = doc.data['searchGender']['female'];
+          _men = doc.data['searchGender']['male'];
+          _transWomen = doc.data['searchGender']['trans_female'];
+          _transMen = doc.data['searchGender']['trans_male'];
+          _others = doc.data['searchGender']['other'];
+        }
       }
+      
+      setState(() {
+        
+      });
     });
 
-    // Setting gender in readable format
+    // Setting user gender in readable format
     if (myGender == 'female') {
       _userGender = 'Female';
     } else if (myGender == 'male') {
@@ -120,7 +144,7 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
       _userGender = 'Other';
     }
 
-    // Setting race in readable format
+    // Setting user race in readable format
     if (race == 'asian') {
       _race = 'Asian';
     } else if (race == 'black') {
@@ -132,30 +156,18 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
     } else if (race == 'other') {
       _race = 'Other';
     }
-    
-    await Firestore.instance
-      .collection('users')
-      .document(user.uid)
-      .collection('data')
-      .document('search')
-      .get()
-      .then((doc) {
-        if (!doc.exists) {
-          print('No data document!');
-        } else {
-          _women = doc.data['gender']['female'];
-          _men = doc.data['gender']['male'];
-          _transWomen = doc.data['gender']['trans_female'];
-          _transMen = doc.data['gender']['trans_male'];
-          _others = doc.data['gender']['other'];
-        }
-    });
-
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    
+    // 100 years maximum for DatePicker
+    final dateStart = DateTime(now.year - 100, now.month, now.day);
+    
+    // 18 years minimum for DatePicker
+    final dateEnd = DateTime(now.year - 18, now.month, now.day);
+    
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
@@ -186,6 +198,10 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                   ),
                 ],
               ),
+              trailing: FaIcon(
+                FontAwesomeIcons.check,
+                color: (_name != null) ? Colors.green : Colors.transparent,
+              ),
               onTap: () async {
                 await Navigator.push(
                     context,
@@ -196,17 +212,14 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
               }),
           Container(
             padding: EdgeInsets.all(10),
-            color: white[50],
-            child: Flexible(
-              child: Center(
-                  child: Text(
-                'Your potential match is able to see your name in the conversation screen,\n\nbut your name will NOT be displayed next to your pictures until you have matched',
-                textAlign: TextAlign.center,
-                style: _subFont,
-              )),
+            color: white,
+            child: Text(
+              'We got your back!\nYour name and pictures are never shown together to strangers.',
+              textAlign: TextAlign.center,
+              style: _subFont,
             ),
           ),
-          Divider(color: Colors.transparent),
+          Divider(color: Colors.grey),
           ListTile(
             leading: FaIcon(
               FontAwesomeIcons.birthdayCake,
@@ -225,16 +238,24 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                   ? _readableTimeString(_birthday)
                   : _readableTimeString(DateTime(2000, 1, 1)),
             ),
+            trailing: FaIcon(
+              FontAwesomeIcons.check,
+              color: (_birthday != null) ? Colors.green : Colors.transparent,
+            ),
             onTap: () => showDatePicker(
-              //TODO 100 years
-              firstDate: DateTime(1900, 1),
-              initialDate:
-                  (_birthday != null) ? _birthday : DateTime(2000, 1, 1),
-
-              //TODO 18 years
-              lastDate: DateTime(2002, 1),
-              context: context,
-            ).then((v) async => await _updateBirthday(v)),
+                helpText: 'SELECT BIRTHDAY',
+                fieldLabelText: 'Birthday',
+                initialEntryMode: DatePickerEntryMode.input,
+                initialDatePickerMode: DatePickerMode.year,
+                firstDate: dateStart,
+                initialDate: (_birthday != null) ? _birthday : DateTime(2000, 1, 1),
+                lastDate: dateEnd,
+                context: context,
+              ).then((v) async {
+                if (v != null) {
+                  await _updateBirthday(v);
+                }
+              }),
           ),
           Divider(color: Colors.transparent),
           ListTile(
@@ -248,7 +269,11 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                 style: _biggerFont,
               ),
               subtitle: Text((_userGender != null) ? _userGender : ''),
-              onLongPress: () {},
+              trailing: FaIcon(
+                FontAwesomeIcons.check,
+                color:
+                    (_userGender != null) ? Colors.green : Colors.transparent,
+              ),
               onTap: () async {
                 await Navigator.push(
                     context,
@@ -266,6 +291,12 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                 'I am interested in',
                 textAlign: TextAlign.left,
                 style: _biggerFont,
+              ),
+              trailing: FaIcon(
+                FontAwesomeIcons.check,
+                color: (_women || _men || _transWomen || _transMen || _others)
+                    ? Colors.green
+                    : Colors.transparent,
               ),
               onTap: () async {
                 await Navigator.push(
@@ -287,7 +318,10 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                 style: _biggerFont,
               ),
               subtitle: Text((_race != null) ? _race : ''),
-              onLongPress: () {},
+              trailing: FaIcon(
+                FontAwesomeIcons.check,
+                color: (_race != null) ? Colors.green : Colors.transparent,
+              ),
               onTap: () async {
                 await Navigator.push(
                     context,
@@ -313,13 +347,17 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                     fontWeight: FontWeight.w600,
                   )),
               onPressed: () async {
-                if ((_women || _men || _transWomen || _transMen || _others) && (_name != null && _birthday != null && _userGender != null && _race != null)) {
-                    await Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => UploadPicturesScreen(
-                                  user: user,
-                                )));
+                if ((_women || _men || _transWomen || _transMen || _others) &&
+                    (_name != null &&
+                        _birthday != null &&
+                        _userGender != null &&
+                        _race != null)) {
+                  await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => UploadPicturesScreen(
+                                user: user,
+                              )));
                 } else {
                   print('not complete');
                 }
@@ -342,7 +380,7 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
         .collection('users')
         .document(user.uid)
         .collection('data')
-        .document('personal')
+        .document('userSettings')
         .setData(<String, dynamic>{
       'birthday': epochBirthday,
     }, merge: true).catchError((error) {
@@ -356,23 +394,5 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
     var year = dateTime.year;
 
     return '${month}/${day}/${year}';
-  }
-
-  Future<void> _saveName(String name) async {
-    if (_formFieldKey.currentState.validate() == true) {
-      await Firestore.instance
-          .collection('users')
-          .document(user.uid)
-          .collection('data')
-          .document('personal')
-          .setData(<String, dynamic>{
-        'name': name,
-      }, merge: true).catchError((error) {
-        print('Error writing document: ' + error.toString());
-        print(user.uid);
-        print(user.isEmailVerified);
-      });
-      await _downloadData();
-    }
   }
 }

@@ -14,14 +14,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MatchedConversationScreen extends StatefulWidget {
-  final FirebaseUser user;
+  final String alias;
   final String otherUserId;
   final String matchName;
   final String username;
   final String room;
 
   MatchedConversationScreen({
-      @required this.user,
+      @required this.alias,
       @required this.otherUserId,
       @required this.matchName,
       @required this.username,
@@ -30,7 +30,7 @@ class MatchedConversationScreen extends StatefulWidget {
   @override
   MatchedConversationScreenState createState() =>
       MatchedConversationScreenState(
-        user: user,
+        alias: alias,
         matchName: matchName,
         otherUserId: otherUserId,
         username: username,
@@ -40,14 +40,14 @@ class MatchedConversationScreen extends StatefulWidget {
 
 class MatchedConversationScreenState extends State<MatchedConversationScreen>
     with WidgetsBindingObserver {
-  final FirebaseUser user;
+  final String alias;
   final String otherUserId;
   final String matchName;
   final String username;
   String room;
 
   MatchedConversationScreenState({
-      @required this.user,
+      @required this.alias,
       @required this.otherUserId,
       @required this.matchName,
       @required this.username,
@@ -167,7 +167,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen>
       var listTiles = snapshot.data.documents.reversed
           .where((element) => element['message'] != null)
           .map((DocumentSnapshot document) {
-        if (document['from'] != user.uid) {
+        if (document['from'] != alias) {
           return ListTile(
             contentPadding: EdgeInsets.only(right: 80.0),
             leading: 
@@ -355,7 +355,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen>
         .collection(room)
         .document(sTime.toString())
         .setData(<String, dynamic>{
-      'from': user.uid.toString(),
+      'from': alias,
       'image': false,
       'message': text,
       'time': sTime
