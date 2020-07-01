@@ -649,9 +649,9 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
                   textAlign: TextAlign.left,
                 ),
                 onTap: () {
+                  // If the conversation is not finished go to chat, otherwise go to select connections screen
                   (convertPMatchTime(int.parse(pMatch.documentID),
-                              pMatch.documentID) !=
-                          'COMPLETED')
+                              pMatch.documentID) != AppLocalizations.of(context).translate('COMPLETED'))
                       ? Navigator.push(
                           context,
                           MaterialPageRoute(
