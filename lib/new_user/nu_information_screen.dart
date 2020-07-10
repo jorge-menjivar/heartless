@@ -80,7 +80,6 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
     super.initState();
     _downloadData();
     _scrollController = ScrollController();
-    //TODO _checkCurrentUser();
   }
 
   Future<void> _downloadData() async {
