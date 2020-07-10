@@ -7,7 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 Map<int, Color> color = {
   50: Color.fromRGBO(0, 0, 0, .1),
   100: Color.fromRGBO(0, 0, 0, .2),
@@ -33,107 +32,93 @@ final _subFont = const TextStyle(
 final _trailFont = const TextStyle(
   color: Colors.black,
 );
-final _listTitleStyle = const TextStyle(
-  color: Colors.black,
-  fontWeight: FontWeight.bold
-);
+final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
 var _iconColor = black;
-
-
 
 class EditNameScreen extends StatefulWidget {
   EditNameScreen({@required this.user});
-  
+
   final FirebaseUser user;
-  
+
   @override
   EditNameScreenState createState() => EditNameScreenState(user: user);
 }
 
 class EditNameScreenState extends State<EditNameScreen> {
-  
   EditNameScreenState({@required this.user, this.onTap});
-  
+
   final FirebaseUser user;
-  
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ScrollController _scrollController;
-  
+
   final VoidCallback onTap;
-  
+
   DateTime birthday;
-  
+
   final _formFieldKey = GlobalKey<FormFieldState>();
   final TextEditingController _controllerDisplayName = TextEditingController();
-  
+
   Timer searchOnStoppedTyping;
-  
+
   @override
   void initState() {
     super.initState();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text('My name'),
-        elevation: 4.0,
-      ),
-      body: ListView(
-        padding: EdgeInsets.all(30),
-        shrinkWrap: true,
-        primary: false,
-        controller: _scrollController,
-        physics: BouncingScrollPhysics(),
-        children: <Widget>[
-          Divider(
-            color: Colors.transparent
-          ),
-          TextFormField(
-            key: _formFieldKey,
-            controller: _controllerDisplayName,
-            onFieldSubmitted: (value) async {
-              await _saveName(value);
-              Navigator.pop(context);
-            },
-            keyboardType: TextInputType.text,
-            autocorrect: false,
-            autofocus: true,
-            autovalidate: true,
-            decoration: InputDecoration(
-              hintText: 'What is your first name?',
+        key: _scaffoldKey,
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text('My name'),
+          elevation: 4.0,
+        ),
+        body: ListView(
+          padding: EdgeInsets.all(30),
+          shrinkWrap: true,
+          primary: false,
+          controller: _scrollController,
+          physics: BouncingScrollPhysics(),
+          children: <Widget>[
+            Divider(color: Colors.transparent),
+            TextFormField(
+              key: _formFieldKey,
+              controller: _controllerDisplayName,
+              onFieldSubmitted: (value) async {
+                await _saveName(value);
+                Navigator.pop(context);
+              },
+              keyboardType: TextInputType.text,
+              autocorrect: false,
+              autofocus: true,
+              autovalidate: true,
+              decoration: InputDecoration(
+                hintText: 'What is your first name?',
               ),
-            validator: (username) {
-              if (username.contains(RegExp(r'\W'))) {
-                return 'Only letters';
-              }
-            },
-          ),
-        ],
-      )
-    );
+              validator: (username) {
+                if (username.contains(RegExp(r'\W'))) {
+                  return 'Only letters';
+                }
+              },
+            ),
+          ],
+        ));
   }
-  
+
   Future<void> _saveName(String name) async {
-    if (_formFieldKey.currentState.validate() == true){
+    if (_formFieldKey.currentState.validate() == true) {
       await Firestore.instance
-        .collection('users')
-        .document(user.uid)
-        .collection('data')
-        .document('userSettings').setData(
-          <String, dynamic>{
-            'name': name,
-          },
-          merge: true
-        )
-        .catchError((error) {
-            print('Error writing document: ' + error.toString());
-        }
-      );
+          .collection('users')
+          .document(user.uid)
+          .collection('data')
+          .document('userSettings')
+          .setData(<String, dynamic>{
+        'name': name,
+      }, merge: true).catchError((error) {
+        print('Error writing document: ' + error.toString());
+      });
     }
   }
-    
 }

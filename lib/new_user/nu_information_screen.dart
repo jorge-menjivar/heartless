@@ -41,8 +41,7 @@ final _subFont = const TextStyle(
 final _trailFont = const TextStyle(
   color: Colors.black,
 );
-final _listTitleStyle =
-    const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
+final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
 var _iconColor = black;
 
 class NewUserInformationScreen extends StatefulWidget {
@@ -51,8 +50,7 @@ class NewUserInformationScreen extends StatefulWidget {
   final FirebaseUser user;
 
   @override
-  NewUserInformationScreenState createState() =>
-      NewUserInformationScreenState(user: user);
+  NewUserInformationScreenState createState() => NewUserInformationScreenState(user: user);
 }
 
 class NewUserInformationScreenState extends State<NewUserInformationScreen> {
@@ -125,10 +123,8 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
           _others = doc.data['searchGender']['other'];
         }
       }
-      
-      setState(() {
-        
-      });
+
+      setState(() {});
     });
 
     // Setting user gender in readable format
@@ -161,13 +157,13 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    
+
     // 100 years maximum for DatePicker
     final dateStart = DateTime(now.year - 100, now.month, now.day);
-    
+
     // 18 years minimum for DatePicker
     final dateEnd = DateTime(now.year - 18, now.month, now.day);
-    
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
@@ -234,28 +230,26 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
               ],
             ),
             subtitle: Text(
-              (_birthday != null)
-                  ? _readableTimeString(_birthday)
-                  : _readableTimeString(DateTime(2000, 1, 1)),
+              (_birthday != null) ? _readableTimeString(_birthday) : _readableTimeString(DateTime(2000, 1, 1)),
             ),
             trailing: FaIcon(
               FontAwesomeIcons.check,
               color: (_birthday != null) ? Colors.green : Colors.transparent,
             ),
             onTap: () => showDatePicker(
-                helpText: 'SELECT BIRTHDAY',
-                fieldLabelText: 'Birthday',
-                initialEntryMode: DatePickerEntryMode.input,
-                initialDatePickerMode: DatePickerMode.year,
-                firstDate: dateStart,
-                initialDate: (_birthday != null) ? _birthday : DateTime(2000, 1, 1),
-                lastDate: dateEnd,
-                context: context,
-              ).then((v) async {
-                if (v != null) {
-                  await _updateBirthday(v);
-                }
-              }),
+              helpText: 'SELECT BIRTHDAY',
+              fieldLabelText: 'Birthday',
+              initialEntryMode: DatePickerEntryMode.input,
+              initialDatePickerMode: DatePickerMode.year,
+              firstDate: dateStart,
+              initialDate: (_birthday != null) ? _birthday : DateTime(2000, 1, 1),
+              lastDate: dateEnd,
+              context: context,
+            ).then((v) async {
+              if (v != null) {
+                await _updateBirthday(v);
+              }
+            }),
           ),
           Divider(color: Colors.transparent),
           ListTile(
@@ -271,8 +265,7 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
               subtitle: Text((_userGender != null) ? _userGender : ''),
               trailing: FaIcon(
                 FontAwesomeIcons.check,
-                color:
-                    (_userGender != null) ? Colors.green : Colors.transparent,
+                color: (_userGender != null) ? Colors.green : Colors.transparent,
               ),
               onTap: () async {
                 await Navigator.push(
@@ -294,9 +287,7 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
               ),
               trailing: FaIcon(
                 FontAwesomeIcons.check,
-                color: (_women || _men || _transWomen || _transMen || _others)
-                    ? Colors.green
-                    : Colors.transparent,
+                color: (_women || _men || _transWomen || _transMen || _others) ? Colors.green : Colors.transparent,
               ),
               onTap: () async {
                 await Navigator.push(
@@ -348,10 +339,7 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                   )),
               onPressed: () async {
                 if ((_women || _men || _transWomen || _transMen || _others) &&
-                    (_name != null &&
-                        _birthday != null &&
-                        _userGender != null &&
-                        _race != null)) {
+                    (_name != null && _birthday != null && _userGender != null && _race != null)) {
                   await Navigator.push(
                       context,
                       MaterialPageRoute(

@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lise/home_screen.dart';
+import 'package:lise/init_screen.dart';
 import 'package:lise/localizations.dart';
 import 'new_user/nu_information_screen.dart';
 import 'new_user/nu_welcome_screen.dart';
-
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -97,7 +97,11 @@ class _LoadingPageState extends State<LoadingPage> {
           : await Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) => WelcomeScreen(user: user)));
+                builder: (context) => WelcomeScreen(
+                  user: user,
+                ),
+              ),
+            );
     });
   }
 
@@ -120,21 +124,19 @@ class _LoadingPageState extends State<LoadingPage> {
 
       if (_profileCompleted) {
         await Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    InitPage(user: user, username: user.email)));
+            context, MaterialPageRoute(builder: (context) => HomeScreen(user: user, username: user.email)));
       } else {
         await Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => NewUserInformationScreen(
-                      user: user,
-                    )));
+          context,
+          MaterialPageRoute(
+            builder: (context) => NewUserInformationScreen(
+              user: user,
+            ),
+          ),
+        );
       }
     } else {
-      await Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
+      await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
     }
   }
 
@@ -170,10 +172,7 @@ class _LoadingPageState extends State<LoadingPage> {
   void updateToken(var id, var token) async {
     print('UPDATING TOKEN...');
     try {
-      await Firestore.instance
-          .collection('users')
-          .document(id)
-          .updateData({'t': token});
+      await Firestore.instance.collection('users').document(id).updateData({'t': token});
       print('UPDATING TOKEN: SUCCESS');
     } catch (e) {
       print(e.toString());

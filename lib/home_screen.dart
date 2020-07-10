@@ -51,26 +51,28 @@ final _subFont = const TextStyle(
 final _trailFont = const TextStyle(
   color: Colors.black,
 );
-final _listTitleStyle =
-    const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
+final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
 var _iconColor = black;
 
 Color _pictureCardColor = Colors.white;
 
 bool isNew = false;
 
-class InitPage extends StatefulWidget {
-  InitPage({@required this.user, this.username});
+class HomeScreen extends StatefulWidget {
+  HomeScreen({@required this.user, this.username});
 
   final FirebaseUser user;
   final String username;
 
   @override
-  InitPageState createState() => InitPageState(user: user, username: username);
+  HomeScreenState createState() => HomeScreenState(user: user, username: username);
 }
 
-class InitPageState extends State<InitPage> with WidgetsBindingObserver {
-  InitPageState({this.user, this.username});
+class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  HomeScreenState({this.user, this.username});
+
+  var dataLoaded = false;
+  var picturesLoaded = false;
 
   FirebaseUser user;
   final String username;
@@ -83,6 +85,7 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String _profilePicImageLink1 = 'http://loading';
+  var _profilePicture;
 
   StorageReference _storageReference1;
 
@@ -109,14 +112,19 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
   void _loadProfilePictures() async {
     try {
-      _storageReference1 = FirebaseStorage()
-          .ref()
-          .child('users/${user.uid}/profile_pictures/pic1.jpg');
+      _storageReference1 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic1.jpg');
     } catch (e) {
       print(e);
     }
 
     _profilePicImageLink1 = await _storageReference1.getDownloadURL();
+
+    _profilePicture = AdvancedNetworkImage(
+      _profilePicImageLink1,
+      useDiskCache: false,
+    );
+
+    picturesLoaded = true;
 
     setState(() {});
     return;
@@ -124,314 +132,311 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    if (!(dataLoaded && picturesLoaded)) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    } else {
+      return Scaffold(
         key: _scaffoldKey,
         body: DefaultTabController(
-            length: 3,
-            child: NestedScrollView(
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) {
-                return <Widget>[
-                  SliverOverlapAbsorber(
-                    handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                        context),
-                    sliver: SliverSafeArea(
-                      bottom: false,
-                      top: false,
-                      sliver: SliverAppBar(
-                        primary: true,
-                        centerTitle: true,
-                        title: ListTile(
-                          title: Text(
-                            'LISA',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.0,
-                            ),
-                          ),
-                          subtitle: Text(
-                            AppLocalizations.of(context).translate('app_moto'),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16.0,
-                            ),
+          length: 3,
+          child: NestedScrollView(
+            headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+              return <Widget>[
+                SliverOverlapAbsorber(
+                  handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                  sliver: SliverSafeArea(
+                    bottom: false,
+                    top: false,
+                    sliver: SliverAppBar(
+                      primary: true,
+                      centerTitle: true,
+                      title: ListTile(
+                        title: Text(
+                          'LISA',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.0,
                           ),
                         ),
-                        expandedHeight: 100.0,
-                        floating: true,
-                        pinned: true,
-                        snap: false,
-                        flexibleSpace: FlexibleSpaceBar(
-                            collapseMode: CollapseMode.pin,
-                            background: Container(
-                              decoration: BoxDecoration(color: white),
-                            )),
-                        bottom: TabBar(
-                          indicatorColor: Colors.white,
-                          labelColor: Colors.blue,
-                          unselectedLabelColor: Colors.grey,
-                          tabs: [
-                            Tab(
-                              icon: FaIcon(
-                                FontAwesomeIcons.search,
+                        subtitle: Text(
+                          AppLocalizations.of(context).translate('app_moto'),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.0,
+                          ),
+                        ),
+                      ),
+                      expandedHeight: 100.0,
+                      floating: true,
+                      pinned: true,
+                      snap: false,
+                      flexibleSpace: FlexibleSpaceBar(
+                        collapseMode: CollapseMode.pin,
+                        background: Container(
+                          decoration: BoxDecoration(color: white),
+                        ),
+                      ),
+                      bottom: TabBar(
+                        indicatorColor: Colors.white,
+                        labelColor: Colors.blue,
+                        unselectedLabelColor: Colors.grey,
+                        tabs: [
+                          Tab(
+                            icon: FaIcon(
+                              FontAwesomeIcons.search,
+                            ),
+                          ),
+                          Tab(
+                            icon: FaIcon(
+                              FontAwesomeIcons.solidCommentDots,
+                            ),
+                          ),
+                          Tab(
+                            icon: FaIcon(
+                              FontAwesomeIcons.userAlt,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              ];
+            },
+            body: TabBarView(children: [
+              ///------------------------------------ POTENTIAL MATCHES -----------------------------------------
+              _buildPMatchesTiles(),
+
+              ///------------------------------------------- MATCHES ---------------------------------------------
+              _buildMatchedConvos(),
+
+              ///------------------------------------------- PROFILE ---------------------------------------------------------
+              ListView(
+                padding: const EdgeInsets.all(1),
+                children: <Widget>[
+                  ListTile(
+                    leading: Text(
+                      AppLocalizations.of(context).translate('PROFILE'),
+                      textAlign: TextAlign.left,
+                      style: _listTitleStyle,
+                    ),
+                  ),
+                  SizedBox(
+                    height: _profilePicSize + 40,
+                    child: ShaderMask(
+                      shaderCallback: (rect) {
+                        return LinearGradient(
+                          begin: Alignment(0, 0.9),
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.white, Colors.transparent],
+                        ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                      },
+                      blendMode: BlendMode.dstIn,
+                      child: ShaderMask(
+                        shaderCallback: (rect) {
+                          return LinearGradient(
+                            begin: Alignment(0, -0.9),
+                            end: Alignment.topCenter,
+                            colors: [Colors.white, Colors.transparent],
+                          ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                        },
+                        blendMode: BlendMode.dstIn,
+                        child: ListView(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.all(12),
+                          primary: false,
+                          physics: BouncingScrollPhysics(),
+                          children: <Widget>[
+                            Center(
+                              child: Card(
+                                color: _pictureCardColor,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(1000))),
+                                child: SizedBox(
+                                    width: _profilePicSize,
+                                    height: _profilePicSize,
+                                    child: RawMaterialButton(
+                                        highlightColor: Colors.transparent,
+                                        splashColor: Colors.transparent,
+                                        hoverColor: Colors.transparent,
+                                        padding: EdgeInsets.all(12),
+                                        child: Container(
+                                            decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          image: DecorationImage(
+                                            image: _profilePicture,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )),
+                                        onPressed: () async {
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) => ProfilePicturesScreen(
+                                                        user: user,
+                                                      ))).then((value) => _loadProfilePictures());
+                                        })),
                               ),
                             ),
-                            Tab(
-                              icon: FaIcon(
-                                FontAwesomeIcons.solidCommentDots,
-                              ),
-                            ),
-                            Tab(
-                              icon: FaIcon(
-                                FontAwesomeIcons.userAlt,
-                              ),
-                            )
                           ],
                         ),
                       ),
                     ),
-                  )
-                ];
-              },
-              body: TabBarView(children: [
-                ///------------------------------------ POTENTIAL MATCHES -----------------------------------------
-                _buildPMatchesTiles(),
-
-                ///------------------------------------------- MATCHES ---------------------------------------------
-                _buildMatchedConvos(),
-
-                ///------------------------------------------- PROFILE ---------------------------------------------------------
-                ListView(
-                  padding: const EdgeInsets.all(1),
-                  children: <Widget>[
-                    ListTile(
-                      leading: Text(
-                        AppLocalizations.of(context).translate('PROFILE'),
-                        textAlign: TextAlign.left,
-                        style: _listTitleStyle,
+                  ),
+                  Divider(),
+                  Divider(color: Colors.transparent),
+                  Container(
+                    decoration: BoxDecoration(),
+                    child: ListTile(
+                      dense: true,
+                      leading: FaIcon(
+                        FontAwesomeIcons.userAlt,
+                        color: black,
                       ),
+                      title: Text(
+                        AppLocalizations.of(context).translate('Personal_Information_title'),
+                        textAlign: TextAlign.left,
+                        style: _biggerFont,
+                      ),
+                      subtitle: Text(
+                        AppLocalizations.of(context).translate('Personal_Information_subtitle'),
+                        style: _subFont,
+                        textAlign: TextAlign.left,
+                        maxLines: 1,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PersonalInformationScreen(
+                                      user: user,
+                                    )));
+                      },
                     ),
-                    SizedBox(
-                        height: _profilePicSize + 40,
-                        child: ShaderMask(
-                            shaderCallback: (rect) {
-                              return LinearGradient(
-                                begin: Alignment(0, 0.9),
-                                end: Alignment.bottomCenter,
-                                colors: [Colors.white, Colors.transparent],
-                              ).createShader(
-                                  Rect.fromLTRB(0, 0, rect.width, rect.height));
-                            },
-                            blendMode: BlendMode.dstIn,
-                            child: ShaderMask(
-                              shaderCallback: (rect) {
-                                return LinearGradient(
-                                  begin: Alignment(0, -0.9),
-                                  end: Alignment.topCenter,
-                                  colors: [Colors.white, Colors.transparent],
-                                ).createShader(Rect.fromLTRB(
-                                    0, 0, rect.width, rect.height));
-                              },
-                              blendMode: BlendMode.dstIn,
-                              child: ListView(
-                                shrinkWrap: true,
-                                padding: EdgeInsets.all(12),
-                                primary: false,
-                                physics: BouncingScrollPhysics(),
-                                children: <Widget>[
-                                  Center(
-                                    child: Card(
-                                      color: _pictureCardColor,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(1000))),
-                                      child: SizedBox(
-                                          width: _profilePicSize,
-                                          height: _profilePicSize,
-                                          child: RawMaterialButton(
-                                              highlightColor:
-                                                  Colors.transparent,
-                                              splashColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              padding: EdgeInsets.all(12),
-                                              child: Container(
-                                                  decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                image: DecorationImage(
-                                                  image: AdvancedNetworkImage(
-                                                    _profilePicImageLink1,
-                                                    useDiskCache: true,
-                                                  ),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )),
-                                              onPressed: () async {
-                                                await Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            ProfilePicturesScreen(
-                                                              user: user,
-                                                            ))).then((value) =>
-                                                    _loadProfilePictures());
-                                              })),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ))),
-                    Divider(),
-                    Divider(color: Colors.transparent),
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: FaIcon(
-                            FontAwesomeIcons.userAlt,
-                            color: black,
+                  ),
+                  Divider(color: Colors.transparent),
+                  Container(
+                    decoration: BoxDecoration(),
+                    child: ListTile(
+                      dense: true,
+                      leading: FaIcon(
+                        FontAwesomeIcons.search,
+                        color: black,
+                      ),
+                      title: Text(
+                        AppLocalizations.of(context).translate('I_am_looking_for_title'),
+                        textAlign: TextAlign.left,
+                        style: _biggerFont,
+                      ),
+                      subtitle: Text(
+                        AppLocalizations.of(context).translate('I_am_looking_for_subtitle'),
+                        style: _subFont,
+                        textAlign: TextAlign.left,
+                        maxLines: 1,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchInformationScreen(
+                              user: user,
+                            ),
                           ),
-                          title: Text(
-                            AppLocalizations.of(context)
-                                .translate('Personal_Information_title'),
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          subtitle: Text(
-                            AppLocalizations.of(context)
-                                .translate('Personal_Information_subtitle'),
-                            style: _subFont,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        PersonalInformationScreen(
-                                          user: user,
-                                        )));
-                          }),
+                        );
+                      },
                     ),
-                    Divider(color: Colors.transparent),
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: FaIcon(
-                            FontAwesomeIcons.search,
-                            color: black,
+                  ),
+                  Divider(color: Colors.transparent),
+                  Container(
+                    decoration: BoxDecoration(),
+                    child: ListTile(
+                      dense: true,
+                      leading: FaIcon(
+                        FontAwesomeIcons.snowboarding,
+                        color: black,
+                      ),
+                      title: Text(
+                        AppLocalizations.of(context).translate('My_way_of_living_title'),
+                        textAlign: TextAlign.left,
+                        style: _biggerFont,
+                      ),
+                      subtitle: Text(
+                        AppLocalizations.of(context).translate('My_way_of_living_subtitle'),
+                        style: _subFont,
+                        textAlign: TextAlign.left,
+                        maxLines: 1,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WayOfLivingScreen(
+                              user: user,
+                            ),
                           ),
-                          title: Text(
-                            AppLocalizations.of(context)
-                                .translate('I_am_looking_for_title'),
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          subtitle: Text(
-                            AppLocalizations.of(context)
-                                .translate('I_am_looking_for_subtitle'),
-                            style: _subFont,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        SearchInformationScreen(
-                                          user: user,
-                                        )));
-                          }),
+                        );
+                      },
                     ),
-                    Divider(color: Colors.transparent),
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: FaIcon(
-                            FontAwesomeIcons.snowboarding,
-                            color: black,
-                          ),
-                          title: Text(
-                            AppLocalizations.of(context)
-                                .translate('My_way_of_living_title'),
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          subtitle: Text(
-                            AppLocalizations.of(context)
-                                .translate('My_way_of_living_subtitle'),
-                            style: _subFont,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => WayOfLivingScreen(
-                                          user: user,
-                                        )));
-                          }),
+                  ),
+                  Divider(color: Colors.transparent),
+                  Container(
+                    decoration: BoxDecoration(),
+                    child: ListTile(
+                      dense: true,
+                      leading: FaIcon(
+                        FontAwesomeIcons.wrench,
+                        color: black,
+                      ),
+                      title: Text(
+                        AppLocalizations.of(context).translate('Settings_title'),
+                        textAlign: TextAlign.left,
+                        style: _biggerFont,
+                      ),
+                      subtitle: Text(
+                        AppLocalizations.of(context).translate('Settings_subtitle'),
+                        style: _subFont,
+                        textAlign: TextAlign.left,
+                        maxLines: 1,
+                      ),
+                      onTap: () {
+                        setState(() {});
+                      },
                     ),
-                    Divider(color: Colors.transparent),
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: FaIcon(
-                            FontAwesomeIcons.wrench,
-                            color: black,
-                          ),
-                          title: Text(
-                            AppLocalizations.of(context)
-                                .translate('Settings_title'),
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          subtitle: Text(
-                            AppLocalizations.of(context)
-                                .translate('Settings_subtitle'),
-                            style: _subFont,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                          ),
-                          onTap: () {
-                            setState(() {});
-                          }),
+                  ),
+                  Divider(color: Colors.transparent),
+                  Divider(),
+                  Container(
+                    decoration: BoxDecoration(),
+                    child: ListTile(
+                      dense: true,
+                      leading: FaIcon(
+                        FontAwesomeIcons.signOutAlt,
+                        color: black,
+                      ),
+                      title: Text(
+                        AppLocalizations.of(context).translate('Log_Out'),
+                        textAlign: TextAlign.left,
+                        style: _biggerFont,
+                      ),
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoadingPage()));
+                      },
                     ),
-                    Divider(color: Colors.transparent),
-                    Divider(),
-                    Container(
-                      decoration: BoxDecoration(),
-                      child: ListTile(
-                          dense: true,
-                          leading: FaIcon(
-                            FontAwesomeIcons.signOutAlt,
-                            color: black,
-                          ),
-                          title: Text(
-                            AppLocalizations.of(context).translate('Log_Out'),
-                            textAlign: TextAlign.left,
-                            style: _biggerFont,
-                          ),
-                          onTap: () {
-                            FirebaseAuth.instance.signOut();
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LoadingPage()));
-                          }),
-                    ),
-                    Divider(color: Colors.transparent),
-                  ],
-                ),
-              ]),
-            )));
+                  ),
+                  Divider(color: Colors.transparent),
+                ],
+              ),
+            ]),
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _downloadData() async {
@@ -445,10 +450,12 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
           .document('user_rooms')
           .collection('p_matches')
           .snapshots()
-          .listen((querySnapshot) {
-        _pMatches = querySnapshot.documents;
-        _loadPMatchesData();
-      });
+          .listen(
+        (querySnapshot) {
+          _pMatches = querySnapshot.documents;
+          _loadPMatchesData();
+        },
+      );
 
       pMatchesInitialized = true;
     }
@@ -461,10 +468,12 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
           .document('user_rooms')
           .collection('matches')
           .snapshots()
-          .listen((querySnapshot) {
-        _matches = querySnapshot.documents;
-        _loadMatchesData();
-      });
+          .listen(
+        (querySnapshot) {
+          _matches = querySnapshot.documents;
+          _loadMatchesData();
+        },
+      );
 
       matchesInitialized = true;
     }
@@ -481,13 +490,15 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     for (var match in _matches) {
       try {
         // Getting the picture download URL for each user from the downloaded array
-        _matchImageLinks.add(await FirebaseStorage()
-            .ref()
-            .child('users/${match['otherUserId']}/profile_pictures/pic1.jpg')
-            .getDownloadURL());
+        _matchImageLinks.add(
+          await FirebaseStorage()
+              .ref()
+              .child('users/${match['otherUserId']}/profile_pictures/pic1.jpg')
+              .getDownloadURL(),
+        );
 
         // Getting the last message sent in each conversation
-        var lastMessage = await Firestore.instance
+        final lastMessage = await Firestore.instance
             .collection('messages')
             .document('rooms')
             .collection('${match['room']}')
@@ -502,8 +513,6 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
       }
     }
 
-    setState(() {});
-
     if (!variablesInitialized) {
       await Firestore.instance
           .collection('users')
@@ -511,15 +520,20 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
           .collection('data')
           .document('private')
           .get()
-          .then((doc) {
-        if (!doc.exists) {
-          print('No data document!');
-        } else {
-          _alias = doc.data['alias'];
-        }
-      });
+          .then(
+        (doc) {
+          if (!doc.exists) {
+            print('No data document!');
+          } else {
+            _alias = doc.data['alias'];
+          }
+        },
+      );
       variablesInitialized = true;
     }
+
+    dataLoaded = true;
+    setState(() {});
   }
 
   void _loadPMatchesData() async {
@@ -552,138 +566,139 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
   Widget _buildPMatchesTiles() {
     return ListView.builder(
-        physics: BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(1),
-        controller: _scrollController,
-        itemCount: _pMatches.length + 2,
-        itemBuilder: (context, i) {
-          if (i == 0) {
-            return ListTile(
-              leading: Text(
-                  AppLocalizations.of(context).translate('POTENTIAL_MATCHES'),
-                  textAlign: TextAlign.left,
-                  style: _listTitleStyle),
-            );
-          }
+      physics: BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(1),
+      controller: _scrollController,
+      itemCount: _pMatches.length + 2,
+      itemBuilder: (context, i) {
+        if (i == 0) {
+          return ListTile(
+            leading: Text(
+              AppLocalizations.of(context).translate('POTENTIAL_MATCHES'),
+              textAlign: TextAlign.left,
+              style: _listTitleStyle,
+            ),
+          );
+        }
 
-          if (i == _pMatches.length + 1) {
-            return ListTile(
-              title: Text(
-                AppLocalizations.of(context).translate('Find_someone_new'),
-                textAlign: TextAlign.left,
-                style: _biggerFont,
-              ),
-              trailing: FaIcon(
-                FontAwesomeIcons.userPlus,
-                color: black,
-              ),
-              onTap: _sendPotentialMatchRequest,
-            );
-          }
+        if (i == _pMatches.length + 1) {
+          return ListTile(
+            title: Text(
+              AppLocalizations.of(context).translate('Find_someone_new'),
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            trailing: FaIcon(
+              FontAwesomeIcons.userPlus,
+              color: black,
+            ),
+            onTap: _sendPotentialMatchRequest,
+          );
+        }
 
-          final pMatch = _pMatches[i - 1];
-          var lastMessage;
-          var time;
+        final pMatch = _pMatches[i - 1];
+        var lastMessage;
+        var time;
 
-          if (pMatch['pending'] == true) {
-            return ListTile(
-              title: Text(
-                AppLocalizations.of(context).translate('Searching_the_world_title'),
-                textAlign: TextAlign.left,
-                style: _biggerFont,
-              ),
-              subtitle: Text(
-                AppLocalizations.of(context).translate('Searching_the_world_subtitle'),
-                style: _subFont,
-                textAlign: TextAlign.left,
-                maxLines: 1,
-              ),
-              trailing: FaIcon(
-                FontAwesomeIcons.clock,
-                color: black,
-              ),
-              onTap: () {},
-              onLongPress: () {
-                setState(() {
-                  showDeleteDialog(context, 'Request').then((v) {
-                    if (v) {
-                      _deleteRequest(pMatch.documentID);
-                    }
-                  });
+        if (pMatch['pending'] == true) {
+          return ListTile(
+            title: Text(
+              AppLocalizations.of(context).translate('Searching_the_world_title'),
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            subtitle: Text(
+              AppLocalizations.of(context).translate('Searching_the_world_subtitle'),
+              style: _subFont,
+              textAlign: TextAlign.left,
+              maxLines: 1,
+            ),
+            trailing: FaIcon(
+              FontAwesomeIcons.clock,
+              color: black,
+            ),
+            onTap: () {},
+            onLongPress: () {
+              setState(() {
+                showDeleteDialog(context, 'Request').then((v) {
+                  if (v) {
+                    _deleteRequest(pMatch.documentID);
+                  }
                 });
-              },
-            );
-          } else {
-            if (_pMatchLastMessages.isNotEmpty &&
-                _pMatchLastMessages[i - 1]['time'] != null) {
-              time = _pMatchLastMessages[i - 1]['time'];
-            }
-            if (_pMatchLastMessages.isNotEmpty &&
-                _pMatchLastMessages[i - 1]['time'] != null &&
-                time > 0) {
-              if (_pMatchLastMessages[i - 1]['from'] == user.uid) {
-                lastMessage = 'You: ${_pMatchLastMessages[i - 1]['message']}';
-              } else {
-                lastMessage = _pMatchLastMessages[i - 1]['message'];
-              }
+              });
+            },
+          );
+        } else {
+          if (_pMatchLastMessages.isNotEmpty && _pMatchLastMessages[i - 1]['time'] != null) {
+            time = _pMatchLastMessages[i - 1]['time'];
+          }
+          if (_pMatchLastMessages.isNotEmpty && _pMatchLastMessages[i - 1]['time'] != null && time > 0) {
+            if (_pMatchLastMessages[i - 1]['from'] == user.uid) {
+              lastMessage = 'You: ${_pMatchLastMessages[i - 1]['message']}';
             } else {
-              lastMessage = AppLocalizations.of(context).translate('Start_Conversation');
+              lastMessage = _pMatchLastMessages[i - 1]['message'];
             }
-            return ListTile(
-                leading: CircleAvatar(
-                    child: Text(pMatch['otherUser'].toUpperCase()[0])),
-                title: Text(
-                  pMatch['otherUser'],
-                  textAlign: TextAlign.left,
-                  style: _biggerFont,
-                ),
-                subtitle: Text(
-                  lastMessage,
-                  style: _subFont,
-                  textAlign: TextAlign.left,
-                ),
-                trailing: Text(
-                  convertPMatchTime(
-                      int.parse(pMatch.documentID), pMatch.documentID),
-                  style: _trailFont,
-                  textAlign: TextAlign.left,
-                ),
-                onTap: () {
-                  // If the conversation is not finished go to chat, otherwise go to select connections screen
-                  (convertPMatchTime(int.parse(pMatch.documentID),
-                              pMatch.documentID) != AppLocalizations.of(context).translate('COMPLETED'))
-                      ? Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => PMConversationScreen(
-                                    alias: _alias,
-                                    matchName: pMatch['otherUser'],
-                                    username: user.displayName,
-                                    room: pMatch['room'],
-                                  ))).then((value) {
-                          _loadPMatchesData();
-                        })
-                      : Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SelectMatchesScreen(
-                                    user: user,
-                                    room: pMatch['room'],
-                                    roomKey: pMatch.documentID,
-                                  )));
-                },
-                onLongPress: () {
-                  setState(() {
-                    showDeleteDialog(context, pMatch['otherUser']).then((v) {
-                      if (v) {
-                        _deletePotentialMatch(
-                            int.parse(pMatch.documentID), pMatch['room']);
-                      }
-                    });
-                  });
-                });
+          } else {
+            lastMessage = AppLocalizations.of(context).translate('Start_Conversation');
           }
-        });
+          return ListTile(
+            leading: CircleAvatar(child: Text(pMatch['otherUser'].toUpperCase()[0])),
+            title: Text(
+              pMatch['otherUser'],
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            subtitle: Text(
+              lastMessage,
+              style: _subFont,
+              textAlign: TextAlign.left,
+            ),
+            trailing: Text(
+              convertPMatchTime(int.parse(pMatch.documentID), pMatch.documentID),
+              style: _trailFont,
+              textAlign: TextAlign.left,
+            ),
+            onTap: () {
+              // If the conversation is not finished go to chat, otherwise go to select connections screen
+              (convertPMatchTime(int.parse(pMatch.documentID), pMatch.documentID) !=
+                      AppLocalizations.of(context).translate('COMPLETED'))
+                  ? Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PMConversationScreen(
+                          alias: _alias,
+                          matchName: pMatch['otherUser'],
+                          username: user.displayName,
+                          room: pMatch['room'],
+                        ),
+                      ),
+                    ).then((value) {
+                      _loadPMatchesData();
+                    })
+                  : Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SelectMatchesScreen(
+                          user: user,
+                          room: pMatch['room'],
+                          roomKey: pMatch.documentID,
+                        ),
+                      ),
+                    );
+            },
+            onLongPress: () {
+              setState(() {
+                showDeleteDialog(context, pMatch['otherUser']).then((v) {
+                  if (v) {
+                    _deletePotentialMatch(int.parse(pMatch.documentID), pMatch['room']);
+                  }
+                });
+              });
+            },
+          );
+        }
+      },
+    );
   }
 
 /*
@@ -830,97 +845,100 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
 
   Widget _buildMatchedConvos() {
     return ListView.builder(
-        physics: BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(1),
-        controller: _scrollController,
-        itemCount: _matches.length + 1,
-        itemBuilder: (context, i) {
-          if (i == 0) {
-            return ListTile(
-              leading: Text(AppLocalizations.of(context).translate('MATCHES'),
-                  textAlign: TextAlign.left, style: _listTitleStyle),
-            );
-          }
-
-          final match = _matches[i - 1];
-          var lastMessage;
-          var time;
-          if (_matchLastMessages.isNotEmpty) {
-            time = _matchLastMessages[i - 1]['time'];
-          }
-          if (_matchLastMessages.isNotEmpty && time > 0) {
-            if (_matchLastMessages[i - 1]['from'] == user.uid) {
-              lastMessage = 'You: ${_matchLastMessages[i - 1]['message']}';
-            } else {
-              lastMessage = _matchLastMessages[i - 1]['message'];
-            }
-          } else {
-            lastMessage = AppLocalizations.of(context).translate('Start_Conversation');
-          }
+      physics: BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(1),
+      controller: _scrollController,
+      itemCount: _matches.length + 1,
+      itemBuilder: (context, i) {
+        if (i == 0) {
           return ListTile(
-              leading: Container(
-                decoration:
-                    BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                child: SizedBox(
-                  height: 50,
-                  width: 50,
-                  child: Container(
-                      decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: _matchImageLinks.isNotEmpty
-                        ? DecorationImage(
-                            image: AdvancedNetworkImage(
-                              _matchImageLinks[i - 1],
-                              useDiskCache: true,
-                            ),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
-                  )),
+            leading: Text(AppLocalizations.of(context).translate('MATCHES'),
+                textAlign: TextAlign.left, style: _listTitleStyle),
+          );
+        }
+
+        final match = _matches[i - 1];
+        var lastMessage;
+        var time;
+        if (_matchLastMessages.isNotEmpty) {
+          time = _matchLastMessages[i - 1]['time'];
+        }
+        if (_matchLastMessages.isNotEmpty && time > 0) {
+          if (_matchLastMessages[i - 1]['from'] == user.uid) {
+            lastMessage = 'You: ${_matchLastMessages[i - 1]['message']}';
+          } else {
+            lastMessage = _matchLastMessages[i - 1]['message'];
+          }
+        } else {
+          lastMessage = AppLocalizations.of(context).translate('Start_Conversation');
+        }
+        return ListTile(
+          leading: Container(
+            decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+            child: SizedBox(
+              height: 50,
+              width: 50,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: _matchImageLinks.isNotEmpty
+                      ? DecorationImage(
+                          image: AdvancedNetworkImage(
+                            _matchImageLinks[i - 1],
+                            useDiskCache: true,
+                          ),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
               ),
-              title: Text(
-                match['otherUser'],
-                textAlign: TextAlign.left,
-                style: _biggerFont,
+            ),
+          ),
+          title: Text(
+            match['otherUser'],
+            textAlign: TextAlign.left,
+            style: _biggerFont,
+          ),
+          subtitle: Text(
+            lastMessage,
+            style: _subFont,
+            textAlign: TextAlign.left,
+          ),
+          trailing: Text(
+            (_matchLastMessages.isNotEmpty && time > 0)
+                ? convertMatchTime(int.parse(_matchLastMessages[i - 1].documentID))
+                : '',
+            style: _trailFont,
+            textAlign: TextAlign.left,
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MatchedConversationScreen(
+                  alias: _alias,
+                  matchName: match['otherUser'],
+                  otherUserId: match['otherUserId'],
+                  username: user.displayName,
+                  room: match['room'],
+                ),
               ),
-              subtitle: Text(
-                lastMessage,
-                style: _subFont,
-                textAlign: TextAlign.left,
-              ),
-              trailing: Text(
-                (_matchLastMessages.isNotEmpty && time > 0)
-                    ? convertMatchTime(
-                        int.parse(_matchLastMessages[i - 1].documentID))
-                    : '',
-                style: _trailFont,
-                textAlign: TextAlign.left,
-              ),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MatchedConversationScreen(
-                              alias: _alias,
-                              matchName: match['otherUser'],
-                              otherUserId: match['otherUserId'],
-                              username: user.displayName,
-                              room: match['room'],
-                            ))).then((value) {
-                  _loadMatchesData();
-                });
-              },
-              onLongPress: () {
-                setState(() {
-                  showDeleteDialog(context, match['otherUser']).then((v) {
-                    if (v) {
-                      _deleteMatch(int.parse(match.documentID), match['room']);
-                    }
-                  });
-                });
+            ).then((value) {
+              _loadMatchesData();
+            });
+          },
+          onLongPress: () {
+            setState(() {
+              showDeleteDialog(context, match['otherUser']).then((v) {
+                if (v) {
+                  _deleteMatch(int.parse(match.documentID), match['room']);
+                }
               });
-        });
+            });
+          },
+        );
+      },
+    );
   }
 
   Future<void> _deletePotentialMatch(int time, String room) async {
@@ -960,10 +978,12 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     );
 
     // Adding variables to the server to the request and calling the function
-    await callable.call(<String, dynamic>{
-      'time': time,
-      'room': room,
-    });
+    await callable.call(
+      <String, dynamic>{
+        'time': time,
+        'room': room,
+      },
+    );
 
     _scaffoldKey.currentState.hideCurrentSnackBar();
     return;
@@ -984,9 +1004,11 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     );
 
     // Adding variables to the server to the request and calling the function
-    await callable.call(<String, dynamic>{
-      'requestKey': key,
-    });
+    await callable.call(
+      <String, dynamic>{
+        'requestKey': key,
+      },
+    );
 
     _scaffoldKey.currentState.hideCurrentSnackBar();
     return;
@@ -1037,10 +1059,12 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     );
 
     // Adding variables to the server to the request and calling the function
-    dynamic resp = await callable.call(<String, dynamic>{
-      'latitude': locationData.latitude,
-      'longitude': locationData.longitude,
-    });
+    dynamic resp = await callable.call(
+      <String, dynamic>{
+        'latitude': locationData.latitude,
+        'longitude': locationData.longitude,
+      },
+    );
 
     print(resp.data['success']);
 
@@ -1051,31 +1075,25 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   String convertMatchTime(int time) {
     var dateTime = DateTime.fromMillisecondsSinceEpoch(time);
 
-    var minutes = DateTime.now()
-        .difference(DateTime.fromMillisecondsSinceEpoch(time))
-        .inMinutes;
+    var minutes = DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(time)).inMinutes;
 
-    var hours = DateTime.now()
-        .difference(DateTime.fromMillisecondsSinceEpoch(time))
-        .inHours;
+    var hours = DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(time)).inHours;
 
-    var days = DateTime.now()
-        .difference(DateTime.fromMillisecondsSinceEpoch(time))
-        .inDays;
+    var days = DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(time)).inDays;
 
     if (minutes < 1) {
-      return  AppLocalizations.of(context).translate('Just_now');
+      return AppLocalizations.of(context).translate('Just_now');
     } else if (minutes < 60) {
       return (minutes > 1)
           ? '$minutes ${AppLocalizations.of(context).translate('minutes_ago')}'
           : '$minutes ${AppLocalizations.of(context).translate('minute_ago')}';
     } else if (hours < 24) {
-      return (hours > 1) 
-          ? '$hours ${AppLocalizations.of(context).translate('hours_ago')}' 
+      return (hours > 1)
+          ? '$hours ${AppLocalizations.of(context).translate('hours_ago')}'
           : '$hours ${AppLocalizations.of(context).translate('hour_ago')}';
     } else if (days < 7) {
-      return (days > 1) 
-          ? '${days} ${AppLocalizations.of(context).translate('days_ago')}' 
+      return (days > 1)
+          ? '${days} ${AppLocalizations.of(context).translate('days_ago')}'
           : '${days} ${AppLocalizations.of(context).translate('day_ago')}';
     } else if (days > 7) {
       return '${dateTime.month}/${dateTime.day}/${dateTime.year}';
@@ -1085,17 +1103,11 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
   }
 
   String convertPMatchTime(int time, String roomKey) {
-    var minutes = DateTime.fromMillisecondsSinceEpoch(time)
-        .difference(DateTime.now())
-        .inMinutes;
+    var minutes = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inMinutes;
 
-    var hours = DateTime.fromMillisecondsSinceEpoch(time)
-        .difference(DateTime.now())
-        .inHours;
+    var hours = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inHours;
 
-    var days = DateTime.fromMillisecondsSinceEpoch(time)
-        .difference(DateTime.now())
-        .inDays;
+    var days = DateTime.fromMillisecondsSinceEpoch(time).difference(DateTime.now()).inDays;
 
     // Sending connection request 24 hours before the connection screen is shown to have profiles ready and prevent slowdown in the app
     if (hours < 36) {
@@ -1107,28 +1119,29 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
           .collection('p_matches')
           .document('$roomKey')
           .get()
-          .then((doc) {
-        if (!doc.exists) {
-          print('No data document!');
-        } else {
-          if (doc.data['connections'] == null ||
-              doc.data['connections'].length == 0) {
-            _sendConnectionsRequest(roomKey);
+          .then(
+        (doc) {
+          if (!doc.exists) {
+            print('No data document!');
+          } else {
+            if (doc.data['connections'] == null || doc.data['connections'].length == 0) {
+              _sendConnectionsRequest(roomKey);
+            }
           }
-        }
-      });
+        },
+      );
     }
     if (minutes < 0) {
       return AppLocalizations.of(context).translate('COMPLETED');
     }
 
     if (minutes < 60) {
-      return (minutes > 1) 
-          ? '$minutes ${AppLocalizations.of(context).translate('minutes_left')}' 
+      return (minutes > 1)
+          ? '$minutes ${AppLocalizations.of(context).translate('minutes_left')}'
           : '$minutes ${AppLocalizations.of(context).translate('minute_left')}';
     } else if (hours < 24) {
-      return (hours > 1) 
-          ? '$hours ${AppLocalizations.of(context).translate('hours_left')}' 
+      return (hours > 1)
+          ? '$hours ${AppLocalizations.of(context).translate('hours_left')}'
           : '$hours ${AppLocalizations.of(context).translate('hour_left')}';
     } else if (days > 0) {
       if (days > 1) {
@@ -1186,11 +1199,13 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     );
 
     // Adding variables to the server to the request and calling the function
-    await callable.call(<String, dynamic>{
-      'latitude': locationData.latitude,
-      'longitude': locationData.longitude,
-      'key': roomKey
-    });
+    await callable.call(
+      <String, dynamic>{
+        'latitude': locationData.latitude,
+        'longitude': locationData.longitude,
+        'key': roomKey,
+      },
+    );
 
     return;
   }
@@ -1206,60 +1221,62 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
             barrierDismissible: true, // user can type outside box to dismiss
             builder: (BuildContext context) {
               return AlertDialog(
-                  title: Text('Are you sure?'),
-                  content: SingleChildScrollView(
-                    child: ListBody(
-                      children: <Widget>[
-                        Text(
-                            'Do you really want to delete the conversation with $name?'),
-                      ],
-                    ),
+                title: Text('Are you sure?'),
+                content: SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      Text('Do you really want to delete the conversation with $name?'),
+                    ],
                   ),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text('Cancel'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    FlatButton(
-                      child: Text("I\'m sure"),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        choice = true;
-                      },
-                    ),
-                  ]);
-            })
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  FlatButton(
+                    child: Text("I\'m sure"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      choice = true;
+                    },
+                  ),
+                ],
+              );
+            },
+          )
         : await showCupertinoDialog<bool>(
             context: context,
             builder: (BuildContext context) {
               return CupertinoAlertDialog(
-                  title: Text('Are you sure?'),
-                  content: SingleChildScrollView(
-                    child: ListBody(
-                      children: <Widget>[
-                        Text(
-                            'Do you really want to delete the conversation with $name?'),
-                      ],
-                    ),
+                title: Text('Are you sure?'),
+                content: SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      Text('Do you really want to delete the conversation with $name?'),
+                    ],
                   ),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text('Cancel'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    FlatButton(
-                      child: Text("I\'m sure"),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        choice = true;
-                      },
-                    ),
-                  ]);
-            });
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  FlatButton(
+                    child: Text("I\'m sure"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      choice = true;
+                    },
+                  ),
+                ],
+              );
+            },
+          );
     return choice;
   }
 
@@ -1278,45 +1295,4 @@ class InitPageState extends State<InitPage> with WidgetsBindingObserver {
     });
   }
   */
-}
-
-/// The base class for the different types of items the list can contain.
-abstract class ListItem {
-  /// The title line to show in a list item.
-  Widget buildTitle(BuildContext context);
-
-  /// The subtitle line, if any, to show in a list item.
-  Widget buildSubtitle(BuildContext context);
-}
-
-/// A ListItem that contains data to display a heading.
-class HeadingItem implements ListItem {
-  final String heading;
-
-  HeadingItem(this.heading);
-
-  @override
-  Widget buildTitle(BuildContext context) {
-    return Text(
-      heading,
-      style: Theme.of(context).textTheme.headline,
-    );
-  }
-
-  @override
-  Widget buildSubtitle(BuildContext context) => null;
-}
-
-/// A ListItem that contains data to display a message.
-class MessageItem implements ListItem {
-  final String sender;
-  final String body;
-
-  MessageItem(this.sender, this.body);
-
-  @override
-  Widget buildTitle(BuildContext context) => Text(sender);
-
-  @override
-  Widget buildSubtitle(BuildContext context) => Text(body);
 }
