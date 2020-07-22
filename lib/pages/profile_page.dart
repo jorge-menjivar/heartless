@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_networkimage/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lise/bloc/profile_bloc.dart';
+import 'package:lise/pages/dev_settings.dart';
 import 'package:lise/user_profile/personal_information_screen.dart';
 import 'package:lise/user_profile/profile_pictures_screen.dart';
 import 'package:lise/user_profile/search_information_screen.dart';
@@ -280,6 +279,35 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
         ),
         Divider(color: Colors.transparent),
         Divider(),
+        Divider(color: Colors.transparent),
+        Container(
+          decoration: BoxDecoration(),
+          child: ListTile(
+            dense: true,
+            leading: FaIcon(
+              FontAwesomeIcons.dev,
+              color: black,
+            ),
+            title: Text(
+              'Developer Settings',
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DevSettings(
+                    user: user,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        Divider(color: Colors.transparent),
+        Divider(),
+        Divider(color: Colors.transparent),
         Container(
           decoration: BoxDecoration(),
           child: ListTile(

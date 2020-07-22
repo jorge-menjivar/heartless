@@ -196,6 +196,9 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
           ),
           subtitle: Text(
             lastMessage,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
             style: _subFont,
             textAlign: TextAlign.left,
           ),
@@ -211,6 +214,7 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
               context,
               MaterialPageRoute(
                 builder: (context) => MatchedConversationScreen(
+                  imageLink: _matchImageLinks[i - 1],
                   alias: _alias,
                   matchName: match['otherUser'],
                   otherUserId: match['otherUserId'],

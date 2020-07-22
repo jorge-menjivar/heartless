@@ -170,6 +170,9 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
             ),
             subtitle: Text(
               lastMessage,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
               style: _subFont,
               textAlign: TextAlign.left,
             ),
@@ -239,11 +242,6 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
       builder: (context, state) {
         if (state is PMatchesLoaded) {
           _list = state.pMatches.list;
-        }
-        if (_list.isEmpty) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
         }
         return builder(context, _list);
       },
