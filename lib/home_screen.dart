@@ -1,30 +1,20 @@
-import 'dart:io';
-
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:lise/messages/m_matches_screen.dart';
-import 'package:lise/screens/matches.dart';
-import 'package:lise/screens/potential_matches.dart';
-import 'package:lise/screens/profile.dart';
-import 'package:lise/user_profile/personal_information_screen.dart';
-import 'package:lise/user_profile/profile_pictures_screen.dart';
-import 'package:lise/user_profile/search_information_screen.dart';
-import 'package:lise/user_profile/wol_screen.dart';
-import 'package:location/location.dart';
+import 'package:lise/bloc/p_matches_bloc.dart';
+import 'package:lise/bloc/profile_bloc.dart';
+import 'package:lise/pages/matches_page.dart';
+import 'package:lise/pages/potential_matches_page.dart';
+import 'package:lise/pages/profile_page.dart';
+import 'package:lise/splash_screen.dart';
+import 'data/user_data.dart';
 import 'localizations.dart';
-import 'main.dart';
-import 'messages/m_p_matches_screen.dart';
-import 'convo_completion/select_matches_screen.dart';
 
 // Firebase
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_functions/cloud_functions.dart';
-
 // Storage
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_advanced_networkimage/provider.dart';
 
 // Tools
 import 'package:flutter/cupertino.dart';
@@ -62,12 +52,89 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   FirebaseUser user;
   final String username;
 
+  String _alias;
+
   final secureStorage = FlutterSecureStorage();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  List pMatchesList = [];
+
+  bool loadedProfile = false;
+  bool loadedPMatches = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // ignore: close_sinks
+    final profileBloc = BlocProvider.of<ProfileBloc>(context);
+    profileBloc.add(GetProfile(alias: user.uid));
+
+    initPMatchesBloc();
+  }
+
+  Future<void> initPMatchesBloc() async {
+    var docs;
+    Firestore.instance
+        .collection('users')
+        .document('${user.uid}')
+        .collection('data_generated')
+        .document('user_rooms')
+        .collection('p_matches')
+        .snapshots()
+        .listen(
+      (querySnapshot) {
+        docs = querySnapshot.documents;
+        // Adding the potential matches bloc
+        // ignore: close_sinks
+        final pMatchesBloc = BlocProvider.of<PMatchesBloc>(context);
+        pMatchesBloc.add(GetPMatches(pMatchesDocs: docs));
+      },
+    );
+
+    Firestore.instance
+        .collection('users')
+        .document('${user.uid}')
+        .collection('data')
+        .document('private')
+        .get()
+        .then((doc) {
+      if (!doc.exists) {
+        print('No data document!');
+      } else {
+        _alias = doc.data['alias'];
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!loadedPMatches || !loadedProfile) {
+      return BlocListener<PMatchesBloc, PMatchesState>(
+        listener: (context, state) {
+          if (state is PMatchesLoaded) {
+            pMatchesList = state.pMatches.list;
+            setState(() {
+              loadedPMatches = true;
+            });
+            return;
+          }
+        },
+        child: BlocListener<ProfileBloc, ProfileState>(
+          listener: (context, state) {
+            if (state is ProfileLoaded) {
+              final profilePicture = NetworkImage(state.profile.profilePictureURL);
+              precacheImage(profilePicture, context);
+              setState(() {
+                loadedProfile = true;
+              });
+              return;
+            }
+          },
+          child: SplashScreen(),
+        ),
+      );
+    }
     return Scaffold(
       key: _scaffoldKey,
       body: DefaultTabController(
@@ -141,9 +208,13 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           body: TabBarView(
             children: [
               ///------------------------------------ POTENTIAL MATCHES ------------------------------------------------
-              PotentialMatchesScreen(
-                scaffoldKey: _scaffoldKey,
-                user: this.user,
+              BlocProvider.value(
+                value: BlocProvider.of<PMatchesBloc>(context),
+                child: PotentialMatchesScreen(
+                  scaffoldKey: _scaffoldKey,
+                  user: this.user,
+                  alias: _alias,
+                ),
               ),
 
               ///------------------------------------------- MATCHES ---------------------------------------------------
@@ -153,8 +224,11 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
 
               ///------------------------------------------- PROFILE ---------------------------------------------------
-              ProfileScreen(
-                user: this.user,
+              BlocProvider.value(
+                value: BlocProvider.of<ProfileBloc>(context),
+                child: ProfileScreen(
+                  user: this.user,
+                ),
               )
             ],
           ),

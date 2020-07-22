@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_networkimage/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lise/bloc/profile_bloc.dart';
 import 'package:lise/user_profile/personal_information_screen.dart';
 import 'package:lise/user_profile/profile_pictures_screen.dart';
 import 'package:lise/user_profile/search_information_screen.dart';
@@ -50,39 +52,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
 
   final double _profilePicSize = 280;
 
-  String _profilePicImageLink1 = 'http://loading';
-  var _profilePicture;
-
-  StorageReference _storageReference1;
-
   @override
   bool get wantKeepAlive => true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadProfilePictures();
-  }
-
-  void _loadProfilePictures() async {
-    try {
-      _storageReference1 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic1.jpg');
-    } catch (e) {
-      print(e);
-    }
-
-    _profilePicImageLink1 = await _storageReference1.getDownloadURL();
-
-    _profilePicture = AdvancedNetworkImage(
-      _profilePicImageLink1,
-      useDiskCache: false,
-    );
-
-    picturesLoaded = true;
-
-    setState(() {});
-    return;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,16 +106,36 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
                           splashColor: Colors.transparent,
                           hoverColor: Colors.transparent,
                           padding: EdgeInsets.all(12),
-                          child: Container(
-                            decoration: picturesLoaded
-                                ? BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                      image: _profilePicture,
-                                      fit: BoxFit.cover,
+                          child: BlocListener<ProfileBloc, ProfileState>(
+                            listener: (context, state) {
+                              if (state is ProfileError) {
+                                Scaffold.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(state.message),
+                                  ),
+                                );
+                              }
+                            },
+                            child: BlocBuilder<ProfileBloc, ProfileState>(
+                              builder: (context, state) {
+                                if (state is ProfileLoading) {
+                                  return CircularProgressIndicator();
+                                } else if (state is ProfileLoaded) {
+                                  final profilePicture = NetworkImage(state.profile.profilePictureURL);
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: profilePicture,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                                  )
-                                : null,
+                                  );
+                                } else if (state is ProfileError) {
+                                  return CircularProgressIndicator();
+                                }
+                              },
+                            ),
                           ),
                           onPressed: () async {
                             await Navigator.push(
@@ -154,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
                                   user: user,
                                 ),
                               ),
-                            ).then((value) => _loadProfilePictures());
+                            ); //TODO  .then((value) => _loadProfilePictures());
                           },
                         ),
                       ),

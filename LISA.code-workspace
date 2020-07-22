@@ -24,6 +24,8 @@
 			"titleBar.border": "#ffffff"
 		},
 		"peacock.color": "#ffffff",
-		"editor.tabSize": 2
+		"editor.tabSize": 2,
+		"dart.lineLength": 120,
+		"dart.allowAnalytics": false
 	}
 }

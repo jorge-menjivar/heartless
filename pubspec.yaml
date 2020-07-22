@@ -53,7 +53,7 @@ dependencies:
   url_launcher: ^5.4.5
   rename: ^1.1.9
   pedantic: ^1.9.0
-  image_picker: ^0.6.6+1
+  image_picker: ^0.6.7+4
   image: ^2.1.12
   flutter_image_compress: ^0.6.7
   flutter_bloc: ^5.0.1

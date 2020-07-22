@@ -17,12 +17,10 @@ class SelectMatchesScreen extends StatefulWidget {
   final String room;
   final String roomKey;
 
-  SelectMatchesScreen(
-      {@required this.user, @required this.room, @required this.roomKey});
+  SelectMatchesScreen({@required this.user, @required this.room, @required this.roomKey});
 
   @override
-  SelectMatchesScreenState createState() =>
-      SelectMatchesScreenState(user: user, room: room, roomKey: roomKey);
+  SelectMatchesScreenState createState() => SelectMatchesScreenState(user: user, room: room, roomKey: roomKey);
 }
 
 class SelectMatchesScreenState extends State<SelectMatchesScreen> {
@@ -30,8 +28,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
   final String room;
   final String roomKey;
 
-  SelectMatchesScreenState(
-      {@required this.user, @required this.room, @required this.roomKey});
+  SelectMatchesScreenState({@required this.user, @required this.room, @required this.roomKey});
 
   final secureStorage = FlutterSecureStorage();
 
@@ -107,11 +104,8 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
       );
 
       // Adding variables to the server to the request and calling the function
-      dynamic resp = await callable.call(<String, dynamic>{
-        'latitude': locationData.latitude,
-        'longitude': locationData.longitude,
-        'key': roomKey
-      });
+      dynamic resp = await callable.call(
+          <String, dynamic>{'latitude': locationData.latitude, 'longitude': locationData.longitude, 'key': roomKey});
 
       print(resp.data['connections']);
 
@@ -127,10 +121,8 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
     for (var userId in _users) {
       try {
         _profiles[userId] = false;
-        _profilePicImageLinks.add(await FirebaseStorage()
-            .ref()
-            .child('users/${userId}/profile_pictures/pic1.jpg')
-            .getDownloadURL());
+        _profilePicImageLinks
+            .add(await FirebaseStorage().ref().child('users/${userId}/profile_pictures/pic1.jpg').getDownloadURL());
       } catch (e) {
         print(e);
       }
@@ -175,8 +167,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
                               begin: Alignment(0, 0.9),
                               end: Alignment.bottomCenter,
                               colors: [Colors.white, Colors.transparent],
-                            ).createShader(
-                                Rect.fromLTRB(0, 0, rect.width, rect.height));
+                            ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
                           },
                           blendMode: BlendMode.dstIn,
                           child: ShaderMask(
@@ -185,8 +176,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
                                   begin: Alignment(0, -0.9),
                                   end: Alignment.topCenter,
                                   colors: [Colors.white, Colors.transparent],
-                                ).createShader(Rect.fromLTRB(
-                                    0, 0, rect.width, rect.height));
+                                ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
                               },
                               blendMode: BlendMode.dstIn,
                               child: _buildCards()),
@@ -196,8 +186,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
                         height: 50,
                       ),
                       Container(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
                           child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -211,7 +200,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
                                   onPressed: () {
                                     setState(() {
                                       // Double checking to see if user is sure
-                                      _showVerificationDialog(context).then((v) {
+                                      showVerificationDialog(context).then((v) {
                                         // If the user is sure
                                         if (v) {
                                           _verifyConnections();
@@ -228,50 +217,48 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
 
   Widget _buildCards() {
     return ListView.builder(
-      physics: BouncingScrollPhysics(),
-      scrollDirection: Axis.horizontal,
-      controller: _scrollController,
-      itemCount: _profilePicImageLinks.length,
-      itemBuilder: (context, i) {
-        return Center(
-          child: Card(
-            color: (_profiles[_users[i]]) ? Colors.green : Colors.white,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(1000))),
-            child: SizedBox(
-                width: _picSize,
-                height: _picSize,
-                child: RawMaterialButton(
-                    highlightColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    padding: EdgeInsets.all(12),
-                    child: Container(
-                        decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: _profilePicImageLinks.isNotEmpty
-                          ? DecorationImage(
-                              image: AdvancedNetworkImage(
-                                _profilePicImageLinks[i],
-                                useDiskCache: true,
-                              ),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
-                    )),
-                    onPressed: () {
-                      setState(() {
-                        _profiles[_users[i]] = !_profiles[_users[i]];
-                      });
-                    })),
-          ),
-        );
-      }
-    );
+        physics: BouncingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        controller: _scrollController,
+        itemCount: _profilePicImageLinks.length,
+        itemBuilder: (context, i) {
+          return Center(
+            child: Card(
+              color: (_profiles[_users[i]]) ? Colors.green : Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(1000))),
+              child: SizedBox(
+                  width: _picSize,
+                  height: _picSize,
+                  child: RawMaterialButton(
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      padding: EdgeInsets.all(12),
+                      child: Container(
+                          decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: _profilePicImageLinks.isNotEmpty
+                            ? DecorationImage(
+                                image: AdvancedNetworkImage(
+                                  _profilePicImageLinks[i],
+                                  useDiskCache: true,
+                                ),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      )),
+                      onPressed: () {
+                        setState(() {
+                          _profiles[_users[i]] = !_profiles[_users[i]];
+                        });
+                      })),
+            ),
+          );
+        });
   }
-  
-  /// Shows the an alert asking the user if delete should really be done
-  Future<bool> _showVerificationDialog(BuildContext context) async {
+
+  /// Shows the an alert asking the user if verification should really be done
+  Future<bool> showVerificationDialog(BuildContext context) async {
     var choice = false;
 
     // Await for the dialog to be dismissed before returning
@@ -281,83 +268,79 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
             barrierDismissible: true, // user can type outside box to dismiss
             builder: (BuildContext context) {
               return AlertDialog(
-                  title: Text('CONTINUE'),
-                  content: SingleChildScrollView(
-                    child: ListBody(
-                      children: <Widget>[
-                        Text(
-                            'Are you sure?'),
-                      ],
-                    ),
+                title: Text('CONTINUE'),
+                content: SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      Text('Are you sure?'),
+                    ],
                   ),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text('Cancel'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    FlatButton(
-                      child: Text("I\'m sure"),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        choice = true;
-                      },
-                    ),
-                  ]);
-            })
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  FlatButton(
+                    child: Text("I\'m sure"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      choice = true;
+                    },
+                  ),
+                ],
+              );
+            },
+          )
         : await showCupertinoDialog<bool>(
             context: context,
             builder: (BuildContext context) {
               return CupertinoAlertDialog(
-                  title: Text('CONTINUE'),
-                  content: SingleChildScrollView(
-                    child: ListBody(
-                      children: <Widget>[
-                        Text(
-                            'Are you sure?'),
-                      ],
-                    ),
+                title: Text('CONTINUE'),
+                content: SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      Text('Are you sure?'),
+                    ],
                   ),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text('Cancel'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    FlatButton(
-                      child: Text("I\'m sure"),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        choice = true;
-                      },
-                    ),
-                  ]);
-            });
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  FlatButton(
+                    child: Text("I\'m sure"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      choice = true;
+                    },
+                  ),
+                ],
+              );
+            },
+          );
     return choice;
   }
-  
+
   /// Updates the location of the device to the database and sends a request for a potential match.
   Future<bool> _verifyConnections() async {
-
     // Getting instance of the server function
     final callable = CloudFunctions.instance.getHttpsCallable(
       functionName: 'verifyConnections',
     );
 
     // Adding variables to the server to the request and calling the function
-    dynamic resp = await callable.call(<String, dynamic>{
-      'usersAccepted': _profiles,
-      'room': room,
-      'key': roomKey
-    });
+    dynamic resp = await callable.call(<String, dynamic>{'usersAccepted': _profiles, 'room': room, 'key': roomKey});
 
     print('Connection possible: ${resp.data['connection']}');
 
     return (resp.data['success']);
   }
-
 
   @override
   void dispose() {

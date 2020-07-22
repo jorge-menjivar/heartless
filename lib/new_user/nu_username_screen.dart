@@ -11,7 +11,6 @@ import 'package:http/http.dart' as http;
 
 // Storage
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:lise/init_screen.dart';
 
 class UsernameScreen extends StatefulWidget {
   final FirebaseUser user;

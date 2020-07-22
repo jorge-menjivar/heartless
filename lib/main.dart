@@ -4,9 +4,14 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lise/bloc/p_matches_bloc.dart';
+import 'package:lise/bloc/profile_bloc.dart';
+import 'package:lise/data/p_matches_data.dart';
 import 'package:lise/home_screen.dart';
-import 'package:lise/init_screen.dart';
 import 'package:lise/localizations.dart';
+import 'package:lise/splash_screen.dart';
+import 'data/user_data.dart';
 import 'new_user/nu_information_screen.dart';
 import 'new_user/nu_welcome_screen.dart';
 
@@ -78,6 +83,8 @@ class _LoadingPageState extends State<LoadingPage> {
 
   var _profileCompleted = false;
 
+  bool loaded = false;
+
   @override
   void initState() {
     super.initState();
@@ -86,7 +93,28 @@ class _LoadingPageState extends State<LoadingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    if (!loaded) {
+      return SplashScreen();
+    } else {
+      if (!user.isEmailVerified) {
+        return WelcomeScreen(user: user);
+      }
+      if (_profileCompleted) {
+        // Display Home Screen
+        return BlocProvider(
+          create: (context) => PMatchesBloc(PMatchesRepository()),
+          child: BlocProvider(
+            create: (context) => ProfileBloc(UserDataRepository()),
+            child: HomeScreen(
+              user: user,
+              username: user.email,
+            ),
+          ),
+        );
+      } else {
+        return NewUserInformationScreen(user: user);
+      }
+    }
   }
 
   void _checkCurrentUser() async {
@@ -102,6 +130,10 @@ class _LoadingPageState extends State<LoadingPage> {
                 ),
               ),
             );
+    }).then((value) {
+      setState(() {
+        loaded = true;
+      });
     });
   }
 
@@ -121,22 +153,6 @@ class _LoadingPageState extends State<LoadingPage> {
           _profileCompleted = doc.data['profileCompleted'];
         }
       });
-
-      if (_profileCompleted) {
-        await Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomeScreen(user: user, username: user.email)));
-      } else {
-        await Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => NewUserInformationScreen(
-              user: user,
-            ),
-          ),
-        );
-      }
-    } else {
-      await Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeScreen(user: user)));
     }
   }
 

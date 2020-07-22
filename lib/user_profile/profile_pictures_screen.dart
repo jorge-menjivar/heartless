@@ -22,7 +22,8 @@ class ProfilePicturesScreen extends StatefulWidget {
   final FirebaseUser user;
 
   @override
-  ProfilePicturesScreenState createState() => ProfilePicturesScreenState(user: user);
+  ProfilePicturesScreenState createState() =>
+      ProfilePicturesScreenState(user: user);
 }
 
 class ProfilePicturesScreenState extends State<ProfilePicturesScreen> {
@@ -54,27 +55,37 @@ class ProfilePicturesScreenState extends State<ProfilePicturesScreen> {
 
   void _loadProfilePictures() async {
     try {
-      _storageReference1 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic1.jpg');
+      _storageReference1 = FirebaseStorage()
+          .ref()
+          .child('users/${user.uid}/profile_pictures/pic1.jpg');
     } catch (e) {
       print(e);
     }
     try {
-      _storageReference2 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic2.jpg');
+      _storageReference2 = FirebaseStorage()
+          .ref()
+          .child('users/${user.uid}/profile_pictures/pic2.jpg');
     } catch (e) {
       print(e);
     }
     try {
-      _storageReference3 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic3.jpg');
+      _storageReference3 = FirebaseStorage()
+          .ref()
+          .child('users/${user.uid}/profile_pictures/pic3.jpg');
     } catch (e) {
       print(e);
     }
     try {
-      _storageReference4 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic4.jpg');
+      _storageReference4 = FirebaseStorage()
+          .ref()
+          .child('users/${user.uid}/profile_pictures/pic4.jpg');
     } catch (e) {
       print(e);
     }
     try {
-      _storageReference5 = FirebaseStorage().ref().child('users/${user.uid}/profile_pictures/pic5.jpg');
+      _storageReference5 = FirebaseStorage()
+          .ref()
+          .child('users/${user.uid}/profile_pictures/pic5.jpg');
     } catch (e) {
       print(e);
     }
@@ -143,7 +154,9 @@ class ProfilePicturesScreenState extends State<ProfilePicturesScreen> {
                       hoverColor: Colors.transparent,
                       padding: EdgeInsets.all(4),
                       child: Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(18.0), color: Colors.red),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(18.0),
+                              color: Colors.red),
                           padding: EdgeInsets.all(10),
                           child: Container(
                               decoration: BoxDecoration(
@@ -294,11 +307,13 @@ class ProfilePicturesScreenState extends State<ProfilePicturesScreen> {
     var editedImage = image_package.copyResizeCropSquare(decodedImage, 850);
 
     var appDocDirectory = await getApplicationDocumentsDirectory();
-    var croppedResizedImage = File('${appDocDirectory.path}/croppedResizedImage.jpg');
+    var croppedResizedImage =
+        File('${appDocDirectory.path}/croppedResizedImage.jpg');
     croppedResizedImage.writeAsBytesSync(image_package.encodeJpg(editedImage));
 
     // Compressing the resized file
-    var compressedCroppedResizedFile = await FlutterImageCompress.compressAndGetFile(
+    var compressedCroppedResizedFile =
+        await FlutterImageCompress.compressAndGetFile(
       '${appDocDirectory.path}/croppedResizedImage.jpg',
       '${appDocDirectory.path}/compressedCroppedResizedImage.jpg',
       quality: 35,
