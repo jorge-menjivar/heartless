@@ -22,19 +22,6 @@ Map<int, Color> color = {
 MaterialColor black = MaterialColor(0xFF000000, color);
 MaterialColor white = MaterialColor(0xFFFFFFFF, color);
 
-final _biggerFont = const TextStyle(
-  fontSize: 18.0,
-  color: Colors.black,
-);
-final _subFont = const TextStyle(
-  color: Colors.black,
-);
-final _trailFont = const TextStyle(
-  color: Colors.black,
-);
-final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
-var _iconColor = black;
-
 class EditNameScreen extends StatefulWidget {
   EditNameScreen({@required this.user});
 

@@ -28,15 +28,13 @@ class PMConversationScreen extends StatefulWidget {
       );
 }
 
-class PMConversationScreenState extends State<PMConversationScreen>
-    with WidgetsBindingObserver {
+class PMConversationScreenState extends State<PMConversationScreen> with WidgetsBindingObserver {
   final String alias;
   final String matchName;
   final String username;
   String room;
 
-  PMConversationScreenState(
-      {this.alias, this.matchName, this.username, this.room});
+  PMConversationScreenState({this.alias, this.matchName, this.username, this.room});
 
   ScrollController _scrollController;
   final TextEditingController _textController = TextEditingController();
@@ -72,11 +70,9 @@ class PMConversationScreenState extends State<PMConversationScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     try {
-      var initializationSettingsAndroid =
-          AndroidInitializationSettings('@mipmap/ic_launcher');
+      var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
       var initializationSettingsIOS = IOSInitializationSettings();
-      var initializationSettings = InitializationSettings(
-          initializationSettingsAndroid, initializationSettingsIOS);
+      var initializationSettings = InitializationSettings(initializationSettingsAndroid, initializationSettingsIOS);
       flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
       flutterLocalNotificationsPlugin.initialize(initializationSettings);
       flutterLocalNotificationsPlugin.cancelAll();
@@ -98,11 +94,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
             children: <Widget>[
               Flexible(
                 child: StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance
-                        .collection('messages')
-                        .document('rooms')
-                        .collection(room)
-                        .snapshots(),
+                    stream: Firestore.instance.collection('messages').document('rooms').collection(room).snapshots(),
                     builder: _buildMessageTiles),
               ),
               Divider(height: 1.0, color: Colors.black),
@@ -115,8 +107,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
         }));
   }
 
-  Widget _buildMessageTiles(
-      BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+  Widget _buildMessageTiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
     if (snapshot.hasData) {
       // chat bubble
       final radius = BorderRadius.only(
@@ -143,12 +134,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
                 Container(
                   padding: const EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                          blurRadius: 10,
-                          spreadRadius: .1,
-                          color: Colors.black.withOpacity(.7))
-                    ],
+                    boxShadow: [BoxShadow(blurRadius: 10, spreadRadius: .1, color: Colors.black.withOpacity(.7))],
                     color: colorReceived,
                     borderRadius: radius,
                   ),
@@ -171,12 +157,7 @@ class PMConversationScreenState extends State<PMConversationScreen>
                 Container(
                   padding: const EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                          blurRadius: 10,
-                          spreadRadius: .1,
-                          color: Colors.black.withOpacity(.7))
-                    ],
+                    boxShadow: [BoxShadow(blurRadius: 10, spreadRadius: .1, color: Colors.black.withOpacity(.7))],
                     color: colorSent,
                     borderRadius: radius,
                   ),
@@ -220,16 +201,14 @@ class PMConversationScreenState extends State<PMConversationScreen>
           Flexible(
             child: TextField(
               onTap: () {
-                Timer(
-                    Duration(milliseconds: 300),
-                    () => _scrollController
-                        .jumpTo(_scrollController.position.minScrollExtent));
+                Timer(Duration(milliseconds: 300),
+                    () => _scrollController.jumpTo(_scrollController.position.minScrollExtent));
               },
+              keyboardType: TextInputType.multiline,
               maxLines: null,
               controller: _textController,
               onSubmitted: _sendMessage,
-              decoration:
-                  InputDecoration.collapsed(hintText: 'Write a message'),
+              decoration: InputDecoration.collapsed(hintText: 'Write a message'),
             ),
           ),
           Container(
@@ -297,16 +276,9 @@ class PMConversationScreenState extends State<PMConversationScreen>
         .document('rooms')
         .collection(room)
         .document(sTime.toString())
-        .setData(<String, dynamic>{
-      'from': alias,
-      'image': false,
-      'message': text,
-      'time': sTime
-    }, merge: false).then((r) {
-      Timer(
-          Duration(milliseconds: 100),
-          () => _scrollController
-              .jumpTo(_scrollController.position.minScrollExtent));
+        .setData(<String, dynamic>{'from': alias, 'image': false, 'message': text, 'time': sTime}, merge: false).then(
+            (r) {
+      Timer(Duration(milliseconds: 100), () => _scrollController.jumpTo(_scrollController.position.minScrollExtent));
       print('Document successfully written!');
     }).catchError((error) {
       print('Error writing document: ' + error.toString());

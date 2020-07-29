@@ -11,6 +11,8 @@ import 'package:lise/data/p_matches_data.dart';
 import 'package:lise/home_screen.dart';
 import 'package:lise/localizations.dart';
 import 'package:lise/splash_screen.dart';
+import 'bloc/matches_bloc.dart';
+import 'data/matches_data.dart';
 import 'data/user_data.dart';
 import 'new_user/nu_information_screen.dart';
 import 'new_user/nu_welcome_screen.dart';
@@ -104,10 +106,13 @@ class _LoadingPageState extends State<LoadingPage> {
         return BlocProvider(
           create: (context) => PMatchesBloc(PMatchesRepository()),
           child: BlocProvider(
-            create: (context) => ProfileBloc(UserDataRepository()),
-            child: HomeScreen(
-              user: user,
-              username: user.email,
+            create: (context) => MatchesBloc(MatchesRepository()),
+            child: BlocProvider(
+              create: (context) => ProfileBloc(UserDataRepository()),
+              child: HomeScreen(
+                user: user,
+                username: user.email,
+              ),
             ),
           ),
         );

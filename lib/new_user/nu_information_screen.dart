@@ -6,15 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lise/new_user/nu_upload_pictures_screen.dart';
-
-// Tools
-import 'package:lise/user_profile/personal/edit_name.dart';
-import 'package:lise/user_profile/personal/gender_screen.dart';
+import 'package:lise/pages/profile/personal/edit_name.dart';
+import 'package:lise/pages/profile/personal/gender_screen.dart';
+import 'package:lise/pages/profile/personal/race_screen.dart';
+import 'package:lise/pages/profile/search/gender_search_screen.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:lise/user_profile/personal/race_screen.dart';
-import 'package:lise/user_profile/search/gender_search_screen.dart';
 
 Map<int, Color> color = {
   50: Color.fromRGBO(0, 0, 0, .1),

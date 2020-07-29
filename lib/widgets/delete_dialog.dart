@@ -26,7 +26,7 @@ Future<bool> showDeleteDialog(BuildContext context, String name, String status) 
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    message,
+                    Text(message),
                   ],
                 ),
               ),
@@ -56,7 +56,7 @@ Future<bool> showDeleteDialog(BuildContext context, String name, String status) 
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    Text('Do you really want to delete the conversation with $name?'),
+                    Text(message),
                   ],
                 ),
               ),

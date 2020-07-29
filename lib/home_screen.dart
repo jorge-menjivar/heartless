@@ -8,7 +8,9 @@ import 'package:lise/pages/matches_page.dart';
 import 'package:lise/pages/potential_matches_page.dart';
 import 'package:lise/pages/profile_page.dart';
 import 'package:lise/splash_screen.dart';
-import 'data/user_data.dart';
+import 'package:lise/utils/database.dart';
+import 'package:sqflite/sqflite.dart';
+import 'bloc/matches_bloc.dart';
 import 'localizations.dart';
 
 // Firebase
@@ -61,16 +63,44 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List pMatchesList = [];
 
   bool loadedProfile = false;
+  bool loadedMatches = false;
   bool loadedPMatches = false;
+
+  Database _db;
 
   @override
   void initState() {
     super.initState();
-    // ignore: close_sinks
-    final profileBloc = BlocProvider.of<ProfileBloc>(context);
-    profileBloc.add(GetProfile(alias: user.uid));
 
+    // Creating the blocs and initializing them
+    // ignore: close_sinks
+    BlocProvider.of<ProfileBloc>(context)..add(GetProfile(alias: user.uid));
+
+    startMatchesDatabase();
+
+    getAlias();
     initPMatchesBloc();
+    initMatchesBloc();
+  }
+
+  Future<void> startMatchesDatabase() async {
+    _db = await getMessagesDb();
+  }
+
+  Future<void> getAlias() async {
+    Firestore.instance
+        .collection('users')
+        .document('${user.uid}')
+        .collection('data')
+        .document('private')
+        .get()
+        .then((doc) {
+      if (!doc.exists) {
+        print('No data document!');
+      } else {
+        _alias = doc.data['alias'];
+      }
+    });
   }
 
   Future<void> initPMatchesBloc() async {
@@ -87,29 +117,33 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         docs = querySnapshot.documents;
         // Adding the potential matches bloc
         // ignore: close_sinks
-        final pMatchesBloc = BlocProvider.of<PMatchesBloc>(context);
-        pMatchesBloc.add(GetPMatches(pMatchesDocs: docs));
+        BlocProvider.of<PMatchesBloc>(context)..add(GetPMatches(pMatchesDocs: docs));
       },
     );
+  }
 
+  Future<void> initMatchesBloc() async {
+    var docs;
     Firestore.instance
         .collection('users')
         .document('${user.uid}')
-        .collection('data')
-        .document('private')
-        .get()
-        .then((doc) {
-      if (!doc.exists) {
-        print('No data document!');
-      } else {
-        _alias = doc.data['alias'];
-      }
-    });
+        .collection('data_generated')
+        .document('user_rooms')
+        .collection('matches')
+        .snapshots()
+        .listen(
+      (querySnapshot) {
+        docs = querySnapshot.documents;
+        // Adding the potential matches bloc
+        // ignore: close_sinks
+        BlocProvider.of<MatchesBloc>(context)..add(GetMatches(matchesDocs: docs));
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!loadedPMatches || !loadedProfile) {
+    if (!loadedPMatches || !loadedMatches || !loadedProfile) {
       return BlocListener<PMatchesBloc, PMatchesState>(
         listener: (context, state) {
           if (state is PMatchesLoaded) {
@@ -120,18 +154,33 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             return;
           }
         },
-        child: BlocListener<ProfileBloc, ProfileState>(
+        child: BlocListener<MatchesBloc, MatchesState>(
           listener: (context, state) {
-            if (state is ProfileLoaded) {
-              final profilePicture = NetworkImage(state.profile.profilePictureURL);
-              precacheImage(profilePicture, context);
+            if (state is MatchesLoaded) {
+              final list = state.matches.list;
+              for (var match in list) {
+                final profilePicture = NetworkImage(match['imageLink']);
+                precacheImage(profilePicture, context);
+              }
               setState(() {
-                loadedProfile = true;
+                loadedMatches = true;
               });
               return;
             }
           },
-          child: SplashScreen(),
+          child: BlocListener<ProfileBloc, ProfileState>(
+            listener: (context, state) {
+              if (state is ProfileLoaded) {
+                final profilePicture = NetworkImage(state.profile.profilePictureURL);
+                precacheImage(profilePicture, context);
+                setState(() {
+                  loadedProfile = true;
+                });
+                return;
+              }
+            },
+            child: SplashScreen(),
+          ),
         ),
       );
     }
@@ -218,9 +267,14 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
 
               ///------------------------------------------- MATCHES ---------------------------------------------------
-              MatchesScreen(
-                scaffoldKey: _scaffoldKey,
-                user: this.user,
+              BlocProvider.value(
+                value: BlocProvider.of<MatchesBloc>(context),
+                child: MatchesScreen(
+                  scaffoldKey: _scaffoldKey,
+                  user: this.user,
+                  alias: _alias,
+                  db: _db,
+                ),
               ),
 
               ///------------------------------------------- PROFILE ---------------------------------------------------

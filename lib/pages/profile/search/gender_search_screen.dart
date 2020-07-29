@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -27,40 +28,29 @@ final _biggerFont = const TextStyle(
   fontSize: 18.0,
   color: Colors.black,
 );
-final _subFont = const TextStyle(
-  color: Colors.black,
-);
-final _trailFont = const TextStyle(
-  color: Colors.black,
-);
-final _listTitleStyle =
-    const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
-var _iconColor = black;
 
-class RaceSearchScreen extends StatefulWidget {
-  RaceSearchScreen({@required this.user});
+class GenderSearchScreen extends StatefulWidget {
+  GenderSearchScreen({@required this.user});
 
   final FirebaseUser user;
 
   @override
-  RaceSearchScreenState createState() => RaceSearchScreenState(user: user);
+  GenderSearchScreenState createState() => GenderSearchScreenState(user: user);
 }
 
-class RaceSearchScreenState extends State<RaceSearchScreen> {
-  RaceSearchScreenState({@required this.user});
+class GenderSearchScreenState extends State<GenderSearchScreen> {
+  GenderSearchScreenState({@required this.user});
 
   final FirebaseUser user;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ScrollController _scrollController;
 
-  DateTime birthday;
-
-  bool _asian = true;
-  bool _black = true;
-  bool _latinx = true;
-  bool _white = true;
-  bool _other = true;
+  bool _women = false;
+  bool _men = false;
+  bool _transWomen = false;
+  bool _transMen = false;
+  bool _others = false;
 
   @override
   void initState() {
@@ -80,11 +70,11 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
       if (!doc.exists) {
         print('No data document!');
       } else {
-        _asian = doc.data['searchRace']['asian'];
-        _black = doc.data['searchRace']['black'];
-        _latinx = doc.data['searchRace']['latinx'];
-        _white = doc.data['searchRace']['white'];
-        _other = doc.data['searchRace']['other'];
+        _women = doc.data['searchGender']['female'];
+        _men = doc.data['searchGender']['male'];
+        _transWomen = doc.data['searchGender']['trans_female'];
+        _transMen = doc.data['searchGender']['trans_male'];
+        _others = doc.data['searchGender']['other'];
       }
     });
 
@@ -99,7 +89,7 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
             key: _scaffoldKey,
             backgroundColor: Colors.white,
             appBar: AppBar(
-              title: Text('Races'),
+              title: Text('I am interested in'),
               elevation: 4.0,
             ),
             body: ListView(
@@ -111,122 +101,123 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                 Divider(color: Colors.transparent),
                 ListTile(
                     leading: FaIcon(
-                      FontAwesomeIcons.child,
+                      FontAwesomeIcons.venus,
                       color: black,
                     ),
                     title: Text(
-                      'Asian',
+                      'Women',
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_asian) ? black : Colors.transparent,
+                      color: (_women) ? black : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
-                        _asian = !_asian;
+                        _women = !_women;
                       });
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
                     leading: FaIcon(
-                      FontAwesomeIcons.child,
+                      FontAwesomeIcons.mars,
                       color: black,
                     ),
                     title: Text(
-                      'Black',
+                      'Men',
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_black) ? black : Colors.transparent,
+                      color: (_men) ? black : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
-                        _black = !_black;
+                        _men = !_men;
                       });
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
                     leading: FaIcon(
-                      FontAwesomeIcons.child,
+                      FontAwesomeIcons.transgender,
                       color: black,
                     ),
                     title: Text(
-                      'Latinx',
+                      'Trans Women',
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_latinx) ? black : Colors.transparent,
+                      color: (_transWomen) ? black : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
-                        _latinx = !_latinx;
+                        _transWomen = !_transWomen;
                       });
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
                     leading: FaIcon(
-                      FontAwesomeIcons.child,
+                      FontAwesomeIcons.transgender,
                       color: black,
                     ),
                     title: Text(
-                      'White',
+                      'Trans Men',
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_white) ? black : Colors.transparent,
+                      color: (_transMen) ? black : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
-                        _white = !_white;
+                        _transMen = !_transMen;
                       });
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
                     leading: FaIcon(
-                      FontAwesomeIcons.child,
+                      FontAwesomeIcons.genderless,
                       color: black,
                     ),
                     title: Text(
-                      'Other',
+                      'Others',
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_other) ? black : Colors.transparent,
+                      color: (_others) ? black : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
-                        _other = !_other;
+                        _others = !_others;
                       });
                     }),
+                Divider(color: Colors.grey),
               ],
             )));
   }
 
   Future<bool> _save() async {
     // If user made a choice, save it to the cloud
-    if (_asian || _black || _latinx || _white || _other) {
+    if (_women || _men || _transWomen || _transMen || _others) {
       await Firestore.instance
           .collection('users')
           .document(user.uid)
           .collection('data')
           .document('userSettings')
           .setData(<String, dynamic>{
-        'searchRace': {
-          'asian': _asian,
-          'black': _black,
-          'latinx': _latinx,
-          'white': _white,
-          'other': _other,
+        'searchGender': {
+          'female': _women,
+          'male': _men,
+          'trans_female': _transWomen,
+          'trans_male': _transMen,
+          'other': _others,
         },
       }, merge: true).catchError((error) {
         print('Error writing document: ' + error.toString());

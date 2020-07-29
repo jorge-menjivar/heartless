@@ -4,13 +4,11 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-// Tools
-import 'package:lise/user_profile/personal/gender_screen.dart';
+import 'package:lise/pages/profile/personal/gender_screen.dart';
+import 'package:lise/pages/profile/personal/race_screen.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:lise/user_profile/personal/race_screen.dart';
 
 Map<int, Color> color = {
   50: Color.fromRGBO(0, 0, 0, .1),
@@ -37,8 +35,7 @@ final _subFont = const TextStyle(
 final _trailFont = const TextStyle(
   color: Colors.black,
 );
-final _listTitleStyle =
-    const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
+final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
 var _iconColor = black;
 
 class PersonalInformationScreen extends StatefulWidget {
@@ -47,8 +44,7 @@ class PersonalInformationScreen extends StatefulWidget {
   final FirebaseUser user;
 
   @override
-  PersonalInformationScreenState createState() =>
-      PersonalInformationScreenState(user: user);
+  PersonalInformationScreenState createState() => PersonalInformationScreenState(user: user);
 }
 
 class PersonalInformationScreenState extends State<PersonalInformationScreen> {
@@ -164,16 +160,17 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
               ),
             ),
             Container(
-                padding: EdgeInsets.all(10),
-                color: white,
-                child: Text(
-                  'We got your back!\nYour name and pictures are never shown together to strangers.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12.0,
-                    color: Colors.black,
-                  ),
-                )),
+              padding: EdgeInsets.all(10),
+              color: white,
+              child: Text(
+                'We got your back!\nYour name and pictures are never shown together to strangers.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12.0,
+                  color: Colors.black,
+                ),
+              ),
+            ),
             Divider(color: Colors.grey),
             ListTile(
               leading: FaIcon(
@@ -189,9 +186,7 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
                 ],
               ),
               subtitle: Text(
-                (_birthday != null)
-                    ? _readableTimeString(_birthday)
-                    : _readableTimeString(DateTime(2000, 1, 1)),
+                (_birthday != null) ? _readableTimeString(_birthday) : _readableTimeString(DateTime(2000, 1, 1)),
               ),
               onTap: () => showDatePicker(
                 helpText: 'SELECT BIRTHDAY',
@@ -199,8 +194,7 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
                 initialEntryMode: DatePickerEntryMode.input,
                 initialDatePickerMode: DatePickerMode.year,
                 firstDate: dateStart,
-                initialDate:
-                    (_birthday != null) ? _birthday : DateTime(2000, 1, 1),
+                initialDate: (_birthday != null) ? _birthday : DateTime(2000, 1, 1),
                 lastDate: dateEnd,
                 context: context,
               ).then((v) async {

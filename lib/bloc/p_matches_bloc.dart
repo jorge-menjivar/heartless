@@ -23,7 +23,7 @@ class PMatchesBloc extends Bloc<PMatchesEvent, PMatchesState> {
         final pMatches = await pMatchesData.fetchData(event.pMatchesDocs);
         yield PMatchesLoaded(pMatches);
       } on Error {
-        yield PMatchesError("Could not fetch potential matches");
+        yield PMatchesError('Could not fetch potential matches');
       }
     }
   }

@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lise/bloc/profile_bloc.dart';
-import 'package:lise/pages/dev_settings.dart';
-import 'package:lise/user_profile/personal_information_screen.dart';
-import 'package:lise/user_profile/profile_pictures_screen.dart';
-import 'package:lise/user_profile/search_information_screen.dart';
-import 'package:lise/user_profile/wol_screen.dart';
+import 'package:lise/pages/profile/dev_settings.dart';
+import 'package:lise/pages/profile/personal_information_screen.dart';
+import 'package:lise/pages/profile/profile_pictures_screen.dart';
+import 'package:lise/pages/profile/search_information_screen.dart';
+import 'package:lise/pages/profile/wol_screen.dart';
 
 import '../localizations.dart';
 import '../main.dart';
@@ -130,9 +130,10 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
                                       ),
                                     ),
                                   );
-                                } else if (state is ProfileError) {
-                                  return CircularProgressIndicator();
                                 }
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
                               },
                             ),
                           ),

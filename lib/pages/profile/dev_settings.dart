@@ -28,14 +28,6 @@ final _biggerFont = const TextStyle(
   fontSize: 18.0,
   color: Colors.black,
 );
-final _subFont = const TextStyle(
-  color: Colors.black,
-);
-final _trailFont = const TextStyle(
-  color: Colors.black,
-);
-final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
-var _iconColor = black;
 
 class DevSettings extends StatefulWidget {
   DevSettings({@required this.user});
@@ -166,6 +158,26 @@ class DevSettingsState extends State<DevSettings> {
               },
             ),
             Divider(color: Colors.grey),
+            ListTile(
+              leading: FaIcon(
+                FontAwesomeIcons.bug,
+                color: black,
+              ),
+              title: Text(
+                'Delete database',
+                textAlign: TextAlign.left,
+                style: _biggerFont,
+              ),
+              trailing: FaIcon(
+                FontAwesomeIcons.check,
+                color: (_restoreTokens) ? black : Colors.transparent,
+              ),
+              onTap: () async {
+                setState(() {
+                  _restoreTokens = !_restoreTokens;
+                });
+              },
+            ),
           ],
         ),
       ),
@@ -203,7 +215,6 @@ class DevSettingsState extends State<DevSettings> {
           .collection('data_generated')
           .document('user_rooms')
           .collection('p_matches')
-          .where('time', isGreaterThanOrEqualTo: 0)
           .getDocuments();
 
       for (var match in matchesQuery.documents) {

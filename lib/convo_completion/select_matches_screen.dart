@@ -328,7 +328,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
   }
 
   /// Updates the location of the device to the database and sends a request for a potential match.
-  Future<bool> _verifyConnections() async {
+  Future<void> _verifyConnections() async {
     // Getting instance of the server function
     final callable = CloudFunctions.instance.getHttpsCallable(
       functionName: 'verifyConnections',
@@ -339,7 +339,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
 
     print('Connection possible: ${resp.data['connection']}');
 
-    return (resp.data['success']);
+    Navigator.pop(context);
   }
 
   @override

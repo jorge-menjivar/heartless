@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,21 +13,6 @@ import 'package:lise/utils/send_p_match_request.dart';
 import 'package:lise/widgets/delete_dialog.dart';
 
 import '../localizations.dart';
-
-Map<int, Color> color = {
-  50: Color.fromRGBO(0, 0, 0, .1),
-  100: Color.fromRGBO(0, 0, 0, .2),
-  200: Color.fromRGBO(0, 0, 0, .3),
-  300: Color.fromRGBO(0, 0, 0, .4),
-  400: Color.fromRGBO(0, 0, 0, .5),
-  500: Color.fromRGBO(0, 0, 0, .6),
-  600: Color.fromRGBO(0, 0, 0, .7),
-  700: Color.fromRGBO(0, 0, 0, .8),
-  800: Color.fromRGBO(0, 0, 0, .9),
-  900: Color.fromRGBO(0, 0, 0, 1),
-};
-MaterialColor black = MaterialColor(0xFF000000, color);
-MaterialColor white = MaterialColor(0xFFFFFFFF, color);
 
 class PotentialMatchesScreen extends StatefulWidget {
   PotentialMatchesScreen({
@@ -108,7 +91,7 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
             ),
             trailing: FaIcon(
               FontAwesomeIcons.userPlus,
-              color: black,
+              color: Colors.black,
             ),
             onTap: () {
               sendPotentialMatchRequest(scaffoldKey);
@@ -135,17 +118,16 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
             ),
             trailing: FaIcon(
               FontAwesomeIcons.clock,
-              color: black,
+              color: Colors.black,
             ),
             onTap: () {},
             onLongPress: () {
-              setState(() {
-                showDeleteDialog(context, null, 'Request').then((v) {
-                  if (v) {
-                    deleteRequest(pMatch['key'], scaffoldKey);
-                  }
-                });
+              showDeleteDialog(context, 'request', 'request').then((v) {
+                if (v) {
+                  deleteRequest(pMatch['key'], scaffoldKey);
+                }
               });
+              setState(() {});
             },
           );
         } else {
