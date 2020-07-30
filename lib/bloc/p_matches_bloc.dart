@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:lise/data/models/p_matches_model.dart';
 import 'package:lise/data/p_matches_data.dart';
 
@@ -11,7 +12,7 @@ part 'p_matches_state.dart';
 class PMatchesBloc extends Bloc<PMatchesEvent, PMatchesState> {
   final PMatchesData pMatchesData;
 
-  PMatchesBloc(this.pMatchesData) : super(PMatchesInitial());
+  PMatchesBloc({@required this.pMatchesData}) : super(PMatchesInitial());
 
   @override
   Stream<PMatchesState> mapEventToState(

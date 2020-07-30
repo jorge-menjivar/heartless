@@ -1,15 +1,14 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_advanced_networkimage/provider.dart';
 
 // Storage
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lise/bloc/conversation_bloc.dart';
 import 'package:lise/utils/convert_match_time.dart';
-import 'package:lise/utils/database.dart';
 import 'package:lise/widgets/matches_text_composer.dart';
+import 'package:lise/widgets/message_long_press_dialog.dart';
 import 'package:sqflite/sqflite.dart';
 
 class MatchedConversationScreen extends StatefulWidget {
@@ -33,13 +32,13 @@ class MatchedConversationScreen extends StatefulWidget {
 
   @override
   MatchedConversationScreenState createState() => MatchedConversationScreenState(
-        imageLink: imageLink,
-        alias: alias,
-        otherUserId: otherUserId,
-        matchName: matchName,
-        username: username,
-        room: room,
-        db: db,
+        imageLink: this.imageLink,
+        alias: this.alias,
+        otherUserId: this.otherUserId,
+        matchName: this.matchName,
+        username: this.username,
+        room: this.room,
+        db: this.db,
       );
 }
 
@@ -75,173 +74,101 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
     color: Colors.black,
   );
 
-  var _messagesList = [];
-
-  StreamSubscription _listener;
-
   var _showTime;
 
   // bubble Colors
   var _colorSent;
   var _colorReceived;
 
-  @override
-  void initState() {
-    super.initState();
-
-    getMessages();
-  }
-
-  @protected
-  @mustCallSuper
-  @override
-  void dispose() {
-    _listener.cancel();
-    super.dispose();
-  }
-
-  Future<void> getMessages() async {
-    // Making sure table is created if does not exist;
-    await checkMessageTable(db, room);
-
-    _messagesList = await db.rawQuery('SELECT * FROM $room ORDER BY ${Message.db_sTime} DESC');
-
-    _showTime = List<bool>.filled(_messagesList.length, false, growable: true);
-
-    if (_messagesList.isNotEmpty) {
-      // Start a stream that listens for new messages
-      recursiveStream();
-    } else {
-      // Pull any messages from the cloud
-      await Firestore.instance
-          .collection('messages')
-          .document('rooms')
-          .collection(room)
-          .getDocuments()
-          .then((snapshot) async {
-        for (var doc in snapshot.documents) {
-          if (doc.documentID != 'settings') {
-            var values = {
-              'message': doc['message'],
-              'sTime': doc['time'],
-              'birth': doc['from'],
-              'image': (doc['image']) ? 1 : 0,
-            };
-
-            // Inserting the values into the table room
-            await db.insert(room, values);
-
-            _showTime.add(false);
-          }
-        }
-
-        setState(() {});
-      });
-
-      recursiveStream();
-    }
-  }
-
-  Future<void> recursiveStream() async {
-    // Try to cancel any previous streams so we don't run multiple instances
-    try {
-      _listener.cancel();
-    } catch (e) {}
-
-    _messagesList = await db.rawQuery('SELECT * FROM $room ORDER BY ${Message.db_sTime} DESC');
-
-    var lastMessage = _messagesList[0];
-    var lastMessageTime = lastMessage['sTime'];
-
-    // If this is the last message, make sure to show time;
-    _showTime[0] = true;
-
-    setState(() {});
-
-    _listener = Firestore.instance
-        .collection('messages')
-        .document('rooms')
-        .collection(room)
-        .where('time', isGreaterThan: int.tryParse(lastMessageTime))
-        .orderBy('time', descending: false)
-        .snapshots()
-        .listen((event) async {
-      if (event.documents.length > 0) {
-        for (var doc in event.documents) {
-          if (doc.documentID != 'settings') {
-            var values = {
-              'message': doc['message'],
-              'sTime': doc['time'],
-              'birth': doc['from'],
-              'image': (doc['image']) ? 1 : 0,
-            };
-
-            // Inserting the values into the table room
-            await db.insert(room, values);
-
-            _showTime.add(false);
-
-            recursiveStream();
-          }
-        }
-      }
-    });
-  }
+  var _firstTime = true;
 
   @override
   Widget build(BuildContext context) {
-    _colorSent = Colors.blueGrey[800];
-    _colorReceived = Colors.blueGrey[100];
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Conversation with ' + matchName),
         elevation: 4.0,
       ),
-      body: Builder(
-        builder: (BuildContext context) {
-          return Column(
-            children: <Widget>[
-              Flexible(
-                child: buildMessages(),
-              ),
-              Divider(
-                height: 1.0,
-                color: Colors.black,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                ),
-                child: matchesTextComposer(_scrollController, _textController, alias, room),
-              ),
-            ],
-          );
+      body: BlocListener<ConversationBloc, ConversationState>(
+        listener: (context, state) {
+          if (state is ConversationLoaded) {
+            var messagesList = state.messages.list;
+            _showTime = List<bool>.filled(messagesList.length, false, growable: true);
+            _showTime[0] = true;
+          }
         },
+        child: BlocBuilder<ConversationBloc, ConversationState>(
+          builder: (context, state) {
+            if (state is ConversationLoaded) {
+              var messagesList = state.messages.list;
+              if (_firstTime) {
+                _showTime = List<bool>.filled(messagesList.length, false, growable: true);
+                _showTime[0] = true;
+
+                _firstTime = false;
+              }
+              return builder(context, messagesList);
+            }
+            return loading(context);
+          },
+        ),
       ),
     );
   }
 
-  Widget buildMessages() {
+  Widget loading(BuildContext context) {
+    return Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget builder(BuildContext context, var messagesList) {
+    _colorSent = Colors.blueGrey[800];
+    _colorReceived = Colors.blueGrey[100];
+
+    return Builder(
+      builder: (BuildContext context) {
+        return Column(
+          children: <Widget>[
+            Flexible(
+              child: buildMessages(messagesList),
+            ),
+            Divider(
+              height: 1.0,
+              color: Colors.black,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+              ),
+              child: matchesTextComposer(_scrollController, _textController, alias, room),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildMessages(var messagesList) {
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       reverse: true,
-      itemCount: (_messagesList.isNotEmpty) ? _messagesList.length : 0,
+      itemCount: (messagesList.isNotEmpty) ? messagesList.length : 0,
       itemBuilder: (context, i) {
-        var row = _messagesList[i];
+        var row = messagesList[i];
         if (row['birth'] == alias) {
-          return _buildSentRow(row['message'], row['sTime'], i);
+          return _buildSentRow(messagesList, row['message'], row['sTime'], i, row);
         } else {
-          return _buildReceivedRow(row['message'], row['sTime'], i);
+          return _buildReceivedRow(messagesList, row['message'], row['sTime'], i, row);
         }
       },
     );
   }
 
 // ------------------------------------ SENT MESSAGES ---------------------------------------------------------
-  Widget _buildSentRow(String message, String sTime, int i) {
+  Widget _buildSentRow(var messagesList, String message, String sTime, int i, var row) {
     // Text style
     var textStyle = new TextStyle(
       fontSize: 17.0,
@@ -251,7 +178,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
     // chat bubble
     final radius = BorderRadius.only(
       topLeft: Radius.circular(20.0),
-      topRight: (i < _messagesList.length - 1 && _messagesList[i + 1]['birth'] == alias)
+      topRight: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] == alias)
           ? Radius.circular(5.0)
           : Radius.circular(20.0),
       bottomLeft: Radius.circular(20.0),
@@ -266,10 +193,13 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
         children: <Widget>[
           Flexible(
             fit: FlexFit.loose,
-            child: CupertinoButton(
-              minSize: 0,
+            child: RawMaterialButton(
+              focusColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               padding: EdgeInsets.fromLTRB(80, 0, 0, 0),
-              borderRadius: BorderRadius.all(Radius.circular(0)),
               child: Container(
                 padding: const EdgeInsets.all(10.0),
                 decoration: BoxDecoration(
@@ -287,6 +217,9 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
                   //toggle boolean
                   _showTime[i] = !_showTime[i];
                 });
+              },
+              onLongPress: () {
+                MessageLongPressDialog(context, row);
               },
             ),
           ),
@@ -321,7 +254,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
   }
 
   // ---------------------------------- RECEIVED MESSAGES -------------------------------------------------
-  Widget _buildReceivedRow(String message, String sTime, int i) {
+  Widget _buildReceivedRow(var messagesList, String message, String sTime, int i, var row) {
     // Text style
     var textStyle = new TextStyle(
       fontSize: 17.0,
@@ -330,7 +263,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
 
     // chat bubble
     final radius = BorderRadius.only(
-      topLeft: (i < _messagesList.length - 1 && _messagesList[i + 1]['birth'] != alias)
+      topLeft: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] != alias)
           ? Radius.circular(5.0)
           : Radius.circular(20.0),
       topRight: Radius.circular(20.0),
@@ -349,7 +282,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
             child: SizedBox(
               height: 40,
               width: 40,
-              child: (i > 1 && _messagesList[i - 1]['birth'] != alias)
+              child: (i > 1 && messagesList[i - 1]['birth'] != alias)
                   ? null
                   : Container(
                       decoration: BoxDecoration(
@@ -367,10 +300,13 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
           ),
           Flexible(
             fit: FlexFit.loose,
-            child: CupertinoButton(
-              minSize: 0,
+            child: RawMaterialButton(
+              focusColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               padding: EdgeInsets.fromLTRB(4, 0, 50, 0),
-              borderRadius: BorderRadius.all(Radius.circular(0)),
               child: Container(
                 padding: const EdgeInsets.all(10.0),
                 decoration: BoxDecoration(
@@ -388,6 +324,9 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
                   //toggle boolean
                   _showTime[i] = !_showTime[i];
                 });
+              },
+              onLongPress: () {
+                MessageLongPressDialog(context, row);
               },
             ),
           ),

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:lise/data/models/profile_model.dart';
 import 'package:lise/data/user_data.dart';
 
@@ -11,7 +12,7 @@ part 'profile_state.dart';
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final UserData userData;
 
-  ProfileBloc(this.userData) : super(ProfileInitial());
+  ProfileBloc({@required this.userData}) : super(ProfileInitial());
 
   @override
   Stream<ProfileState> mapEventToState(

@@ -47,6 +47,8 @@ dependencies:
   firebase_image: ^0.1.5
   cached_network_image: ^2.2.0+1
   flutter_advanced_networkimage: ^0.7.0
+  toast: ^0.1.5
+  fancy_dialog: ^1.0.3
 
   # Tools
   tuple: ^1.0.3
@@ -58,6 +60,7 @@ dependencies:
   flutter_image_compress: ^0.6.7
   flutter_bloc: ^5.0.1
   equatable: ^1.2.0
+  clipboard: ^0.1.2+8
 
   # Storage
   path: ^1.6.4

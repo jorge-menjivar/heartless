@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lise/bloc/conversation_bloc.dart';
 import 'package:lise/bloc/p_matches_bloc.dart';
 import 'package:lise/bloc/profile_bloc.dart';
+import 'package:lise/data/messages_data.dart';
 import 'package:lise/data/p_matches_data.dart';
 import 'package:lise/home_screen.dart';
 import 'package:lise/localizations.dart';
@@ -104,14 +106,25 @@ class _LoadingPageState extends State<LoadingPage> {
       if (_profileCompleted) {
         // Display Home Screen
         return BlocProvider(
-          create: (context) => PMatchesBloc(PMatchesRepository()),
+          create: (context) => PMatchesBloc(
+            pMatchesData: PMatchesRepository(),
+          ),
           child: BlocProvider(
-            create: (context) => MatchesBloc(MatchesRepository()),
+            create: (context) => MatchesBloc(
+              matchesData: MatchesRepository(),
+            ),
             child: BlocProvider(
-              create: (context) => ProfileBloc(UserDataRepository()),
-              child: HomeScreen(
-                user: user,
-                username: user.email,
+              create: (context) => ConversationBloc(
+                messagesData: MessagesRepository(),
+              ),
+              child: BlocProvider(
+                create: (context) => ProfileBloc(
+                  userData: UserDataRepository(),
+                ),
+                child: HomeScreen(
+                  user: user,
+                  username: user.email,
+                ),
               ),
             ),
           ),

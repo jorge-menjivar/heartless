@@ -10,7 +10,9 @@ import 'package:lise/pages/profile_page.dart';
 import 'package:lise/splash_screen.dart';
 import 'package:lise/utils/database.dart';
 import 'package:sqflite/sqflite.dart';
+import 'bloc/conversation_bloc.dart';
 import 'bloc/matches_bloc.dart';
+import 'data/messages_data.dart';
 import 'localizations.dart';
 
 // Firebase
@@ -72,19 +74,18 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
 
-    // Creating the blocs and initializing them
+    // Creating the profile bloc and initializing it
     // ignore: close_sinks
     BlocProvider.of<ProfileBloc>(context)..add(GetProfile(alias: user.uid));
 
     startMatchesDatabase();
-
-    getAlias();
-    initPMatchesBloc();
-    initMatchesBloc();
   }
 
   Future<void> startMatchesDatabase() async {
     _db = await getMessagesDb();
+    getAlias();
+    initPMatchesBloc();
+    initMatchesBloc();
   }
 
   Future<void> getAlias() async {
@@ -134,11 +135,101 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         .listen(
       (querySnapshot) {
         docs = querySnapshot.documents;
-        // Adding the potential matches bloc
+
+        for (var doc in docs) {
+          initListener(doc['room']);
+        }
+
+        // Adding the matches bloc
         // ignore: close_sinks
-        BlocProvider.of<MatchesBloc>(context)..add(GetMatches(matchesDocs: docs));
+        BlocProvider.of<MatchesBloc>(context)
+          ..add(GetMatches(
+            db: _db,
+            matchesDocs: docs,
+          ));
       },
     );
+  }
+
+  Future<void> initListener(String room) async {
+    // Making sure table is created if does not exist;
+    await checkMessageTable(_db, room);
+
+    var messagesList = await _db.rawQuery('SELECT * FROM $room ORDER BY ${Message.db_sTime} DESC');
+
+    if (messagesList.isNotEmpty) {
+      // Start a stream that listens for new messages
+      listenerFunction(room);
+    } else {
+      // Pull any messages from the cloud
+      await Firestore.instance
+          .collection('messages')
+          .document('rooms')
+          .collection(room)
+          .getDocuments()
+          .then((snapshot) async {
+        for (var doc in snapshot.documents) {
+          if (doc.documentID != 'settings') {
+            var values = {
+              'message': doc['message'],
+              'sTime': doc['time'],
+              'birth': doc['from'],
+              'image': (doc['image']) ? 1 : 0,
+            };
+
+            // Inserting the values into the table room
+            await _db.insert(room, values);
+          }
+        }
+      });
+
+      listenerFunction(room);
+    }
+  }
+
+  Future<void> listenerFunction(String room) async {
+    var messagesList = await _db.rawQuery('SELECT * FROM $room ORDER BY ${Message.db_sTime} DESC');
+
+    var lastMessage;
+    var lastMessageTime;
+    if (messagesList.isNotEmpty) {
+      lastMessage = messagesList[0];
+      lastMessageTime = lastMessage['sTime'];
+    } else {
+      lastMessageTime = 0;
+    }
+
+    Firestore.instance
+        .collection('messages')
+        .document('rooms')
+        .collection(room)
+        .where('time', isGreaterThan: int.tryParse(lastMessageTime))
+        .orderBy('time', descending: false)
+        .snapshots()
+        .listen((event) async {
+      for (var change in event.documentChanges) {
+        var doc = change.document;
+        if (doc.documentID != 'settings') {
+          var values = {
+            'message': doc['message'],
+            'sTime': doc['time'],
+            'birth': doc['from'],
+            'image': (doc['image']) ? 1 : 0,
+          };
+
+          // Inserting the values into the table room
+          await _db.insert(room, values);
+        }
+      }
+
+      // Adding the conversation event
+      // ignore: close_sinks
+      BlocProvider.of<ConversationBloc>(context)
+        ..add(GetConversation(
+          db: _db,
+          room: room,
+        ));
+    });
   }
 
   @override
@@ -269,11 +360,14 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ///------------------------------------------- MATCHES ---------------------------------------------------
               BlocProvider.value(
                 value: BlocProvider.of<MatchesBloc>(context),
-                child: MatchesScreen(
-                  scaffoldKey: _scaffoldKey,
-                  user: this.user,
-                  alias: _alias,
-                  db: _db,
+                child: BlocProvider.value(
+                  value: BlocProvider.of<ConversationBloc>(context),
+                  child: MatchesScreen(
+                    scaffoldKey: _scaffoldKey,
+                    user: this.user,
+                    alias: _alias,
+                    db: _db,
+                  ),
                 ),
               ),
 

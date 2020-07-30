@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_networkimage/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lise/bloc/conversation_bloc.dart';
 import 'package:lise/bloc/matches_bloc.dart';
 import 'package:lise/messages/m_matches_screen.dart';
 import 'package:lise/utils/convert_match_time.dart';
@@ -131,7 +132,7 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
             textAlign: TextAlign.left,
           ),
           trailing: Text(
-            (matchesList.isNotEmpty && time > 0) ? convertMatchTime(context, int.parse(match['key'])) : '',
+            (matchesList.isNotEmpty && time > 0) ? convertMatchTime(context, time) : '',
             style: _trailFont,
             textAlign: TextAlign.left,
           ),
@@ -139,19 +140,28 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MatchedConversationScreen(
-                  imageLink: match['imageLink'],
-                  alias: this.alias,
-                  matchName: match['otherUser'],
-                  otherUserId: match['otherUserId'],
-                  username: user.displayName,
-                  room: match['room'],
-                  db: this.db,
+                builder: (childContext) => BlocProvider.value(
+                  value: BlocProvider.of<ConversationBloc>(context),
+                  child: MatchedConversationScreen(
+                    imageLink: match['imageLink'],
+                    alias: this.alias,
+                    matchName: match['otherUser'],
+                    otherUserId: match['otherUserId'],
+                    username: user.displayName,
+                    room: match['room'],
+                    db: this.db,
+                  ),
                 ),
               ),
-            ).then((value) {
-              //_loadMatchesData();
-            });
+            ).then(
+              (value) => BlocProvider.of<MatchesBloc>(context)
+                ..add(
+                  UpdateLastMessage(
+                    db: db,
+                    matchesList: matchesList,
+                  ),
+                ),
+            );
           },
           onLongPress: () {
             setState(() {
