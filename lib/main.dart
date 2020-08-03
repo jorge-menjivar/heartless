@@ -105,28 +105,32 @@ class _LoadingPageState extends State<LoadingPage> {
       }
       if (_profileCompleted) {
         // Display Home Screen
-        return BlocProvider(
-          create: (context) => PMatchesBloc(
-            pMatchesData: PMatchesRepository(),
-          ),
-          child: BlocProvider(
-            create: (context) => MatchesBloc(
-              matchesData: MatchesRepository(),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => PMatchesBloc(
+                pMatchesData: PMatchesRepository(),
+              ),
             ),
-            child: BlocProvider(
+            BlocProvider(
+              create: (context) => MatchesBloc(
+                matchesData: MatchesRepository(),
+              ),
+            ),
+            BlocProvider(
               create: (context) => ConversationBloc(
                 messagesData: MessagesRepository(),
               ),
-              child: BlocProvider(
-                create: (context) => ProfileBloc(
-                  userData: UserDataRepository(),
-                ),
-                child: HomeScreen(
-                  user: user,
-                  username: user.email,
-                ),
+            ),
+            BlocProvider(
+              create: (context) => ProfileBloc(
+                userData: UserDataRepository(),
               ),
             ),
+          ],
+          child: HomeScreen(
+            user: user,
+            username: user.email,
           ),
         );
       } else {

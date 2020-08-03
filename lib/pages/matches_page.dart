@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_networkimage/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/conversation_bloc.dart';
 import 'package:lise/bloc/matches_bloc.dart';
 import 'package:lise/messages/m_matches_screen.dart';
@@ -14,18 +15,20 @@ import 'package:sqflite/sqflite.dart';
 import '../localizations.dart';
 
 class MatchesScreen extends StatefulWidget {
+  final Database db;
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  final FirebaseUser user;
+  final String alias;
+  final AppVariables appVariables;
+
   MatchesScreen({
     Key key,
     @required this.scaffoldKey,
     @required this.user,
     @required this.alias,
     @required this.db,
+    @required this.appVariables,
   }) : super(key: key);
-
-  final GlobalKey<ScaffoldState> scaffoldKey;
-  final FirebaseUser user;
-  final String alias;
-  final Database db;
 
   @override
   _MatchesScreenState createState() => _MatchesScreenState(
@@ -33,21 +36,24 @@ class MatchesScreen extends StatefulWidget {
         user: this.user,
         alias: this.alias,
         db: this.db,
+        appVariables: this.appVariables,
       );
 }
 
 class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveClientMixin {
+  final scaffoldKey;
+  final user;
+  final alias;
+  final db;
+  final AppVariables appVariables;
+
   _MatchesScreenState({
     @required this.scaffoldKey,
     @required this.user,
     @required this.alias,
     @required this.db,
+    @required this.appVariables,
   });
-
-  final scaffoldKey;
-  final user;
-  final alias;
-  final db;
 
   ScrollController _scrollController;
 
@@ -67,6 +73,20 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    return BlocBuilder<MatchesBloc, MatchesState>(
+      builder: (context, state) {
+        if (state is MatchesLoaded) {
+          _list = state.matches.list;
+        }
+        return builder(context, _list);
+      },
+    );
   }
 
   Widget builder(BuildContext context, List matchesList) {
@@ -150,18 +170,13 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
                     username: user.displayName,
                     room: match['room'],
                     db: this.db,
+                    appVariables: appVariables,
                   ),
                 ),
               ),
-            ).then(
-              (value) => BlocProvider.of<MatchesBloc>(context)
-                ..add(
-                  UpdateLastMessage(
-                    db: db,
-                    matchesList: matchesList,
-                  ),
-                ),
-            );
+            ).then((value) {
+              appVariables.convoRowCount = 30;
+            });
           },
           onLongPress: () {
             setState(() {
@@ -178,20 +193,6 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
             });
           },
         );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-
-    return BlocBuilder<MatchesBloc, MatchesState>(
-      builder: (context, state) {
-        if (state is MatchesLoaded) {
-          _list = state.matches.list;
-        }
-        return builder(context, _list);
       },
     );
   }

@@ -5,6 +5,7 @@ import 'package:flutter_advanced_networkimage/provider.dart';
 
 // Storage
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/conversation_bloc.dart';
 import 'package:lise/utils/convert_match_time.dart';
 import 'package:lise/widgets/matches_text_composer.dart';
@@ -19,6 +20,7 @@ class MatchedConversationScreen extends StatefulWidget {
   final String username;
   final String room;
   final Database db;
+  final AppVariables appVariables;
 
   MatchedConversationScreen({
     @required this.imageLink,
@@ -28,6 +30,7 @@ class MatchedConversationScreen extends StatefulWidget {
     @required this.username,
     @required this.room,
     @required this.db,
+    @required this.appVariables,
   });
 
   @override
@@ -39,6 +42,7 @@ class MatchedConversationScreen extends StatefulWidget {
         username: this.username,
         room: this.room,
         db: this.db,
+        appVariables: this.appVariables,
       );
 }
 
@@ -50,6 +54,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
   final String username;
   final String room;
   final Database db;
+  final AppVariables appVariables;
 
   MatchedConversationScreenState({
     @required this.imageLink,
@@ -59,6 +64,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
     @required this.username,
     @required this.room,
     @required this.db,
+    @required this.appVariables,
   });
 
   final _scrollController = ScrollController();
@@ -82,6 +88,40 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
 
   var _firstTime = true;
 
+  var _isLoading = false;
+
+  var _messagesList;
+
+  var _loadedAllRows = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    BlocProvider.of<ConversationBloc>(context)
+      ..add(GetConversation(
+        db: db,
+        room: room,
+        limit: appVariables.convoRowCount,
+      ));
+  }
+
+  Future<void> _queryNext() async {
+    // Whether or not we have already loaded all the messages in this conversation
+    // If this is the case, this will prevent the loading indicator from showing
+    if (!_loadedAllRows) {
+      appVariables.convoRowCount += 30;
+      // Adding the conversation event
+      // ignore: close_sinks
+      BlocProvider.of<ConversationBloc>(context)
+        ..add(GetConversation(
+          db: db,
+          room: room,
+          limit: appVariables.convoRowCount,
+        ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,23 +132,45 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
       ),
       body: BlocListener<ConversationBloc, ConversationState>(
         listener: (context, state) {
+          if (state is ConversationLoading) {}
           if (state is ConversationLoaded) {
-            var messagesList = state.messages.list;
-            _showTime = List<bool>.filled(messagesList.length, false, growable: true);
+            // If the new list has the same number of rows as the previous one, then we
+            // can say we have loaded all the messages in the conversation
+            if (_messagesList != null) {
+              if (_messagesList.length == state.messages.list.length) {
+                _loadedAllRows = true;
+              }
+            }
+            _messagesList = state.messages.list;
+            _showTime = List<bool>.filled(_messagesList.length, false, growable: true);
             _showTime[0] = true;
           }
         },
         child: BlocBuilder<ConversationBloc, ConversationState>(
           builder: (context, state) {
             if (state is ConversationLoaded) {
-              var messagesList = state.messages.list;
+              // If there messages loaded are not a multiple of 30 we can tell we loaded
+              // all messages because we did not reach the limit rows of the query
+              if (state.messages.list.length < 30) {
+                _loadedAllRows = true;
+              }
+
+              _isLoading = false;
+              _messagesList = state.messages.list;
               if (_firstTime) {
-                _showTime = List<bool>.filled(messagesList.length, false, growable: true);
+                _showTime = List<bool>.filled(_messagesList.length, false, growable: true);
                 _showTime[0] = true;
 
                 _firstTime = false;
               }
-              return builder(context, messagesList);
+              return builder(context, _messagesList);
+            }
+
+            if (state is ConversationLoading) {
+              if (_messagesList != null) {
+                _isLoading = true;
+                return builder(context, _messagesList);
+              }
             }
             return loading(context);
           },
@@ -131,8 +193,23 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
       builder: (BuildContext context) {
         return Column(
           children: <Widget>[
+            Container(
+              height: _isLoading ? 100 : 0,
+              child: loading(context),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+              ),
+            ),
             Flexible(
-              child: buildMessages(messagesList),
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (ScrollNotification scrollInfo) {
+                  if (!_isLoading && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                    // Load the next set of messages
+                    _queryNext();
+                  }
+                },
+                child: buildMessages(messagesList),
+              ),
             ),
             Divider(
               height: 1.0,

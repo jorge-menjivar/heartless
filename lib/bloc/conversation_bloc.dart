@@ -20,7 +20,13 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   ) async* {
     if (event is GetConversation) {
       try {
-        final messagesList = await messagesData.fetchData(event.db, event.room);
+        yield ConversationLoading();
+        var messagesList;
+        if (event.limit == null || event.limit < 1) {
+          messagesList = await messagesData.fetchData(event.db, event.room);
+        } else if (event.limit > 0) {
+          messagesList = await messagesData.fetchData(event.db, event.room, limit: event.limit);
+        }
         yield ConversationLoaded(messagesList);
       } on Error {
         yield ConversationError(

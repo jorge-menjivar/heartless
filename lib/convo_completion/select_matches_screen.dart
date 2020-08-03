@@ -135,84 +135,89 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text('Looks'),
-          elevation: 4.0,
-        ),
-        body: Builder(
-          builder: (BuildContext context) {
-            return Container(
-                decoration: BoxDecoration(color: Colors.white),
-                child: Column(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text('Looks'),
+        elevation: 4.0,
+      ),
+      body: Builder(
+        builder: (BuildContext context) {
+          return Container(
+            decoration: BoxDecoration(color: Colors.white),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Select the persons you find attractive',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(
+                  height: 50,
+                ),
+                SizedBox(
+                  height: _picSize + 20,
+                  child: ShaderMask(
+                    shaderCallback: (rect) {
+                      return LinearGradient(
+                        begin: Alignment(0, 0.9),
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.white, Colors.transparent],
+                      ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                    },
+                    blendMode: BlendMode.dstIn,
+                    child: ShaderMask(
+                        shaderCallback: (rect) {
+                          return LinearGradient(
+                            begin: Alignment(0, -0.9),
+                            end: Alignment.topCenter,
+                            colors: [Colors.white, Colors.transparent],
+                          ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                        },
+                        blendMode: BlendMode.dstIn,
+                        child: _buildCards()),
+                  ),
+                ),
+                SizedBox(
+                  height: 50,
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        'Select the persons you find attractive',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
+                      CupertinoButton(
+                        color: Colors.black,
+                        child: Text(
+                          'CONTINUE',
+                          style: TextStyle(color: Colors.white),
                         ),
-                      ),
-                      SizedBox(
-                        height: 50,
-                      ),
-                      SizedBox(
-                        height: _picSize + 20,
-                        child: ShaderMask(
-                          shaderCallback: (rect) {
-                            return LinearGradient(
-                              begin: Alignment(0, 0.9),
-                              end: Alignment.bottomCenter,
-                              colors: [Colors.white, Colors.transparent],
-                            ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-                          },
-                          blendMode: BlendMode.dstIn,
-                          child: ShaderMask(
-                              shaderCallback: (rect) {
-                                return LinearGradient(
-                                  begin: Alignment(0, -0.9),
-                                  end: Alignment.topCenter,
-                                  colors: [Colors.white, Colors.transparent],
-                                ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-                              },
-                              blendMode: BlendMode.dstIn,
-                              child: _buildCards()),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 50,
-                      ),
-                      Container(
-                          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                          child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CupertinoButton(
-                                  color: Colors.black,
-                                  child: Text(
-                                    'CONTINUE',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      // Double checking to see if user is sure
-                                      showVerificationDialog(context).then((v) {
-                                        // If the user is sure
-                                        if (v) {
-                                          _verifyConnections();
-                                        }
-                                      });
-                                    });
-                                  },
-                                )
-                              ]))
-                    ]));
-          },
-        ));
+                        onPressed: () {
+                          setState(() {
+                            // Double checking to see if user is sure
+                            showVerificationDialog(context).then((v) {
+                              // If the user is sure
+                              if (v) {
+                                _verifyConnections();
+                              }
+                            });
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Widget _buildCards() {

@@ -7,10 +7,12 @@ abstract class ConversationEvent extends Equatable {
 class GetConversation extends ConversationEvent {
   final Database db;
   final String room;
+  final int limit;
 
   const GetConversation({
     @required this.db,
     @required this.room,
+    this.limit,
   });
 
   @override

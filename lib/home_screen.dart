@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/p_matches_bloc.dart';
 import 'package:lise/bloc/profile_bloc.dart';
 import 'package:lise/pages/matches_page.dart';
@@ -12,7 +15,6 @@ import 'package:lise/utils/database.dart';
 import 'package:sqflite/sqflite.dart';
 import 'bloc/conversation_bloc.dart';
 import 'bloc/matches_bloc.dart';
-import 'data/messages_data.dart';
 import 'localizations.dart';
 
 // Firebase
@@ -70,6 +72,16 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Database _db;
 
+  var _matchesList = [];
+  var _pMatchesList = [];
+
+  Map<String, StreamSubscription<QuerySnapshot>> _matchListener = {};
+  Map<String, StreamSubscription<QuerySnapshot>> _pMatchListener = {};
+  Map<String, bool> _matchConvoOpen = {};
+  Map<String, bool> _pMatchConvoOpen = {};
+
+  var appVariables = AppVariables();
+
   @override
   void initState() {
     super.initState();
@@ -114,8 +126,23 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         .collection('p_matches')
         .snapshots()
         .listen(
-      (querySnapshot) {
+      (querySnapshot) async {
         docs = querySnapshot.documents;
+
+        /*
+        for (var change in _pMatchesList) {
+          var pMatch = change.document;
+          var pMatchRoom = pMatch['room'];
+
+          if (change.type == DocumentChangeType.added) {
+            _pMatchListener[pMatchRoom] = await initListener(pMatchRoom);
+            _pMatchConvoOpen[pMatchRoom] = false;
+          } else if (change.type == DocumentChangeType.removed) {
+            _pMatchListener[pMatchRoom].cancel();
+          }
+        }
+        */
+
         // Adding the potential matches bloc
         // ignore: close_sinks
         BlocProvider.of<PMatchesBloc>(context)..add(GetPMatches(pMatchesDocs: docs));
@@ -124,7 +151,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> initMatchesBloc() async {
-    var docs;
     Firestore.instance
         .collection('users')
         .document('${user.uid}')
@@ -133,11 +159,20 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         .collection('matches')
         .snapshots()
         .listen(
-      (querySnapshot) {
-        docs = querySnapshot.documents;
+      (querySnapshot) async {
+        var changes = querySnapshot.documentChanges;
+        _matchesList = querySnapshot.documents;
 
-        for (var doc in docs) {
-          initListener(doc['room']);
+        for (var change in changes) {
+          var match = change.document;
+          var matchRoom = match['room'];
+
+          if (change.type == DocumentChangeType.added) {
+            _matchListener[matchRoom] = await initListener(matchRoom);
+            _matchConvoOpen[matchRoom] = false;
+          } else if (change.type == DocumentChangeType.removed) {
+            _matchListener[matchRoom].cancel();
+          }
         }
 
         // Adding the matches bloc
@@ -145,21 +180,22 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         BlocProvider.of<MatchesBloc>(context)
           ..add(GetMatches(
             db: _db,
-            matchesDocs: docs,
+            matchesDocs: _matchesList,
           ));
       },
     );
   }
 
-  Future<void> initListener(String room) async {
+  Future<StreamSubscription<QuerySnapshot>> initListener(String room) async {
     // Making sure table is created if does not exist;
     await checkMessageTable(_db, room);
 
     var messagesList = await _db.rawQuery('SELECT * FROM $room ORDER BY ${Message.db_sTime} DESC');
 
+    StreamSubscription<QuerySnapshot> listener;
     if (messagesList.isNotEmpty) {
       // Start a stream that listens for new messages
-      listenerFunction(room);
+      listener = await listenerFunction(room);
     } else {
       // Pull any messages from the cloud
       await Firestore.instance
@@ -183,11 +219,12 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         }
       });
 
-      listenerFunction(room);
+      listener = await listenerFunction(room);
     }
+    return listener;
   }
 
-  Future<void> listenerFunction(String room) async {
+  Future<StreamSubscription<QuerySnapshot>> listenerFunction(String room) async {
     var messagesList = await _db.rawQuery('SELECT * FROM $room ORDER BY ${Message.db_sTime} DESC');
 
     var lastMessage;
@@ -199,7 +236,9 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       lastMessageTime = 0;
     }
 
-    Firestore.instance
+    StreamSubscription<QuerySnapshot> listener;
+
+    listener = Firestore.instance
         .collection('messages')
         .document('rooms')
         .collection(room)
@@ -207,7 +246,8 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         .orderBy('time', descending: false)
         .snapshots()
         .listen((event) async {
-      for (var change in event.documentChanges) {
+      var changes = event.documentChanges;
+      for (var change in changes) {
         var doc = change.document;
         if (doc.documentID != 'settings') {
           var values = {
@@ -219,17 +259,28 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
           // Inserting the values into the table room
           await _db.insert(room, values);
+
+          BlocProvider.of<MatchesBloc>(context)
+            ..add(
+              UpdateLastMessage(
+                db: _db,
+                matchesList: _matchesList,
+              ),
+            );
         }
       }
 
-      // Adding the conversation event
-      // ignore: close_sinks
-      BlocProvider.of<ConversationBloc>(context)
-        ..add(GetConversation(
-          db: _db,
-          room: room,
-        ));
+      // If this conversation is currently being displayed in UI
+      if (_matchConvoOpen[room] == true)
+        // Adding the conversation event
+        BlocProvider.of<ConversationBloc>(context)
+          ..add(GetConversation(
+            db: _db,
+            room: room,
+            limit: appVariables.convoRowCount,
+          ));
     });
+    return listener;
   }
 
   @override
@@ -367,6 +418,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     user: this.user,
                     alias: _alias,
                     db: _db,
+                    appVariables: appVariables,
                   ),
                 ),
               ),
