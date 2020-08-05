@@ -26,8 +26,7 @@ class MatchesBloc extends Bloc<MatchesEvent, MatchesState> {
       } on Error {
         yield MatchesError('Could not fetch potential matches');
       }
-    }
-    if (event is UpdateLastMessage) {
+    } else if (event is MatchUpdateLastMessage) {
       try {
         final matches = await matchesData.updateData(event.db, event.matchesList);
         yield MatchesLoaded(matches);

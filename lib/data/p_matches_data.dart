@@ -1,51 +1,89 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lise/data/models/p_matches_model.dart';
+import 'package:lise/utils/database.dart';
+import 'package:sqflite/sqflite.dart';
 
 abstract class PMatchesData {
-  Future<PMatches> fetchData(var pMatchesDocs);
+  Future<PMatches> fetchData(Database db, var pMatchesDocs);
+  Future<PMatches> updateData(Database db, var pMatchesList);
 }
 
 class PMatchesRepository implements PMatchesData {
-  var storageReference;
-
   @override
-  Future<PMatches> fetchData(var pMatchesDocs) async {
-    final data = await loadPMatchesData(pMatchesDocs);
+  Future<PMatches> fetchData(Database db, var pMatchesDocs) async {
+    final data = await loadPMatchesData(db, pMatchesDocs);
     return PMatches(list: data);
   }
 
-  Future<List> loadPMatchesData(var pMatchesDocs) async {
+  @override
+  Future<PMatches> updateData(Database db, var matchesList) async {
+    final data = await updatePMatchesData(db, matchesList);
+    return PMatches(list: data);
+  }
+
+  Future<List> loadPMatchesData(Database db, var pMatchesDocs) async {
     var list = [];
     for (var match in pMatchesDocs) {
       try {
-        if (match['pending'] != null) {
-          list.add(
-            {
-              'key': match.documentID,
-              'pending': match['pending'],
-            },
-          );
-        } else {
-          // Getting the last message sent in each conversation
-          var lastMessage = await Firestore.instance
-              .collection('messages')
-              .document('rooms')
-              .collection('${match['room']}')
-              .where('time', isGreaterThanOrEqualTo: 0)
-              .orderBy('time', descending: true)
-              .limit(1)
-              .getDocuments();
-          list.add(
-            {
-              'key': match.documentID,
-              'room': match['room'],
-              'otherUser': match['otherUser'],
-              'last_message': lastMessage.documents[0]['message'],
-              'last_message_from': lastMessage.documents[0]['from'],
-              'last_message_time': lastMessage.documents[0]['time'],
-            },
-          );
+        var sqlRoom = '`' + match['room'] + '`';
+        var messagesList = await db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC');
+        var values;
+        if (messagesList.isNotEmpty) {
+          var lastMessage = messagesList[0];
+          values = {
+            'key': match.documentID,
+            'room': match['room'],
+            'otherUser': match['otherUser'],
+            'last_message': lastMessage['message'],
+            'last_message_from': lastMessage['birth'],
+            'last_message_time': int.parse(lastMessage['sTime']),
+          };
+        } else if (messagesList.isEmpty) {
+          values = {
+            'key': match.documentID,
+            'room': match['room'],
+            'otherUser': match['otherUser'],
+            'last_message': '',
+            'last_message_from': 'empty',
+            'last_message_time': 0,
+          };
         }
+
+        list.add(values);
+      } catch (e) {
+        print(e);
+      }
+    }
+    return list;
+  }
+
+  Future<List> updatePMatchesData(Database db, var pMatchesList) async {
+    var list = [];
+    for (var match in pMatchesList) {
+      try {
+        var sqlRoom = '`' + match['room'] + '`';
+        var messagesList = await db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC');
+        var values;
+        if (messagesList.isNotEmpty) {
+          var lastMessage = messagesList[0];
+          values = {
+            'key': match.documentID,
+            'room': match['room'],
+            'otherUser': match['otherUser'],
+            'last_message': lastMessage['message'],
+            'last_message_from': lastMessage['birth'],
+            'last_message_time': int.parse(lastMessage['sTime']),
+          };
+        } else if (messagesList.isEmpty) {
+          values = {
+            'key': match.documentID,
+            'room': match['room'],
+            'otherUser': match['otherUser'],
+            'last_message': '',
+            'last_message_from': 'empty',
+            'last_message_time': 0,
+          };
+        }
+        list.add(values);
       } catch (e) {
         print(e);
       }

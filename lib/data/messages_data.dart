@@ -22,10 +22,12 @@ class MessagesRepository implements MessagesData {
   }
 
   Future<List> loadAllMessagesData(Database db, String room) async {
-    return await db.rawQuery('SELECT * FROM $room ORDER BY ${Message.db_sTime} DESC');
+    var sqlRoom = '`' + room + '`';
+    return await db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC');
   }
 
   Future<List> loadPartialMessagesData(Database db, String room, int limit) async {
-    return await db.rawQuery('SELECT * FROM $room ORDER BY ${Message.db_sTime} DESC LIMIT $limit');
+    var sqlRoom = '`' + room + '`';
+    return await db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC LIMIT $limit');
   }
 }

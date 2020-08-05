@@ -17,11 +17,11 @@ class GetMatches extends MatchesEvent {
   List<Object> get props => [matchesDocs];
 }
 
-class UpdateLastMessage extends MatchesEvent {
+class MatchUpdateLastMessage extends MatchesEvent {
   final db;
   final List matchesList;
 
-  const UpdateLastMessage({
+  const MatchUpdateLastMessage({
     @required this.db,
     @required this.matchesList,
   });

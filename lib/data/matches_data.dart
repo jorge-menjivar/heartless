@@ -9,8 +9,6 @@ abstract class MatchesData {
 }
 
 class MatchesRepository implements MatchesData {
-  var storageReference;
-
   @override
   Future<Matches> fetchData(Database db, var matchesDocs) async {
     final data = await loadMatchesData(db, matchesDocs);
@@ -27,9 +25,10 @@ class MatchesRepository implements MatchesData {
     var list = [];
     for (var match in matchesDocs) {
       try {
-        storageReference = FirebaseStorage().ref().child('users/${match['otherUserId']}/profile_pictures/pic1.jpg');
+        var storageReference = FirebaseStorage().ref().child('users/${match['otherUserId']}/profile_pictures/pic1.jpg');
         final imageLink = await storageReference.getDownloadURL();
-        var messagesList = await db.rawQuery('SELECT * FROM ${match['room']} ORDER BY ${Message.db_sTime} DESC');
+        var sqlRoom = '`' + match['room'] + '`';
+        var messagesList = await db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC');
 
         var lastMessage = messagesList[0];
         var values = {
@@ -54,9 +53,10 @@ class MatchesRepository implements MatchesData {
     var list = [];
     for (var match in matchesList) {
       try {
-        storageReference = FirebaseStorage().ref().child('users/${match['otherUserId']}/profile_pictures/pic1.jpg');
+        var storageReference = FirebaseStorage().ref().child('users/${match['otherUserId']}/profile_pictures/pic1.jpg');
         final imageLink = await storageReference.getDownloadURL();
-        var messagesList = await db.rawQuery('SELECT * FROM ${match['room']} ORDER BY ${Message.db_sTime} DESC');
+        var sqlRoom = '`' + match['room'] + '`';
+        var messagesList = await db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC');
 
         var lastMessage = messagesList[0];
         var values = {

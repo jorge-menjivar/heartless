@@ -77,8 +77,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Map<String, StreamSubscription<QuerySnapshot>> _matchListener = {};
   Map<String, StreamSubscription<QuerySnapshot>> _pMatchListener = {};
-  Map<String, bool> _matchConvoOpen = {};
-  Map<String, bool> _pMatchConvoOpen = {};
+  Map<String, bool> _convoOpen = {};
 
   var appVariables = AppVariables();
 
@@ -117,7 +116,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> initPMatchesBloc() async {
-    var docs;
     Firestore.instance
         .collection('users')
         .document('${user.uid}')
@@ -127,25 +125,26 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         .snapshots()
         .listen(
       (querySnapshot) async {
-        docs = querySnapshot.documents;
+        var changes = querySnapshot.documentChanges;
+        _pMatchesList = querySnapshot.documents;
 
-        /*
-        for (var change in _pMatchesList) {
-          var pMatch = change.document;
-          var pMatchRoom = pMatch['room'];
+        for (var change in changes) {
+          var match = change.document;
+          var matchRoom = match['room'];
 
           if (change.type == DocumentChangeType.added) {
-            _pMatchListener[pMatchRoom] = await initListener(pMatchRoom);
-            _pMatchConvoOpen[pMatchRoom] = false;
+            _pMatchListener[matchRoom] = await initListener(matchRoom);
+            _convoOpen[matchRoom] = false;
           } else if (change.type == DocumentChangeType.removed) {
-            _pMatchListener[pMatchRoom].cancel();
+            _pMatchListener[matchRoom].cancel();
           }
         }
-        */
-
         // Adding the potential matches bloc
-        // ignore: close_sinks
-        BlocProvider.of<PMatchesBloc>(context)..add(GetPMatches(pMatchesDocs: docs));
+        BlocProvider.of<PMatchesBloc>(context)
+          ..add(GetPMatches(
+            db: _db,
+            pMatchesDocs: _pMatchesList,
+          ));
       },
     );
   }
@@ -169,7 +168,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
           if (change.type == DocumentChangeType.added) {
             _matchListener[matchRoom] = await initListener(matchRoom);
-            _matchConvoOpen[matchRoom] = false;
+            _convoOpen[matchRoom] = false;
           } else if (change.type == DocumentChangeType.removed) {
             _matchListener[matchRoom].cancel();
           }
@@ -187,10 +186,12 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<StreamSubscription<QuerySnapshot>> initListener(String room) async {
+    var sqlRoom = '`' + room + '`';
+
     // Making sure table is created if does not exist;
     await checkMessageTable(_db, room);
 
-    var messagesList = await _db.rawQuery('SELECT * FROM $room ORDER BY ${Message.db_sTime} DESC');
+    var messagesList = await _db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC');
 
     StreamSubscription<QuerySnapshot> listener;
     if (messagesList.isNotEmpty) {
@@ -214,7 +215,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             };
 
             // Inserting the values into the table room
-            await _db.insert(room, values);
+            await _db.insert(sqlRoom, values);
           }
         }
       });
@@ -225,7 +226,9 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<StreamSubscription<QuerySnapshot>> listenerFunction(String room) async {
-    var messagesList = await _db.rawQuery('SELECT * FROM $room ORDER BY ${Message.db_sTime} DESC');
+    var sqlRoom = '`' + room + '`';
+
+    var messagesList = await _db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC');
 
     var lastMessage;
     var lastMessageTime;
@@ -233,7 +236,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       lastMessage = messagesList[0];
       lastMessageTime = lastMessage['sTime'];
     } else {
-      lastMessageTime = 0;
+      lastMessageTime = '0';
     }
 
     StreamSubscription<QuerySnapshot> listener;
@@ -258,20 +261,26 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           };
 
           // Inserting the values into the table room
-          await _db.insert(room, values);
+          await _db.insert(sqlRoom, values);
 
           BlocProvider.of<MatchesBloc>(context)
             ..add(
-              UpdateLastMessage(
+              MatchUpdateLastMessage(
                 db: _db,
                 matchesList: _matchesList,
               ),
             );
+
+          BlocProvider.of<PMatchesBloc>(context)
+            ..add(PMatchUpdateLastMessage(
+              db: _db,
+              pMatchesList: _pMatchesList,
+            ));
         }
       }
 
       // If this conversation is currently being displayed in UI
-      if (_matchConvoOpen[room] == true)
+      if (_convoOpen[room] == true)
         // Adding the conversation event
         BlocProvider.of<ConversationBloc>(context)
           ..add(GetConversation(

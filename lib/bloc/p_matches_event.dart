@@ -5,10 +5,27 @@ abstract class PMatchesEvent extends Equatable {
 }
 
 class GetPMatches extends PMatchesEvent {
+  final db;
   final List pMatchesDocs;
 
-  const GetPMatches({this.pMatchesDocs});
+  const GetPMatches({
+    @required this.db,
+    @required this.pMatchesDocs,
+  });
 
   @override
   List<Object> get props => [pMatchesDocs];
+}
+
+class PMatchUpdateLastMessage extends PMatchesEvent {
+  final db;
+  final List pMatchesList;
+
+  const PMatchUpdateLastMessage({
+    @required this.db,
+    @required this.pMatchesList,
+  });
+
+  @override
+  List<Object> get props => [pMatchesList];
 }

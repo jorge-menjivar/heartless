@@ -5,8 +5,9 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-Future addToDb(Database db, String tableName, Map values) async {
-  await db.insert(tableName, values);
+Future addToDb(Database db, String room, Map values) async {
+  var sqlRoom = '`' + room + '`';
+  await db.insert(sqlRoom, values);
 }
 
 Future<Database> getMessagesDb() async {
@@ -20,7 +21,8 @@ Future<Database> getMessagesDb() async {
 }
 
 Future<void> checkMessageTable(Database db, String room) async {
-  await db.execute("CREATE TABLE IF NOT EXISTS $room ("
+  var sqlRoom = '`' + room + '`';
+  await db.execute("CREATE TABLE IF NOT EXISTS $sqlRoom ("
       "${Message.db_sTime} TEXT PRIMARY KEY, "
       "${Message.db_message} TEXT, "
       "${Message.db_image} NUMERIC, "
@@ -29,7 +31,8 @@ Future<void> checkMessageTable(Database db, String room) async {
 }
 
 Future<void> dropTable(Database db, String room) async {
-  await db.execute("DROP TABLE IF EXISTS $room");
+  var sqlRoom = '`' + room + '`';
+  await db.execute("DROP TABLE IF EXISTS $sqlRoom");
 }
 
 class Message {

@@ -134,6 +134,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
         listener: (context, state) {
           if (state is ConversationLoading) {}
           if (state is ConversationLoaded) {
+            _isLoading = false;
             // If the new list has the same number of rows as the previous one, then we
             // can say we have loaded all the messages in the conversation
             if (_messagesList != null) {
@@ -156,8 +157,8 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
               }
 
               _isLoading = false;
-              _messagesList = state.messages.list;
               if (_firstTime) {
+                _messagesList = state.messages.list;
                 _showTime = List<bool>.filled(_messagesList.length, false, growable: true);
                 _showTime[0] = true;
 
