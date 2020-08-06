@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lise/app_variables.dart';
+import 'package:lise/bloc/conversation_bloc.dart';
 import 'package:lise/bloc/p_matches_bloc.dart';
 import 'package:lise/convo_completion/select_matches_screen.dart';
 import 'package:lise/messages/m_p_matches_screen.dart';
@@ -11,39 +13,50 @@ import 'package:lise/utils/delete_p_match.dart';
 import 'package:lise/utils/delete_request.dart';
 import 'package:lise/utils/send_p_match_request.dart';
 import 'package:lise/widgets/delete_dialog.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../localizations.dart';
 
 class PotentialMatchesScreen extends StatefulWidget {
-  PotentialMatchesScreen({
-    Key key,
-    @required this.scaffoldKey,
-    @required this.user,
-    @required this.alias,
-  }) : super(key: key);
-
+  final Database db;
   final GlobalKey<ScaffoldState> scaffoldKey;
   final FirebaseUser user;
   final String alias;
+  final AppVariables appVariables;
+
+  PotentialMatchesScreen({
+    Key key,
+    @required this.db,
+    @required this.scaffoldKey,
+    @required this.user,
+    @required this.alias,
+    @required this.appVariables,
+  }) : super(key: key);
 
   @override
   _PotentialMatchesScreenState createState() => _PotentialMatchesScreenState(
+        db: this.db,
         scaffoldKey: this.scaffoldKey,
         user: this.user,
         alias: this.alias,
+        appVariables: this.appVariables,
       );
 }
 
 class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with AutomaticKeepAliveClientMixin {
-  _PotentialMatchesScreenState({
-    @required this.scaffoldKey,
-    @required this.user,
-    @required this.alias,
-  });
-
+  final Database db;
   final scaffoldKey;
   final user;
   final alias;
+  final AppVariables appVariables;
+
+  _PotentialMatchesScreenState({
+    @required this.db,
+    @required this.scaffoldKey,
+    @required this.user,
+    @required this.alias,
+    @required this.appVariables,
+  });
 
   ScrollController _scrollController;
 
@@ -169,6 +182,7 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
               textAlign: TextAlign.left,
             ),
             onTap: () {
+              appVariables.convoOpen[pMatch['room']] = true;
               // If the conversation is not finished go to chat, otherwise go to select connections screen
               (convertPMatchTime(
                         context: context,
@@ -180,15 +194,20 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
                   ? Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PMConversationScreen(
-                          alias: alias,
-                          matchName: pMatch['otherUser'],
-                          username: user.displayName,
-                          room: pMatch['room'],
+                        builder: (childContext) => BlocProvider.value(
+                          value: BlocProvider.of<ConversationBloc>(context),
+                          child: PMatchesConversationScreen(
+                            alias: alias,
+                            matchName: pMatch['otherUser'],
+                            username: user.displayName,
+                            room: pMatch['room'],
+                            db: this.db,
+                            appVariables: this.appVariables,
+                          ),
                         ),
                       ),
                     ).then((value) {
-                      //TODO_loadPMatchesData();
+                      appVariables.convoRowCount = AppVariables.DEFAULT_ROW_COUNT;
                     })
                   : Navigator.push(
                       context,

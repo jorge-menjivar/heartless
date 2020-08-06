@@ -77,7 +77,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Map<String, StreamSubscription<QuerySnapshot>> _matchListener = {};
   Map<String, StreamSubscription<QuerySnapshot>> _pMatchListener = {};
-  Map<String, bool> _convoOpen = {};
 
   var appVariables = AppVariables();
 
@@ -134,7 +133,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
           if (change.type == DocumentChangeType.added) {
             _pMatchListener[matchRoom] = await initListener(matchRoom);
-            _convoOpen[matchRoom] = false;
+            appVariables.convoOpen[matchRoom] = false;
           } else if (change.type == DocumentChangeType.removed) {
             _pMatchListener[matchRoom].cancel();
           }
@@ -168,7 +167,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
           if (change.type == DocumentChangeType.added) {
             _matchListener[matchRoom] = await initListener(matchRoom);
-            _convoOpen[matchRoom] = false;
+            appVariables.convoOpen[matchRoom] = false;
           } else if (change.type == DocumentChangeType.removed) {
             _matchListener[matchRoom].cancel();
           }
@@ -280,7 +279,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       }
 
       // If this conversation is currently being displayed in UI
-      if (_convoOpen[room] == true)
+      if (appVariables.convoOpen[room] == true)
         // Adding the conversation event
         BlocProvider.of<ConversationBloc>(context)
           ..add(GetConversation(
@@ -408,27 +407,32 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           body: TabBarView(
             children: [
               ///------------------------------------ POTENTIAL MATCHES ------------------------------------------------
-              BlocProvider.value(
-                value: BlocProvider.of<PMatchesBloc>(context),
+              MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(value: BlocProvider.of<ConversationBloc>(context)),
+                  BlocProvider.value(value: BlocProvider.of<PMatchesBloc>(context)),
+                ],
                 child: PotentialMatchesScreen(
+                  db: _db,
                   scaffoldKey: _scaffoldKey,
                   user: this.user,
                   alias: _alias,
+                  appVariables: this.appVariables,
                 ),
               ),
 
               ///------------------------------------------- MATCHES ---------------------------------------------------
-              BlocProvider.value(
-                value: BlocProvider.of<MatchesBloc>(context),
-                child: BlocProvider.value(
-                  value: BlocProvider.of<ConversationBloc>(context),
-                  child: MatchesScreen(
-                    scaffoldKey: _scaffoldKey,
-                    user: this.user,
-                    alias: _alias,
-                    db: _db,
-                    appVariables: appVariables,
-                  ),
+              MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(value: BlocProvider.of<ConversationBloc>(context)),
+                  BlocProvider.value(value: BlocProvider.of<MatchesBloc>(context)),
+                ],
+                child: MatchesScreen(
+                  db: _db,
+                  scaffoldKey: _scaffoldKey,
+                  user: this.user,
+                  alias: _alias,
+                  appVariables: this.appVariables,
                 ),
               ),
 

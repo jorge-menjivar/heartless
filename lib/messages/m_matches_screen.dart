@@ -110,7 +110,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
     // Whether or not we have already loaded all the messages in this conversation
     // If this is the case, this will prevent the loading indicator from showing
     if (!_loadedAllRows) {
-      appVariables.convoRowCount += 30;
+      appVariables.convoRowCount += AppVariables.DEFAULT_ROW_COUNT;
       // Adding the conversation event
       // ignore: close_sinks
       BlocProvider.of<ConversationBloc>(context)
@@ -132,14 +132,14 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
       ),
       body: BlocListener<ConversationBloc, ConversationState>(
         listener: (context, state) {
-          if (state is ConversationLoading) {}
           if (state is ConversationLoaded) {
             _isLoading = false;
             // If the new list has the same number of rows as the previous one, then we
             // can say we have loaded all the messages in the conversation
             if (_messagesList != null) {
-              if (_messagesList.length == state.messages.list.length) {
+              if (_firstTime && _messagesList.length == state.messages.list.length) {
                 _loadedAllRows = true;
+                _firstTime = false;
               }
             }
             _messagesList = state.messages.list;
@@ -152,17 +152,15 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
             if (state is ConversationLoaded) {
               // If there messages loaded are not a multiple of 30 we can tell we loaded
               // all messages because we did not reach the limit rows of the query
-              if (state.messages.list.length < 30) {
+              if (state.messages.list.length < AppVariables.DEFAULT_ROW_COUNT) {
                 _loadedAllRows = true;
               }
 
               _isLoading = false;
+              _messagesList = state.messages.list;
               if (_firstTime) {
-                _messagesList = state.messages.list;
                 _showTime = List<bool>.filled(_messagesList.length, false, growable: true);
                 _showTime[0] = true;
-
-                _firstTime = false;
               }
               return builder(context, _messagesList);
             }
@@ -217,10 +215,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
               color: Colors.black,
             ),
             Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-              ),
-              child: matchesTextComposer(_scrollController, _textController, alias, room),
+              child: matchesTextComposer(context, _scrollController, _textController, alias, room),
             ),
           ],
         );
@@ -237,16 +232,37 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
       itemBuilder: (context, i) {
         var row = messagesList[i];
         if (row['birth'] == alias) {
-          return _buildSentRow(messagesList, row['message'], row['sTime'], i, row);
+          return _buildSentRow(
+            image: (row['image'] == 1) ? true : false,
+            messagesList: messagesList,
+            message: row['message'],
+            sTime: row['sTime'],
+            i: i,
+            row: row,
+          );
         } else {
-          return _buildReceivedRow(messagesList, row['message'], row['sTime'], i, row);
+          return _buildReceivedRow(
+            image: (row['image'] == 1) ? true : false,
+            messagesList: messagesList,
+            message: row['message'],
+            sTime: row['sTime'],
+            i: i,
+            row: row,
+          );
         }
       },
     );
   }
 
 // ------------------------------------ SENT MESSAGES ---------------------------------------------------------
-  Widget _buildSentRow(var messagesList, String message, String sTime, int i, var row) {
+  Widget _buildSentRow({
+    @required bool image,
+    @required var messagesList,
+    @required String message,
+    @required String sTime,
+    @required int i,
+    @required var row,
+  }) {
     // Text style
     var textStyle = new TextStyle(
       fontSize: 17.0,
@@ -278,18 +294,20 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
               splashColor: Colors.transparent,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               padding: EdgeInsets.fromLTRB(80, 0, 0, 0),
-              child: Container(
-                padding: const EdgeInsets.all(10.0),
-                decoration: BoxDecoration(
-                  color: _colorSent,
-                  borderRadius: radius,
-                ),
-                child: Text(
-                  message,
-                  textAlign: TextAlign.left,
-                  style: textStyle,
-                ),
-              ),
+              child: image
+                  ? gifImage(radius, message)
+                  : Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        color: _colorSent,
+                        borderRadius: radius,
+                      ),
+                      child: Text(
+                        message,
+                        textAlign: TextAlign.left,
+                        style: textStyle,
+                      ),
+                    ),
               onPressed: () {
                 setState(() {
                   //toggle boolean
@@ -332,7 +350,14 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
   }
 
   // ---------------------------------- RECEIVED MESSAGES -------------------------------------------------
-  Widget _buildReceivedRow(var messagesList, String message, String sTime, int i, var row) {
+  Widget _buildReceivedRow({
+    @required var messagesList,
+    @required bool image,
+    @required String message,
+    @required String sTime,
+    @required int i,
+    @required var row,
+  }) {
     // Text style
     var textStyle = new TextStyle(
       fontSize: 17.0,
@@ -385,18 +410,20 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
               splashColor: Colors.transparent,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               padding: EdgeInsets.fromLTRB(4, 0, 50, 0),
-              child: Container(
-                padding: const EdgeInsets.all(10.0),
-                decoration: BoxDecoration(
-                  color: _colorReceived,
-                  borderRadius: radius,
-                ),
-                child: Text(
-                  message,
-                  textAlign: TextAlign.left,
-                  style: textStyle,
-                ),
-              ),
+              child: image
+                  ? gifImage(radius, message)
+                  : Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        color: _colorReceived,
+                        borderRadius: radius,
+                      ),
+                      child: Text(
+                        message,
+                        textAlign: TextAlign.left,
+                        style: textStyle,
+                      ),
+                    ),
               onPressed: () {
                 setState(() {
                   //toggle boolean
@@ -439,5 +466,12 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
     } else {
       return messageContainer;
     }
+  }
+
+  Widget gifImage(BorderRadius radius, String url) {
+    return ClipRRect(
+      borderRadius: radius,
+      child: Image.network(url, headers: {'accept': 'image/*'}),
+    );
   }
 }

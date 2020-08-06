@@ -1,48 +1,65 @@
-import 'dart:async';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
-
-// Notifications
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
 // Storage
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:lise/app_variables.dart';
+import 'package:lise/bloc/conversation_bloc.dart';
+import 'package:lise/utils/convert_match_time.dart';
+import 'package:lise/widgets/message_long_press_dialog.dart';
+import 'package:lise/widgets/p_matches_text_composer.dart';
+import 'package:sqflite/sqflite.dart';
 
-class PMConversationScreen extends StatefulWidget {
+class PMatchesConversationScreen extends StatefulWidget {
   final String alias;
   final String matchName;
   final String username;
   final String room;
+  final Database db;
+  final AppVariables appVariables;
 
-  PMConversationScreen({this.alias, this.matchName, this.username, this.room});
+  PMatchesConversationScreen({
+    @required this.alias,
+    @required this.matchName,
+    @required this.username,
+    @required this.room,
+    @required this.db,
+    @required this.appVariables,
+  });
 
   @override
-  PMConversationScreenState createState() => PMConversationScreenState(
-        alias: alias,
-        matchName: matchName,
-        username: username,
-        room: room,
+  PMatchesConversationScreenState createState() => PMatchesConversationScreenState(
+        alias: this.alias,
+        matchName: this.matchName,
+        username: this.username,
+        room: this.room,
+        db: this.db,
+        appVariables: this.appVariables,
       );
 }
 
-class PMConversationScreenState extends State<PMConversationScreen> with WidgetsBindingObserver {
+class PMatchesConversationScreenState extends State<PMatchesConversationScreen> with WidgetsBindingObserver {
   final String alias;
   final String matchName;
   final String username;
-  String room;
+  final String room;
+  final Database db;
+  final AppVariables appVariables;
 
-  PMConversationScreenState({this.alias, this.matchName, this.username, this.room});
-
-  ScrollController _scrollController;
-  final TextEditingController _textController = TextEditingController();
-
-  final String tableName = 'Messages';
+  PMatchesConversationScreenState({
+    @required this.alias,
+    @required this.matchName,
+    @required this.username,
+    @required this.room,
+    @required this.db,
+    @required this.appVariables,
+  });
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-  var showTime;
+
+  final _scrollController = ScrollController();
+  final TextEditingController _textController = TextEditingController();
 
   // Text styles
   var sentStyle = TextStyle(
@@ -54,17 +71,30 @@ class PMConversationScreenState extends State<PMConversationScreen> with Widgets
     color: Colors.black,
   );
 
+  var _showTime;
+
+  // bubble Colors
+  var _colorSent;
+  var _colorReceived;
+
+  var _firstTime = true;
+
+  var _isLoading = false;
+
+  var _messagesList;
+
+  var _loadedAllRows = false;
+
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
-    WidgetsBinding.instance.addObserver(this);
-  }
 
-  @override
-  void dispose() {
-    super.dispose();
-    WidgetsBinding.instance.removeObserver(this);
+    BlocProvider.of<ConversationBloc>(context)
+      ..add(GetConversation(
+        db: db,
+        room: room,
+        limit: appVariables.convoRowCount,
+      ));
   }
 
   @override
@@ -81,207 +111,363 @@ class PMConversationScreenState extends State<PMConversationScreen> with Widgets
     }
   }
 
+  Future<void> _queryNext() async {
+    // Whether or not we have already loaded all the messages in this conversation
+    // If this is the case, this will prevent the loading indicator from showing
+    if (!_loadedAllRows) {
+      appVariables.convoRowCount += AppVariables.DEFAULT_ROW_COUNT;
+      // Adding the conversation event
+      // ignore: close_sinks
+      BlocProvider.of<ConversationBloc>(context)
+        ..add(GetConversation(
+          db: db,
+          room: room,
+          limit: appVariables.convoRowCount,
+        ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text('Conversation with ' + matchName),
-          elevation: 4.0,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text('Conversation with ' + matchName),
+        elevation: 4.0,
+      ),
+      body: BlocListener<ConversationBloc, ConversationState>(
+        listener: (context, state) {
+          if (state is ConversationLoaded) {
+            _isLoading = false;
+            // If the new list has the same number of rows as the previous one, then we
+            // can say we have loaded all the messages in the conversation
+            if (_messagesList != null) {
+              if (_firstTime && _messagesList.length == state.messages.list.length) {
+                _loadedAllRows = true;
+                _firstTime = false;
+              }
+            }
+            _messagesList = state.messages.list;
+            _showTime = List<bool>.filled(_messagesList.length, false, growable: true);
+            _showTime[0] = true;
+          }
+        },
+        child: BlocBuilder<ConversationBloc, ConversationState>(
+          builder: (context, state) {
+            if (state is ConversationLoaded) {
+              // If there messages loaded are not a multiple of 30 we can tell we loaded
+              // all messages because we did not reach the limit rows of the query
+              if (state.messages.list.length < AppVariables.DEFAULT_ROW_COUNT) {
+                _loadedAllRows = true;
+              }
+
+              _isLoading = false;
+              _messagesList = state.messages.list;
+              if (_firstTime) {
+                _showTime = List<bool>.filled(_messagesList.length, false, growable: true);
+                _showTime[0] = true;
+              }
+              return builder(context, _messagesList);
+            }
+
+            if (state is ConversationLoading) {
+              if (_messagesList != null) {
+                _isLoading = true;
+                return builder(context, _messagesList);
+              }
+            }
+            return loading(context);
+          },
         ),
-        body: Builder(builder: (BuildContext context) {
-          return Column(
-            children: <Widget>[
-              Flexible(
-                child: StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance.collection('messages').document('rooms').collection(room).snapshots(),
-                    builder: _buildMessageTiles),
-              ),
-              Divider(height: 1.0, color: Colors.black),
-              Container(
-                decoration: BoxDecoration(color: Theme.of(context).cardColor),
-                child: _buildTextComposer(),
-              ),
-            ],
-          );
-        }));
+      ),
+    );
   }
 
-  Widget _buildMessageTiles(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-    if (snapshot.hasData) {
-      // chat bubble
-      final radius = BorderRadius.only(
-        topLeft: Radius.circular(20.0),
-        topRight: Radius.circular(20.0),
-        bottomLeft: Radius.circular(20.0),
-        bottomRight: Radius.circular(20.0),
-      );
+  Widget loading(BuildContext context) {
+    return Center(
+      child: CircularProgressIndicator(),
+    );
+  }
 
-      // bubble Colors
-      var colorSent = Colors.purple[900];
-      var colorReceived = Colors.blueGrey[50];
+  Widget builder(BuildContext context, var messagesList) {
+    _colorSent = Colors.blueGrey[800];
+    _colorReceived = Colors.blueGrey[100];
 
-      var listTiles = snapshot.data.documents.reversed
-          .where((element) => element['message'] != null)
-          .map((DocumentSnapshot document) {
-        if (document['from'] != alias) {
-          return ListTile(
-            contentPadding: EdgeInsets.only(right: 80.0),
-            leading: CircleAvatar(child: Text(matchName.toUpperCase()[0])),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    boxShadow: [BoxShadow(blurRadius: 10, spreadRadius: .1, color: Colors.black.withOpacity(.7))],
-                    color: colorReceived,
-                    borderRadius: radius,
-                  ),
-                  child: Text(
-                    document['message'],
-                    textAlign: TextAlign.left,
-                    style: receivedStyle,
-                  ),
-                ),
-              ],
+    return Builder(
+      builder: (BuildContext context) {
+        return Column(
+          children: <Widget>[
+            Container(
+              height: _isLoading ? 100 : 0,
+              child: loading(context),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+              ),
             ),
-            //subtitle: _receivedTimeRow(int.parse(document.documentID)),
+            Flexible(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (ScrollNotification scrollInfo) {
+                  if (!_isLoading && scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                    // Load the next set of messages
+                    _queryNext();
+                  }
+                },
+                child: buildMessages(messagesList),
+              ),
+            ),
+            Divider(
+              height: 1.0,
+              color: Colors.black,
+            ),
+            Container(
+              child: pMatchesTextComposer(context, _scrollController, _textController, alias, room),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildMessages(var messagesList) {
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      reverse: true,
+      itemCount: (messagesList.isNotEmpty) ? messagesList.length : 0,
+      itemBuilder: (context, i) {
+        var row = messagesList[i];
+        if (row['birth'] == alias) {
+          return _buildSentRow(
+            image: (row['image'] == 1) ? true : false,
+            messagesList: messagesList,
+            message: row['message'],
+            sTime: row['sTime'],
+            i: i,
+            row: row,
           );
         } else {
-          return ListTile(
-            contentPadding: EdgeInsets.only(left: 80.0),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.all(12.0),
-                  decoration: BoxDecoration(
-                    boxShadow: [BoxShadow(blurRadius: 10, spreadRadius: .1, color: Colors.black.withOpacity(.7))],
-                    color: colorSent,
-                    borderRadius: radius,
-                  ),
-                  child: Text(
-                    document['message'],
-                    textAlign: TextAlign.left,
-                    style: sentStyle,
-                  ),
-                ),
-              ],
-            ),
-            //subtitle: _sentTimeRow(int.parse(document.documentID)),
+          return _buildReceivedRow(
+            image: (row['image'] == 1) ? true : false,
+            messagesList: messagesList,
+            message: row['message'],
+            sTime: row['sTime'],
+            i: i,
+            row: row,
           );
         }
-      }).toList();
-
-      List<Object> completeList = listTiles;
-
-      if (snapshot.hasError) {
-        return Text('Error: ${snapshot.error}');
-      }
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Text('Loading...');
-      } else {
-        return ListView(
-            physics: BouncingScrollPhysics(),
-            reverse: true,
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-            controller: _scrollController,
-            children: completeList);
-      }
-    }
-    return CircularProgressIndicator();
+      },
+    );
   }
 
-  //TODO fix bug where screen doesn't scroll up and gets blocked by keyboard
-  Widget _buildTextComposer() {
-    return Container(
-        margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Row(children: <Widget>[
+// ------------------------------------ SENT MESSAGES ---------------------------------------------------------
+  Widget _buildSentRow({
+    @required bool image,
+    @required var messagesList,
+    @required String message,
+    @required String sTime,
+    @required int i,
+    @required var row,
+  }) {
+    // Text style
+    var textStyle = new TextStyle(
+      fontSize: 17.0,
+      color: Colors.white,
+    );
+
+    // chat bubble
+    final radius = BorderRadius.only(
+      topLeft: Radius.circular(20.0),
+      topRight: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] == alias)
+          ? Radius.circular(5.0)
+          : Radius.circular(20.0),
+      bottomLeft: Radius.circular(20.0),
+      bottomRight: Radius.circular(5.0),
+    );
+
+    var messageContainer = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 1),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
           Flexible(
-            child: TextField(
-              onTap: () {
-                Timer(Duration(milliseconds: 300),
-                    () => _scrollController.jumpTo(_scrollController.position.minScrollExtent));
+            fit: FlexFit.loose,
+            child: RawMaterialButton(
+              focusColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: EdgeInsets.fromLTRB(80, 0, 0, 0),
+              child: image
+                  ? gifImage(radius, message)
+                  : Container(
+                      padding: EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        color: _colorSent,
+                        borderRadius: radius,
+                      ),
+                      child: Text(
+                        message,
+                        textAlign: TextAlign.left,
+                        style: textStyle,
+                      ),
+                    ),
+              onPressed: () {
+                setState(() {
+                  //toggle boolean
+                  _showTime[i] = !_showTime[i];
+                });
               },
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-              controller: _textController,
-              onSubmitted: _sendMessage,
-              decoration: InputDecoration.collapsed(hintText: 'Write a message'),
+              onLongPress: () {
+                MessageLongPressDialog(context, row);
+              },
             ),
           ),
+        ],
+      ),
+    );
+
+    // If we should show the time with the message
+    if (_showTime[i]) {
+      // Setting the time
+      var time = convertMatchTime(context, int.tryParse(sTime));
+      var timeRow = Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 0.0),
-            child: IconButton(
-                icon: FaIcon(
-                  FontAwesomeIcons.paperPlane,
-                  color: Colors.pink,
-                ),
-                onPressed: () {
-                  if (_textController.text.contains(RegExp(r'\S'))) {
-                    _sendMessage(_textController.text);
-                  }
-                }),
+            margin: const EdgeInsets.only(right: 3.0),
+            child: Text(
+              time.toString(),
+              textAlign: TextAlign.right,
+              style: TextStyle(fontSize: 12.0),
+            ),
           ),
-        ]));
+        ],
+      );
+
+      return Column(
+        children: [messageContainer, timeRow],
+      );
+    } else {
+      return messageContainer;
+    }
   }
 
-  String _getTime(int time) {
-    var dt = DateTime.fromMillisecondsSinceEpoch(time);
-    return '${dt.hour}:${dt.minute}';
-  }
-
-  Widget _sentTimeRow(int secs) {
-    var dt = DateTime.fromMillisecondsSinceEpoch(secs);
-    var time = '${dt.hour}:${dt.minute}';
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        Container(
-          margin: const EdgeInsets.only(right: 3.0),
-          child: Text(
-            time.toString(),
-            textAlign: TextAlign.right,
-            style: TextStyle(fontSize: 12.0),
-          ),
-        ),
-      ],
+  // ---------------------------------- RECEIVED MESSAGES -------------------------------------------------
+  Widget _buildReceivedRow({
+    @required var messagesList,
+    @required bool image,
+    @required String message,
+    @required String sTime,
+    @required int i,
+    @required var row,
+  }) {
+    // Text style
+    var textStyle = new TextStyle(
+      fontSize: 17.0,
+      color: Colors.black,
     );
-  }
 
-  Widget _receivedTimeRow(int secs) {
-    var dt = DateTime.fromMillisecondsSinceEpoch(secs);
-    var time = '${dt.hour}:${dt.minute}';
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-        Container(
-          child: Text(
-            time.toString(),
-            textAlign: TextAlign.left,
-            style: TextStyle(fontSize: 12.0),
-          ),
-        ),
-      ],
+    // chat bubble
+    final radius = BorderRadius.only(
+      topLeft: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] != alias)
+          ? Radius.circular(5.0)
+          : Radius.circular(20.0),
+      topRight: Radius.circular(20.0),
+      bottomLeft: Radius.circular(5.0),
+      bottomRight: Radius.circular(20.0),
     );
+
+    var messageContainer = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 1),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          Container(
+            decoration: BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
+            child: SizedBox(
+              height: 40,
+              width: 40,
+              child: (i > 1 && messagesList[i - 1]['birth'] != alias)
+                  ? null
+                  : CircleAvatar(
+                      child: Text(matchName.toUpperCase()[0]),
+                    ),
+            ),
+          ),
+          Flexible(
+            fit: FlexFit.loose,
+            child: RawMaterialButton(
+              focusColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: EdgeInsets.fromLTRB(4, 0, 50, 0),
+              child: image
+                  ? gifImage(radius, message)
+                  : Container(
+                      padding: const EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        color: _colorReceived,
+                        borderRadius: radius,
+                      ),
+                      child: Text(
+                        message,
+                        textAlign: TextAlign.left,
+                        style: textStyle,
+                      ),
+                    ),
+              onPressed: () {
+                setState(() {
+                  //toggle boolean
+                  _showTime[i] = !_showTime[i];
+                });
+              },
+              onLongPress: () {
+                MessageLongPressDialog(context, row);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // If we should show the time with the message
+    if (_showTime[i]) {
+      // Setting the time
+      var time = convertMatchTime(context, int.tryParse(sTime));
+      var timeRow = Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+            width: 55,
+          ),
+          Container(
+            margin: const EdgeInsets.only(right: 3.0),
+            child: Text(
+              time.toString(),
+              textAlign: TextAlign.left,
+              style: TextStyle(fontSize: 12.0),
+            ),
+          ),
+        ],
+      );
+
+      return Column(
+        children: [messageContainer, timeRow],
+      );
+    } else {
+      return messageContainer;
+    }
   }
 
-  // Creating message and sending its values to cloud firestore.
-  void _sendMessage(String text) async {
-    _textController.clear();
-    var sTime = DateTime.now().millisecondsSinceEpoch;
-    await Firestore.instance
-        .collection('messages')
-        .document('rooms')
-        .collection(room)
-        .document(sTime.toString())
-        .setData(<String, dynamic>{'from': alias, 'image': false, 'message': text, 'time': sTime}, merge: false).then(
-            (r) {
-      Timer(Duration(milliseconds: 100), () => _scrollController.jumpTo(_scrollController.position.minScrollExtent));
-      print('Document successfully written!');
-    }).catchError((error) {
-      print('Error writing document: ' + error.toString());
-    });
+  Widget gifImage(BorderRadius radius, String url) {
+    return ClipRRect(
+      borderRadius: radius,
+      child: Image.network(url, headers: {'accept': 'image/*'}),
+    );
   }
 }

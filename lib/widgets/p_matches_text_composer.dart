@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:giphy_picker/giphy_picker.dart';
 
-Widget matchesTextComposer(
+Widget pMatchesTextComposer(
   BuildContext context,
   ScrollController scrollController,
   TextEditingController textController,

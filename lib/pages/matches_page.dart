@@ -157,6 +157,7 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
             textAlign: TextAlign.left,
           ),
           onTap: () {
+            appVariables.convoOpen[match['room']] = true;
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -170,12 +171,12 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
                     username: user.displayName,
                     room: match['room'],
                     db: this.db,
-                    appVariables: appVariables,
+                    appVariables: this.appVariables,
                   ),
                 ),
               ),
             ).then((value) {
-              appVariables.convoRowCount = 30;
+              appVariables.convoRowCount = AppVariables.DEFAULT_ROW_COUNT;
             });
           },
           onLongPress: () {

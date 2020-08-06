@@ -16,12 +16,11 @@ Future<bool> showDeleteDialog(BuildContext context, String name, String status) 
   }
 
   // Await for the dialog to be dismissed before returning
-  (Platform.isAndroid)
-      ? await showDialog<bool>(
+  (Platform.isIOS)
+      ? await showCupertinoDialog<bool>(
           context: context,
-          barrierDismissible: true, // user can type outside box to dismiss
           builder: (BuildContext context) {
-            return AlertDialog(
+            return CupertinoAlertDialog(
               title: Text('Are you sure?'),
               content: SingleChildScrollView(
                 child: ListBody(
@@ -48,10 +47,11 @@ Future<bool> showDeleteDialog(BuildContext context, String name, String status) 
             );
           },
         )
-      : await showCupertinoDialog<bool>(
+      : await showDialog<bool>(
           context: context,
+          barrierDismissible: true, // user can type outside box to dismiss
           builder: (BuildContext context) {
-            return CupertinoAlertDialog(
+            return AlertDialog(
               title: Text('Are you sure?'),
               content: SingleChildScrollView(
                 child: ListBody(
