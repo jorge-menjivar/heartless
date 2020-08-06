@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -78,11 +79,16 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Map<String, StreamSubscription<QuerySnapshot>> _matchListener = {};
   Map<String, StreamSubscription<QuerySnapshot>> _pMatchListener = {};
 
+  int _currentIndex = 0;
+  PageController _pageController;
+
   var appVariables = AppVariables();
 
   @override
   void initState() {
     super.initState();
+
+    _pageController = PageController();
 
     // Creating the profile bloc and initializing it
     // ignore: close_sinks
@@ -334,78 +340,26 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ),
       );
     }
-    return Scaffold(
-      key: _scaffoldKey,
-      body: DefaultTabController(
-        length: 3,
-        child: NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverOverlapAbsorber(
-                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-                sliver: SliverSafeArea(
-                  bottom: false,
-                  top: false,
-                  sliver: SliverAppBar(
-                    primary: true,
-                    centerTitle: true,
-                    title: ListTile(
-                      title: Text(
-                        'LISA',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.0,
-                        ),
-                      ),
-                      subtitle: Text(
-                        AppLocalizations.of(context).translate('app_moto'),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.0,
-                        ),
-                      ),
-                    ),
-                    expandedHeight: 100.0,
-                    floating: true,
-                    pinned: true,
-                    snap: false,
-                    flexibleSpace: FlexibleSpaceBar(
-                      collapseMode: CollapseMode.pin,
-                      background: Container(
-                        decoration: BoxDecoration(color: white),
-                      ),
-                    ),
-                    bottom: TabBar(
-                      indicatorColor: Colors.white,
-                      labelColor: Colors.blue,
-                      unselectedLabelColor: Colors.grey,
-                      tabs: [
-                        Tab(
-                          icon: FaIcon(
-                            FontAwesomeIcons.search,
-                          ),
-                        ),
-                        Tab(
-                          icon: FaIcon(
-                            FontAwesomeIcons.solidCommentDots,
-                          ),
-                        ),
-                        Tab(
-                          icon: FaIcon(
-                            FontAwesomeIcons.userAlt,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            ];
-          },
-          body: TabBarView(
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              FaIcon(
+                FontAwesomeIcons.heartBroken,
+                color: Colors.pink,
+              ),
+              Text(' Heartless')
+            ],
+          ),
+        ),
+        body: SafeArea(
+          child: TabBarView(
+            children: <Widget>[
               ///------------------------------------ POTENTIAL MATCHES ------------------------------------------------
               MultiBlocProvider(
                 providers: [
@@ -441,6 +395,30 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 value: BlocProvider.of<ProfileBloc>(context),
                 child: ProfileScreen(
                   user: this.user,
+                ),
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: SafeArea(
+          child: TabBar(
+            indicatorColor: Colors.transparent,
+            labelColor: Colors.blueGrey[800],
+            unselectedLabelColor: Colors.blueGrey[100],
+            tabs: [
+              Tab(
+                icon: FaIcon(
+                  FontAwesomeIcons.search,
+                ),
+              ),
+              Tab(
+                icon: FaIcon(
+                  FontAwesomeIcons.solidCommentDots,
+                ),
+              ),
+              Tab(
+                icon: FaIcon(
+                  FontAwesomeIcons.userAlt,
                 ),
               )
             ],

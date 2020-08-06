@@ -49,6 +49,7 @@ dependencies:
   flutter_advanced_networkimage: ^0.7.0
   toast: ^0.1.5
   fancy_dialog: ^1.0.3
+  bottom_navy_bar: 5.5.0
 
   # Tools
   tuple: ^1.0.3
