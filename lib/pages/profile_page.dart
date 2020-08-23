@@ -8,6 +8,7 @@ import 'package:lise/pages/profile/personal_information_screen.dart';
 import 'package:lise/pages/profile/profile_pictures_screen.dart';
 import 'package:lise/pages/profile/search_information_screen.dart';
 import 'package:lise/pages/profile/wol_screen.dart';
+import 'package:lise/widgets/loading_progress_indicator.dart';
 
 import '../localizations.dart';
 import '../main.dart';
@@ -28,26 +29,35 @@ MaterialColor black = MaterialColor(0xFF000000, color);
 MaterialColor white = MaterialColor(0xFFFFFFFF, color);
 
 class ProfileScreen extends StatefulWidget {
-  ProfileScreen({Key key, @required this.user}) : super(key: key);
   final FirebaseUser user;
+  final String alias;
+
+  ProfileScreen({
+    Key key,
+    @required this.user,
+    @required this.alias,
+  }) : super(key: key);
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState(user: this.user);
+  _ProfileScreenState createState() => _ProfileScreenState(user: this.user, alias: this.alias);
 }
 
 class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveClientMixin {
-  _ProfileScreenState({@required this.user});
+  final FirebaseUser user;
+  final String alias;
 
-  final user;
+  _ProfileScreenState({
+    @required this.user,
+    @required this.alias,
+  });
 
   var dataLoaded = false;
   var picturesLoaded = false;
 
-  final _biggerFont = const TextStyle(fontSize: 18.0, color: Colors.black);
-  final _subFont = const TextStyle(color: Colors.black);
-  final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
-
-  Color _pictureCardColor = Colors.white;
+  final _listTitleStyle = const TextStyle(fontWeight: FontWeight.bold);
+  final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _subFont = const TextStyle(fontSize: 14.0);
+  final _trailFont = const TextStyle(fontSize: 14.0);
 
   final double _profilePicSize = 280;
 
@@ -67,94 +77,76 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
             style: _listTitleStyle,
           ),
         ),
-        SizedBox(
-          height: _profilePicSize + 40,
-          child: ShaderMask(
-            shaderCallback: (rect) {
-              return LinearGradient(
-                begin: Alignment(0, 0.9),
-                end: Alignment.bottomCenter,
-                colors: [Colors.white, Colors.transparent],
-              ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-            },
-            blendMode: BlendMode.dstIn,
-            child: ShaderMask(
-              shaderCallback: (rect) {
-                return LinearGradient(
-                  begin: Alignment(0, -0.9),
-                  end: Alignment.topCenter,
-                  colors: [Colors.white, Colors.transparent],
-                ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-              },
-              blendMode: BlendMode.dstIn,
-              child: ListView(
-                shrinkWrap: true,
-                padding: EdgeInsets.all(12),
-                primary: false,
-                physics: BouncingScrollPhysics(),
-                children: <Widget>[
+        BlocBuilder<ProfileBloc, ProfileState>(
+          builder: (context, state) {
+            if (state is ProfileLoading) {
+              return emptyPlaceHolder();
+            } else if (state is ProfileLoaded) {
+              final profilePicture = NetworkImage(state.profile.profilePictureURL);
+              final name = state.profile.name;
+              final email = state.profile.email;
+
+              return Column(
+                children: [
                   Center(
-                    child: Card(
-                      color: _pictureCardColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(1000))),
-                      child: SizedBox(
-                        width: _profilePicSize,
-                        height: _profilePicSize,
-                        child: RawMaterialButton(
-                          highlightColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                          hoverColor: Colors.transparent,
-                          padding: EdgeInsets.all(12),
-                          child: BlocListener<ProfileBloc, ProfileState>(
-                            listener: (context, state) {
-                              if (state is ProfileError) {
-                                Scaffold.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(state.message),
-                                  ),
-                                );
-                              }
-                            },
-                            child: BlocBuilder<ProfileBloc, ProfileState>(
-                              builder: (context, state) {
-                                if (state is ProfileLoading) {
-                                  return CircularProgressIndicator();
-                                } else if (state is ProfileLoaded) {
-                                  final profilePicture = NetworkImage(state.profile.profilePictureURL);
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        image: profilePicture,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  );
-                                }
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              },
+                    child: SizedBox(
+                      width: _profilePicSize,
+                      height: _profilePicSize,
+                      child: RawMaterialButton(
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: profilePicture,
+                              fit: BoxFit.cover,
                             ),
                           ),
-                          onPressed: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProfilePicturesScreen(
-                                  user: user,
-                                ),
-                              ),
-                            ); //TODO  .then((value) => _loadProfilePictures());
-                          },
                         ),
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfilePicturesScreen(
+                                alias: alias,
+                              ),
+                            ),
+                          ).then(
+                            (value) => BlocProvider.of<ProfileBloc>(context)
+                              ..add(
+                                GetProfile(user: user, alias: alias),
+                              ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  Divider(color: Colors.transparent),
+                  Container(
+                    child: Text(
+                      name,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    child: Text(
+                      email,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
                       ),
                     ),
                   ),
                 ],
-              ),
-            ),
-          ),
+              );
+            }
+            return emptyPlaceHolder();
+          },
         ),
         Divider(),
         Divider(color: Colors.transparent),
@@ -164,7 +156,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
             dense: true,
             leading: FaIcon(
               FontAwesomeIcons.userAlt,
-              color: black,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
             ),
             title: Text(
               AppLocalizations.of(context).translate('Personal_Information_title'),
@@ -196,7 +189,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
             dense: true,
             leading: FaIcon(
               FontAwesomeIcons.search,
-              color: black,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
             ),
             title: Text(
               AppLocalizations.of(context).translate('I_am_looking_for_title'),
@@ -228,7 +222,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
             dense: true,
             leading: FaIcon(
               FontAwesomeIcons.snowboarding,
-              color: black,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
             ),
             title: Text(
               AppLocalizations.of(context).translate('My_way_of_living_title'),
@@ -260,7 +255,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
             dense: true,
             leading: FaIcon(
               FontAwesomeIcons.wrench,
-              color: black,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
             ),
             title: Text(
               AppLocalizations.of(context).translate('Settings_title'),
@@ -287,7 +283,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
             dense: true,
             leading: FaIcon(
               FontAwesomeIcons.dev,
-              color: black,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
             ),
             title: Text(
               'Developer Settings',
@@ -315,7 +312,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
             dense: true,
             leading: FaIcon(
               FontAwesomeIcons.signOutAlt,
-              color: black,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
             ),
             title: Text(
               AppLocalizations.of(context).translate('Log_Out'),
@@ -334,6 +332,39 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
           ),
         ),
         Divider(color: Colors.transparent),
+      ],
+    );
+  }
+
+  Widget emptyPlaceHolder() {
+    return Column(
+      children: [
+        Center(
+          child: SizedBox(
+            width: _profilePicSize,
+            height: _profilePicSize,
+            child: loading_progress_indicator(),
+          ),
+        ),
+        Divider(color: Colors.transparent),
+        Container(
+          child: Text(
+            ' ',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 24,
+            ),
+          ),
+        ),
+        Container(
+          child: Text(
+            ' ',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+            ),
+          ),
+        ),
       ],
     );
   }

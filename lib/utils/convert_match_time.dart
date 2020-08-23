@@ -25,7 +25,7 @@ String convertMatchTime(BuildContext context, int time) {
     return (days > 1)
         ? '${days} ${AppLocalizations.of(context).translate('days_ago')}'
         : '${days} ${AppLocalizations.of(context).translate('day_ago')}';
-  } else if (days > 7) {
+  } else if (days >= 7) {
     return '${dateTime.month}/${dateTime.day}/${dateTime.year}';
   }
 

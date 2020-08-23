@@ -9,24 +9,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-Map<int, Color> color = {
-  50: Color.fromRGBO(0, 0, 0, .1),
-  100: Color.fromRGBO(0, 0, 0, .2),
-  200: Color.fromRGBO(0, 0, 0, .3),
-  300: Color.fromRGBO(0, 0, 0, .4),
-  400: Color.fromRGBO(0, 0, 0, .5),
-  500: Color.fromRGBO(0, 0, 0, .6),
-  600: Color.fromRGBO(0, 0, 0, .7),
-  700: Color.fromRGBO(0, 0, 0, .8),
-  800: Color.fromRGBO(0, 0, 0, .9),
-  900: Color.fromRGBO(0, 0, 0, 1),
-};
-MaterialColor black = MaterialColor(0xFF000000, color);
-MaterialColor white = MaterialColor(0xFFFFFFFF, color);
-
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
-  color: Colors.black,
 );
 
 class GenderSearchScreen extends StatefulWidget {
@@ -70,11 +54,13 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
       if (!doc.exists) {
         print('No data document!');
       } else {
-        _women = doc.data['searchGender']['female'];
-        _men = doc.data['searchGender']['male'];
-        _transWomen = doc.data['searchGender']['trans_female'];
-        _transMen = doc.data['searchGender']['trans_male'];
-        _others = doc.data['searchGender']['other'];
+        if (doc.data['searchGender'] != null) {
+          _women = doc.data['searchGender']['female'];
+          _men = doc.data['searchGender']['male'];
+          _transWomen = doc.data['searchGender']['trans_female'];
+          _transMen = doc.data['searchGender']['trans_male'];
+          _others = doc.data['searchGender']['other'];
+        }
       }
     });
 
@@ -87,7 +73,6 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
         onWillPop: _save,
         child: Scaffold(
             key: _scaffoldKey,
-            backgroundColor: Colors.white,
             appBar: AppBar(
               title: Text('I am interested in'),
               elevation: 4.0,
@@ -102,7 +87,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                 ListTile(
                     leading: FaIcon(
                       FontAwesomeIcons.venus,
-                      color: black,
+                      color: IconTheme.of(context).color,
+                      size: IconTheme.of(context).size,
                     ),
                     title: Text(
                       'Women',
@@ -111,7 +97,7 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_women) ? black : Colors.transparent,
+                      color: (_women) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
@@ -122,7 +108,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                 ListTile(
                     leading: FaIcon(
                       FontAwesomeIcons.mars,
-                      color: black,
+                      color: IconTheme.of(context).color,
+                      size: IconTheme.of(context).size,
                     ),
                     title: Text(
                       'Men',
@@ -131,7 +118,7 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_men) ? black : Colors.transparent,
+                      color: (_men) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
@@ -142,7 +129,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                 ListTile(
                     leading: FaIcon(
                       FontAwesomeIcons.transgender,
-                      color: black,
+                      color: IconTheme.of(context).color,
+                      size: IconTheme.of(context).size,
                     ),
                     title: Text(
                       'Trans Women',
@@ -151,7 +139,7 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_transWomen) ? black : Colors.transparent,
+                      color: (_transWomen) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
@@ -162,7 +150,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                 ListTile(
                     leading: FaIcon(
                       FontAwesomeIcons.transgender,
-                      color: black,
+                      color: IconTheme.of(context).color,
+                      size: IconTheme.of(context).size,
                     ),
                     title: Text(
                       'Trans Men',
@@ -171,7 +160,7 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_transMen) ? black : Colors.transparent,
+                      color: (_transMen) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
@@ -182,7 +171,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                 ListTile(
                     leading: FaIcon(
                       FontAwesomeIcons.genderless,
-                      color: black,
+                      color: IconTheme.of(context).color,
+                      size: IconTheme.of(context).size,
                     ),
                     title: Text(
                       'Others',
@@ -191,7 +181,7 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_others) ? black : Colors.transparent,
+                      color: (_others) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {

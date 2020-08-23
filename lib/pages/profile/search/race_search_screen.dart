@@ -8,24 +8,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-Map<int, Color> color = {
-  50: Color.fromRGBO(0, 0, 0, .1),
-  100: Color.fromRGBO(0, 0, 0, .2),
-  200: Color.fromRGBO(0, 0, 0, .3),
-  300: Color.fromRGBO(0, 0, 0, .4),
-  400: Color.fromRGBO(0, 0, 0, .5),
-  500: Color.fromRGBO(0, 0, 0, .6),
-  600: Color.fromRGBO(0, 0, 0, .7),
-  700: Color.fromRGBO(0, 0, 0, .8),
-  800: Color.fromRGBO(0, 0, 0, .9),
-  900: Color.fromRGBO(0, 0, 0, 1),
-};
-MaterialColor black = MaterialColor(0xFF000000, color);
-MaterialColor white = MaterialColor(0xFFFFFFFF, color);
-
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
-  color: Colors.black,
 );
 
 class RaceSearchScreen extends StatefulWidget {
@@ -88,7 +72,6 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
         onWillPop: _save,
         child: Scaffold(
             key: _scaffoldKey,
-            backgroundColor: Colors.white,
             appBar: AppBar(
               title: Text('Races'),
               elevation: 4.0,
@@ -103,7 +86,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                 ListTile(
                     leading: FaIcon(
                       FontAwesomeIcons.child,
-                      color: black,
+                      color: IconTheme.of(context).color,
+                      size: IconTheme.of(context).size,
                     ),
                     title: Text(
                       'Asian',
@@ -112,7 +96,7 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_asian) ? black : Colors.transparent,
+                      color: (_asian) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
@@ -123,7 +107,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                 ListTile(
                     leading: FaIcon(
                       FontAwesomeIcons.child,
-                      color: black,
+                      color: IconTheme.of(context).color,
+                      size: IconTheme.of(context).size,
                     ),
                     title: Text(
                       'Black',
@@ -132,7 +117,7 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_black) ? black : Colors.transparent,
+                      color: (_black) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
@@ -143,7 +128,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                 ListTile(
                     leading: FaIcon(
                       FontAwesomeIcons.child,
-                      color: black,
+                      color: IconTheme.of(context).color,
+                      size: IconTheme.of(context).size,
                     ),
                     title: Text(
                       'Latinx',
@@ -152,7 +138,7 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_latinx) ? black : Colors.transparent,
+                      color: (_latinx) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
@@ -163,7 +149,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                 ListTile(
                     leading: FaIcon(
                       FontAwesomeIcons.child,
-                      color: black,
+                      color: IconTheme.of(context).color,
+                      size: IconTheme.of(context).size,
                     ),
                     title: Text(
                       'White',
@@ -172,7 +159,7 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_white) ? black : Colors.transparent,
+                      color: (_white) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {
@@ -183,7 +170,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                 ListTile(
                     leading: FaIcon(
                       FontAwesomeIcons.child,
-                      color: black,
+                      color: IconTheme.of(context).color,
+                      size: IconTheme.of(context).size,
                     ),
                     title: Text(
                       'Other',
@@ -192,7 +180,7 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                     ),
                     trailing: FaIcon(
                       FontAwesomeIcons.check,
-                      color: (_other) ? black : Colors.transparent,
+                      color: (_other) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
                       setState(() {

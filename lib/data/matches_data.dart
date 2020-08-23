@@ -25,7 +25,8 @@ class MatchesRepository implements MatchesData {
     var list = [];
     for (var match in matchesDocs) {
       try {
-        var storageReference = FirebaseStorage().ref().child('users/${match['otherUserId']}/profile_pictures/pic1.jpg');
+        var storageReference =
+            FirebaseStorage().ref().child('users/${match['otherUserAlias']}/profile_pictures/pic1.jpg');
         final imageLink = await storageReference.getDownloadURL();
         var sqlRoom = '`' + match['room'] + '`';
         var messagesList = await db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC');
@@ -37,6 +38,7 @@ class MatchesRepository implements MatchesData {
           'imageLink': imageLink,
           'otherUser': match['otherUser'],
           'otherUserId': match['otherUserId'],
+          'otherUserAlias': match['otherUserAlias'],
           'last_message': lastMessage['message'],
           'last_message_from': lastMessage['birth'],
           'last_message_time': int.parse(lastMessage['sTime']),
@@ -53,7 +55,8 @@ class MatchesRepository implements MatchesData {
     var list = [];
     for (var match in matchesList) {
       try {
-        var storageReference = FirebaseStorage().ref().child('users/${match['otherUserId']}/profile_pictures/pic1.jpg');
+        var storageReference =
+            FirebaseStorage().ref().child('users/${match['otherUserAlias']}/profile_pictures/pic1.jpg');
         final imageLink = await storageReference.getDownloadURL();
         var sqlRoom = '`' + match['room'] + '`';
         var messagesList = await db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC');
@@ -65,6 +68,7 @@ class MatchesRepository implements MatchesData {
           'imageLink': imageLink,
           'otherUser': match['otherUser'],
           'otherUserId': match['otherUserId'],
+          'otherUserAlias': match['otherUserAlias'],
           'last_message': lastMessage['message'],
           'last_message_from': lastMessage['birth'],
           'last_message_time': int.parse(lastMessage['sTime']),

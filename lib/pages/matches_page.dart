@@ -18,14 +18,12 @@ class MatchesScreen extends StatefulWidget {
   final Database db;
   final GlobalKey<ScaffoldState> scaffoldKey;
   final FirebaseUser user;
-  final String alias;
   final AppVariables appVariables;
 
   MatchesScreen({
     Key key,
     @required this.scaffoldKey,
     @required this.user,
-    @required this.alias,
     @required this.db,
     @required this.appVariables,
   }) : super(key: key);
@@ -34,33 +32,30 @@ class MatchesScreen extends StatefulWidget {
   _MatchesScreenState createState() => _MatchesScreenState(
         scaffoldKey: this.scaffoldKey,
         user: this.user,
-        alias: this.alias,
         db: this.db,
         appVariables: this.appVariables,
       );
 }
 
 class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveClientMixin {
-  final scaffoldKey;
-  final user;
-  final alias;
-  final db;
+  final Database db;
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  final FirebaseUser user;
   final AppVariables appVariables;
 
   _MatchesScreenState({
     @required this.scaffoldKey,
     @required this.user,
-    @required this.alias,
     @required this.db,
     @required this.appVariables,
   });
 
   ScrollController _scrollController;
 
-  final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
-  final _biggerFont = const TextStyle(fontSize: 18.0, color: Colors.black);
-  final _subFont = const TextStyle(color: Colors.black);
-  final _trailFont = const TextStyle(color: Colors.black);
+  final _listTitleStyle = const TextStyle(fontWeight: FontWeight.bold);
+  final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _subFont = const TextStyle(fontSize: 14.0);
+  final _trailFont = const TextStyle(fontSize: 14.0);
 
   var variablesInitialized = false;
 
@@ -165,10 +160,10 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
                   value: BlocProvider.of<ConversationBloc>(context),
                   child: MatchedConversationScreen(
                     imageLink: match['imageLink'],
-                    alias: this.alias,
                     matchName: match['otherUser'],
                     otherUserId: match['otherUserId'],
-                    username: user.displayName,
+                    otherUserAlias: match['otherUserAlias'],
+                    username: user.uid,
                     room: match['room'],
                     db: this.db,
                     appVariables: this.appVariables,

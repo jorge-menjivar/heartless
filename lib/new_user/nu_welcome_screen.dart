@@ -1,58 +1,63 @@
 import 'package:flutter/material.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'nu_register_screen.dart';
 import 'nu_sign_in_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  final FirebaseUser user;
-
-  WelcomeScreen({this.user});
-
   @override
   WelcomeScreenState createState() => WelcomeScreenState();
 }
 
 class WelcomeScreenState extends State<WelcomeScreen> {
-
-  FirebaseUser user;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('LISA'),
-        elevation: 4.0,
-      ),
-      body: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(color: Colors.white),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text('Welcome to LISA'),
-              ],
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            FaIcon(
+              FontAwesomeIcons.heartBroken,
+              color: Colors.redAccent[400],
+              size: 25,
             ),
-            SizedBox(
-              height: 32.0,
-            ),
-            RaisedButton(
-              child: Text('SIGN IN'), onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MySignInScreen()));
-              }
-            ),
-            RaisedButton(
-              child: Text('Register'), onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen()));
-              }
+            Text(
+              ' Heartless',
+              style: TextStyle(fontSize: 25),
             )
           ],
-        )
-      )
+        ),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                'Welcome!',
+                style: TextStyle(fontSize: 25),
+              )
+            ],
+          ),
+          SizedBox(
+            height: 32.0,
+          ),
+          RaisedButton(
+              child: Text('SIGN IN'),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MySignInScreen()));
+              }),
+          RaisedButton(
+              child: Text('Register'),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen()));
+              })
+        ],
+      ),
     );
   }
 }

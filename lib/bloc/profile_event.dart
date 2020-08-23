@@ -5,10 +5,14 @@ abstract class ProfileEvent extends Equatable {
 }
 
 class GetProfile extends ProfileEvent {
+  final FirebaseUser user;
   final String alias;
 
-  const GetProfile({this.alias});
+  const GetProfile({
+    this.user,
+    this.alias,
+  });
 
   @override
-  List<Object> get props => [alias];
+  List<Object> get props => [user, alias];
 }

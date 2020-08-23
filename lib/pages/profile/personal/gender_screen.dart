@@ -8,24 +8,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-Map<int, Color> color = {
-  50: Color.fromRGBO(0, 0, 0, .1),
-  100: Color.fromRGBO(0, 0, 0, .2),
-  200: Color.fromRGBO(0, 0, 0, .3),
-  300: Color.fromRGBO(0, 0, 0, .4),
-  400: Color.fromRGBO(0, 0, 0, .5),
-  500: Color.fromRGBO(0, 0, 0, .6),
-  600: Color.fromRGBO(0, 0, 0, .7),
-  700: Color.fromRGBO(0, 0, 0, .8),
-  800: Color.fromRGBO(0, 0, 0, .9),
-  900: Color.fromRGBO(0, 0, 0, 1),
-};
-MaterialColor black = MaterialColor(0xFF000000, color);
-MaterialColor white = MaterialColor(0xFFFFFFFF, color);
-
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
-  color: Colors.black,
 );
 
 class GenderScreen extends StatefulWidget {
@@ -56,7 +40,6 @@ class GenderScreenState extends State<GenderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text('Gender'),
           elevation: 4.0,
@@ -71,7 +54,8 @@ class GenderScreenState extends State<GenderScreen> {
             ListTile(
                 leading: FaIcon(
                   FontAwesomeIcons.venus,
-                  color: black,
+                  color: IconTheme.of(context).color,
+                  size: IconTheme.of(context).size,
                 ),
                 title: Text(
                   'Female',
@@ -87,7 +71,8 @@ class GenderScreenState extends State<GenderScreen> {
             ListTile(
                 leading: FaIcon(
                   FontAwesomeIcons.mars,
-                  color: black,
+                  color: IconTheme.of(context).color,
+                  size: IconTheme.of(context).size,
                 ),
                 title: Text(
                   'Male',
@@ -103,7 +88,8 @@ class GenderScreenState extends State<GenderScreen> {
             ListTile(
                 leading: FaIcon(
                   FontAwesomeIcons.transgender,
-                  color: black,
+                  color: IconTheme.of(context).color,
+                  size: IconTheme.of(context).size,
                 ),
                 title: Text(
                   'Trans Female',
@@ -119,7 +105,8 @@ class GenderScreenState extends State<GenderScreen> {
             ListTile(
                 leading: FaIcon(
                   FontAwesomeIcons.transgender,
-                  color: black,
+                  color: IconTheme.of(context).color,
+                  size: IconTheme.of(context).size,
                 ),
                 title: Text(
                   'Trans Male',
@@ -135,7 +122,8 @@ class GenderScreenState extends State<GenderScreen> {
             ListTile(
                 leading: FaIcon(
                   FontAwesomeIcons.genderless,
-                  color: black,
+                  color: IconTheme.of(context).color,
+                  size: IconTheme.of(context).size,
                 ),
                 title: Text(
                   'Other',

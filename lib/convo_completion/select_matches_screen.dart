@@ -1,14 +1,15 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_advanced_networkimage/provider.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:lise/widgets/loading_progress_indicator.dart';
 import 'package:location/location.dart';
 import 'package:pedantic/pedantic.dart';
 
@@ -35,7 +36,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
   ScrollController _scrollController;
 
   final _profiles = {};
-  final _picSize = 370.0;
+  double _picSize;
 
   final _profilePicImageLinks = [];
 
@@ -44,6 +45,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
   @override
   void initState() {
     super.initState();
+    _picSize = 350.0;
     _downloadData();
     _loadProfilePictures();
     _scrollController = ScrollController();
@@ -135,85 +137,51 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Looks'),
         elevation: 4.0,
       ),
       body: Builder(
         builder: (BuildContext context) {
-          return Container(
-            decoration: BoxDecoration(color: Colors.white),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Select the persons you find attractive',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Select the people you find attractive',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
                 ),
-                SizedBox(
-                  height: 50,
+              ),
+              SizedBox(
+                height: _picSize + 40,
+                child: _buildCards(),
+              ),
+              Divider(
+                height: 40,
+                color: Colors.transparent,
+              ),
+              CupertinoButton(
+                color: Theme.of(context).accentColor,
+                child: Text(
+                  'CONTINUE',
+                  style: TextStyle(color: Theme.of(context).canvasColor),
                 ),
-                SizedBox(
-                  height: _picSize + 20,
-                  child: ShaderMask(
-                    shaderCallback: (rect) {
-                      return LinearGradient(
-                        begin: Alignment(0, 0.9),
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.white, Colors.transparent],
-                      ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-                    },
-                    blendMode: BlendMode.dstIn,
-                    child: ShaderMask(
-                        shaderCallback: (rect) {
-                          return LinearGradient(
-                            begin: Alignment(0, -0.9),
-                            end: Alignment.topCenter,
-                            colors: [Colors.white, Colors.transparent],
-                          ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-                        },
-                        blendMode: BlendMode.dstIn,
-                        child: _buildCards()),
-                  ),
-                ),
-                SizedBox(
-                  height: 50,
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CupertinoButton(
-                        color: Colors.black,
-                        child: Text(
-                          'CONTINUE',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            // Double checking to see if user is sure
-                            showVerificationDialog(context).then((v) {
-                              // If the user is sure
-                              if (v) {
-                                _verifyConnections();
-                              }
-                            });
-                          });
-                        },
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
+                onPressed: () {
+                  setState(() {
+                    // Double checking to see if user is sure
+                    showVerificationDialog(context).then((v) {
+                      // If the user is sure
+                      if (v) {
+                        _verifyConnections();
+                      }
+                    });
+                  });
+                },
+              )
+            ],
           );
         },
       ),
@@ -222,44 +190,47 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
 
   Widget _buildCards() {
     return ListView.builder(
-        physics: BouncingScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        controller: _scrollController,
-        itemCount: _profilePicImageLinks.length,
-        itemBuilder: (context, i) {
-          return Center(
-            child: Card(
-              color: (_profiles[_users[i]]) ? Colors.green : Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(1000))),
-              child: SizedBox(
-                  width: _picSize,
-                  height: _picSize,
-                  child: RawMaterialButton(
-                      highlightColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      padding: EdgeInsets.all(12),
-                      child: Container(
-                          decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: _profilePicImageLinks.isNotEmpty
-                            ? DecorationImage(
-                                image: AdvancedNetworkImage(
-                                  _profilePicImageLinks[i],
-                                  useDiskCache: true,
-                                ),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
-                      )),
-                      onPressed: () {
-                        setState(() {
-                          _profiles[_users[i]] = !_profiles[_users[i]];
-                        });
-                      })),
+      physics: BouncingScrollPhysics(),
+      scrollDirection: Axis.horizontal,
+      controller: _scrollController,
+      itemCount: _profilePicImageLinks.length,
+      itemBuilder: (context, i) {
+        return Center(
+          child: Container(
+            margin: EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10000.0),
+              color: (_profiles[_users[i]]) ? Colors.green : Colors.black12,
             ),
-          );
-        });
+            padding: EdgeInsets.all(6),
+            child: SizedBox(
+              width: _picSize,
+              height: _picSize,
+              child: RawMaterialButton(
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10000.0),
+                  child: CachedNetworkImage(
+                    imageUrl: _profilePicImageLinks[i],
+                    fit: BoxFit.fill,
+                    placeholder: (context, valueString) {
+                      return loading_progress_indicator();
+                    },
+                  ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _profiles[_users[i]] = !_profiles[_users[i]];
+                  });
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   /// Shows the an alert asking the user if verification should really be done

@@ -57,7 +57,6 @@ class EditNameScreenState extends State<EditNameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text('My name'),
           elevation: 4.0,
@@ -101,9 +100,9 @@ class EditNameScreenState extends State<EditNameScreen> {
           .document(user.uid)
           .collection('data')
           .document('userSettings')
-          .setData(<String, dynamic>{
+          .updateData(<String, dynamic>{
         'name': name,
-      }, merge: true).catchError((error) {
+      }).catchError((error) {
         print('Error writing document: ' + error.toString());
       });
     }

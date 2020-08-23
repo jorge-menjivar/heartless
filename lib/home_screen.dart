@@ -1,9 +1,8 @@
 import 'dart:async';
-
-import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_tab_bar_no_ripple/flutter_tab_bar_no_ripple.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/p_matches_bloc.dart';
@@ -16,7 +15,6 @@ import 'package:lise/utils/database.dart';
 import 'package:sqflite/sqflite.dart';
 import 'bloc/conversation_bloc.dart';
 import 'bloc/matches_bloc.dart';
-import 'localizations.dart';
 
 // Firebase
 import 'package:firebase_auth/firebase_auth.dart';
@@ -44,28 +42,31 @@ MaterialColor white = MaterialColor(0xFFFFFFFF, color);
 bool isNew = false;
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({@required this.user, this.username});
+  HomeScreen({
+    @required this.user,
+    @required this.alias,
+  });
 
   final FirebaseUser user;
-  final String username;
+  final String alias;
 
   @override
-  HomeScreenState createState() => HomeScreenState(user: user, username: username);
+  HomeScreenState createState() => HomeScreenState(user: user, alias: alias);
 }
 
 class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  HomeScreenState({this.user, this.username});
+  HomeScreenState({
+    @required this.user,
+    @required this.alias,
+  });
 
-  FirebaseUser user;
-  final String username;
+  final FirebaseUser user;
 
-  String _alias;
+  final String alias;
 
   final secureStorage = FlutterSecureStorage();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  List pMatchesList = [];
 
   bool loadedProfile = false;
   bool loadedMatches = false;
@@ -79,45 +80,22 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Map<String, StreamSubscription<QuerySnapshot>> _matchListener = {};
   Map<String, StreamSubscription<QuerySnapshot>> _pMatchListener = {};
 
-  int _currentIndex = 0;
-  PageController _pageController;
-
   var appVariables = AppVariables();
 
   @override
   void initState() {
     super.initState();
 
-    _pageController = PageController();
-
     // Creating the profile bloc and initializing it
-    // ignore: close_sinks
-    BlocProvider.of<ProfileBloc>(context)..add(GetProfile(alias: user.uid));
+    BlocProvider.of<ProfileBloc>(context)..add(GetProfile(user: user, alias: alias));
 
     startMatchesDatabase();
   }
 
   Future<void> startMatchesDatabase() async {
     _db = await getMessagesDb();
-    getAlias();
     initPMatchesBloc();
     initMatchesBloc();
-  }
-
-  Future<void> getAlias() async {
-    Firestore.instance
-        .collection('users')
-        .document('${user.uid}')
-        .collection('data')
-        .document('private')
-        .get()
-        .then((doc) {
-      if (!doc.exists) {
-        print('No data document!');
-      } else {
-        _alias = doc.data['alias'];
-      }
-    });
   }
 
   Future<void> initPMatchesBloc() async {
@@ -138,10 +116,14 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           var matchRoom = match['room'];
 
           if (change.type == DocumentChangeType.added) {
-            _pMatchListener[matchRoom] = await initListener(matchRoom);
-            appVariables.convoOpen[matchRoom] = false;
+            if (matchRoom != null) {
+              _pMatchListener[matchRoom] = await initListener(matchRoom);
+              appVariables.convoOpen[matchRoom] = false;
+            }
           } else if (change.type == DocumentChangeType.removed) {
-            _pMatchListener[matchRoom].cancel();
+            if (matchRoom != null) {
+              _pMatchListener[matchRoom].cancel();
+            }
           }
         }
         // Adding the potential matches bloc
@@ -172,10 +154,14 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           var matchRoom = match['room'];
 
           if (change.type == DocumentChangeType.added) {
-            _matchListener[matchRoom] = await initListener(matchRoom);
-            appVariables.convoOpen[matchRoom] = false;
+            if (matchRoom != null) {
+              _matchListener[matchRoom] = await initListener(matchRoom);
+              appVariables.convoOpen[matchRoom] = false;
+            }
           } else if (change.type == DocumentChangeType.removed) {
-            _matchListener[matchRoom].cancel();
+            if (matchRoom != null) {
+              _matchListener[matchRoom].cancel();
+            }
           }
         }
 
@@ -300,31 +286,35 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     if (!loadedPMatches || !loadedMatches || !loadedProfile) {
-      return BlocListener<PMatchesBloc, PMatchesState>(
-        listener: (context, state) {
-          if (state is PMatchesLoaded) {
-            pMatchesList = state.pMatches.list;
-            setState(() {
-              loadedPMatches = true;
-            });
-            return;
-          }
-        },
-        child: BlocListener<MatchesBloc, MatchesState>(
-          listener: (context, state) {
-            if (state is MatchesLoaded) {
-              final list = state.matches.list;
-              for (var match in list) {
-                final profilePicture = NetworkImage(match['imageLink']);
-                precacheImage(profilePicture, context);
+      return MultiBlocListener(
+        listeners: [
+          BlocListener<PMatchesBloc, PMatchesState>(
+            listener: (context, state) {
+              if (state is PMatchesLoaded) {
+                _pMatchesList = state.pMatches.list;
+                setState(() {
+                  loadedPMatches = true;
+                });
+                return;
               }
-              setState(() {
-                loadedMatches = true;
-              });
-              return;
-            }
-          },
-          child: BlocListener<ProfileBloc, ProfileState>(
+            },
+          ),
+          BlocListener<MatchesBloc, MatchesState>(
+            listener: (context, state) {
+              if (state is MatchesLoaded) {
+                final list = state.matches.list;
+                for (var match in list) {
+                  final profilePicture = NetworkImage(match['imageLink']);
+                  precacheImage(profilePicture, context);
+                }
+                setState(() {
+                  loadedMatches = true;
+                });
+                return;
+              }
+            },
+          ),
+          BlocListener<ProfileBloc, ProfileState>(
             listener: (context, state) {
               if (state is ProfileLoaded) {
                 final profilePicture = NetworkImage(state.profile.profilePictureURL);
@@ -335,9 +325,9 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 return;
               }
             },
-            child: SplashScreen(),
           ),
-        ),
+        ],
+        child: SplashScreen(),
       );
     }
     return DefaultTabController(
@@ -351,9 +341,13 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             children: [
               FaIcon(
                 FontAwesomeIcons.heartBroken,
-                color: Colors.pink,
+                color: Colors.redAccent[400],
+                size: 25,
               ),
-              Text(' Heartless')
+              Text(
+                ' Heartless',
+                style: TextStyle(fontSize: 25),
+              )
             ],
           ),
         ),
@@ -370,7 +364,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   db: _db,
                   scaffoldKey: _scaffoldKey,
                   user: this.user,
-                  alias: _alias,
                   appVariables: this.appVariables,
                 ),
               ),
@@ -385,7 +378,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   db: _db,
                   scaffoldKey: _scaffoldKey,
                   user: this.user,
-                  alias: _alias,
                   appVariables: this.appVariables,
                 ),
               ),
@@ -395,30 +387,40 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 value: BlocProvider.of<ProfileBloc>(context),
                 child: ProfileScreen(
                   user: this.user,
+                  alias: this.alias,
                 ),
               ),
             ],
           ),
         ),
         bottomNavigationBar: SafeArea(
-          child: TabBar(
+          child: TabBarNoRipple(
+            indicator: BoxDecoration(
+              color: Colors.redAccent[400],
+              borderRadius: BorderRadius.all(
+                Radius.circular(50),
+              ),
+            ),
             indicatorColor: Colors.transparent,
-            labelColor: Colors.blueGrey[800],
-            unselectedLabelColor: Colors.blueGrey[100],
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.blueGrey[600],
             tabs: [
               Tab(
-                icon: FaIcon(
-                  FontAwesomeIcons.search,
+                icon: Icon(
+                  CupertinoIcons.search,
+                  size: 30,
                 ),
               ),
               Tab(
-                icon: FaIcon(
-                  FontAwesomeIcons.solidCommentDots,
+                icon: Icon(
+                  CupertinoIcons.conversation_bubble,
+                  size: 30,
                 ),
               ),
               Tab(
-                icon: FaIcon(
-                  FontAwesomeIcons.userAlt,
+                icon: Icon(
+                  CupertinoIcons.pencil,
+                  size: 30,
                 ),
               )
             ],

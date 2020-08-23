@@ -41,7 +41,6 @@ class RegisterScreenState extends State<RegisterScreen> {
               elevation: 4.0,
             ),
             body: Container(
-                decoration: BoxDecoration(color: Colors.white),
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -134,13 +133,16 @@ class RegisterScreenState extends State<RegisterScreen> {
         var registrationResult = await register;
         final user = (registrationResult).user;
 
-        await Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => VerifyScreen(
-                      user: user,
-                      newUser: true,
-                    )));
+        await Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerifyScreen(
+              user: user,
+              newUser: true,
+            ),
+          ),
+          (route) => false,
+        );
       } catch (e) {
         notMatched = true;
         error = e.toString();

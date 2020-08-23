@@ -10,33 +10,9 @@ import 'package:lise/pages/profile/search/race_search_screen.dart';
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-Map<int, Color> color = {
-  50: Color.fromRGBO(0, 0, 0, .1),
-  100: Color.fromRGBO(0, 0, 0, .2),
-  200: Color.fromRGBO(0, 0, 0, .3),
-  300: Color.fromRGBO(0, 0, 0, .4),
-  400: Color.fromRGBO(0, 0, 0, .5),
-  500: Color.fromRGBO(0, 0, 0, .6),
-  600: Color.fromRGBO(0, 0, 0, .7),
-  700: Color.fromRGBO(0, 0, 0, .8),
-  800: Color.fromRGBO(0, 0, 0, .9),
-  900: Color.fromRGBO(0, 0, 0, 1),
-};
-MaterialColor black = MaterialColor(0xFF000000, color);
-MaterialColor white = MaterialColor(0xFFFFFFFF, color);
-
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
-  color: Colors.black,
 );
-final _subFont = const TextStyle(
-  color: Colors.black,
-);
-final _trailFont = const TextStyle(
-  color: Colors.black,
-);
-final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
-var _iconColor = black;
 
 class SearchInformationScreen extends StatefulWidget {
   SearchInformationScreen({@required this.user});
@@ -90,7 +66,6 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text('Search Settings'),
           elevation: 4.0,
@@ -103,7 +78,8 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
             ListTile(
                 leading: FaIcon(
                   FontAwesomeIcons.genderless,
-                  color: black,
+                  color: IconTheme.of(context).color,
+                  size: IconTheme.of(context).size,
                 ),
                 title: Text(
                   'I am interested in',
@@ -123,7 +99,8 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
             ListTile(
                 leading: FaIcon(
                   FontAwesomeIcons.child,
-                  color: black,
+                  color: IconTheme.of(context).color,
+                  size: IconTheme.of(context).size,
                 ),
                 title: Text(
                   'Races',
@@ -142,7 +119,8 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
             ListTile(
               leading: FaIcon(
                 FontAwesomeIcons.calendarAlt,
-                color: black,
+                color: IconTheme.of(context).color,
+                size: IconTheme.of(context).size,
               ),
               title: Text(
                 'Age Range',
@@ -177,7 +155,8 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
             ListTile(
               leading: FaIcon(
                 FontAwesomeIcons.streetView,
-                color: black,
+                color: IconTheme.of(context).color,
+                size: IconTheme.of(context).size,
               ),
               title: Text(
                 'Maximum Distance',

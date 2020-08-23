@@ -31,36 +31,32 @@ MaterialColor white = MaterialColor(0xFFFFFFFF, color);
 
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
-  color: Colors.black,
 );
-final _subFont = const TextStyle(
-  color: Colors.black,
-);
-final _trailFont = const TextStyle(
-  color: Colors.black,
-);
-final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
-var _iconColor = black;
 
 class NewUserInformationScreen extends StatefulWidget {
-  NewUserInformationScreen({@required this.user});
+  NewUserInformationScreen({
+    @required this.user,
+    @required this.alias,
+  });
 
   final FirebaseUser user;
+  final String alias;
 
   @override
-  NewUserInformationScreenState createState() => NewUserInformationScreenState(user: user);
+  NewUserInformationScreenState createState() => NewUserInformationScreenState(user: user, alias: alias);
 }
 
 class NewUserInformationScreenState extends State<NewUserInformationScreen> {
-  NewUserInformationScreenState({@required this.user});
+  NewUserInformationScreenState({
+    @required this.user,
+    @required this.alias,
+  });
 
   final FirebaseUser user;
+  final String alias;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ScrollController _scrollController;
-
-  final _formFieldKey = GlobalKey<FormFieldState>();
-  final TextEditingController _controllerDisplayName = TextEditingController();
 
   DateTime _birthday;
   String _userGender;
@@ -163,7 +159,6 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('My Information'),
         elevation: 4.0,
@@ -178,7 +173,8 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
           ListTile(
               leading: FaIcon(
                 FontAwesomeIcons.signature,
-                color: black,
+                color: IconTheme.of(context).color,
+                size: IconTheme.of(context).size,
               ),
               title: Row(
                 children: <Widget>[
@@ -186,7 +182,6 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
                     (_name != null) ? _name : '',
                     style: TextStyle(
                       fontSize: 26.0,
-                      color: Colors.black,
                     ),
                   ),
                 ],
@@ -197,26 +192,27 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
               ),
               onTap: () async {
                 await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => EditNameScreen(
-                              user: user,
-                            ))).then((value) => _downloadData());
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditNameScreen(
+                      user: user,
+                    ),
+                  ),
+                ).then((value) => _downloadData());
               }),
           Container(
             padding: EdgeInsets.all(10),
-            color: white,
             child: Text(
               'We got your back!\nYour name and pictures are never shown together to strangers.',
               textAlign: TextAlign.center,
-              style: _subFont,
             ),
           ),
           Divider(color: Colors.grey),
           ListTile(
             leading: FaIcon(
               FontAwesomeIcons.birthdayCake,
-              color: black,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
             ),
             title: Row(
               children: <Widget>[
@@ -250,99 +246,112 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
           ),
           Divider(color: Colors.transparent),
           ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.baby,
-                color: black,
-              ),
-              title: Text(
-                'Gender',
-                textAlign: TextAlign.left,
-                style: _biggerFont,
-              ),
-              subtitle: Text((_userGender != null) ? _userGender : ''),
-              trailing: FaIcon(
-                FontAwesomeIcons.check,
-                color: (_userGender != null) ? Colors.green : Colors.transparent,
-              ),
-              onTap: () async {
-                await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => GenderScreen(
-                              user: user,
-                            ))).then((value) => _downloadData());
-              }),
+            leading: FaIcon(
+              FontAwesomeIcons.baby,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
+            ),
+            title: Text(
+              'Gender',
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            subtitle: Text((_userGender != null) ? _userGender : ''),
+            trailing: FaIcon(
+              FontAwesomeIcons.check,
+              color: (_userGender != null) ? Colors.green : Colors.transparent,
+            ),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GenderScreen(
+                    user: user,
+                  ),
+                ),
+              ).then((value) => _downloadData());
+            },
+          ),
           ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.solidHeart,
-                color: black,
-              ),
-              title: Text(
-                'I am interested in',
-                textAlign: TextAlign.left,
-                style: _biggerFont,
-              ),
-              trailing: FaIcon(
-                FontAwesomeIcons.check,
-                color: (_women || _men || _transWomen || _transMen || _others) ? Colors.green : Colors.transparent,
-              ),
-              onTap: () async {
-                await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => GenderSearchScreen(
-                              user: user,
-                            ))).then((value) => _downloadData());
-              }),
+            leading: FaIcon(
+              FontAwesomeIcons.solidHeart,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
+            ),
+            title: Text(
+              'I am interested in',
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            trailing: FaIcon(
+              FontAwesomeIcons.check,
+              color: (_women || _men || _transWomen || _transMen || _others) ? Colors.green : Colors.transparent,
+            ),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GenderSearchScreen(
+                    user: user,
+                  ),
+                ),
+              ).then((value) => _downloadData());
+            },
+          ),
           Divider(color: Colors.transparent),
           ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.child,
-                color: black,
-              ),
-              title: Text(
-                'My Race',
-                textAlign: TextAlign.left,
-                style: _biggerFont,
-              ),
-              subtitle: Text((_race != null) ? _race : ''),
-              trailing: FaIcon(
-                FontAwesomeIcons.check,
-                color: (_race != null) ? Colors.green : Colors.transparent,
-              ),
-              onTap: () async {
-                await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => RaceScreen(
-                              user: user,
-                            ))).then((value) => _downloadData());
-              }),
+            leading: FaIcon(
+              FontAwesomeIcons.child,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
+            ),
+            title: Text(
+              'My Race',
+              textAlign: TextAlign.left,
+              style: _biggerFont,
+            ),
+            subtitle: Text((_race != null) ? _race : ''),
+            trailing: FaIcon(
+              FontAwesomeIcons.check,
+              color: (_race != null) ? Colors.green : Colors.transparent,
+            ),
+            onTap: () async {
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => RaceScreen(
+                            user: user,
+                          ))).then((value) => _downloadData());
+            },
+          ),
         ],
       ),
       bottomNavigationBar: BottomAppBar(
         elevation: 8,
-        color: black,
+        color: (Theme.of(context).brightness == Brightness.light) ? Colors.black : Colors.black,
         child: ListTile(
           trailing: Container(
             child: IconButton(
               iconSize: 45,
               icon: Text('NEXT',
                   style: TextStyle(
-                    color: white,
                     fontSize: 14.0,
                     letterSpacing: 1,
                     fontWeight: FontWeight.w600,
+                    color: (Theme.of(context).brightness == Brightness.light) ? Colors.white : Colors.white,
                   )),
               onPressed: () async {
                 if ((_women || _men || _transWomen || _transMen || _others) &&
                     (_name != null && _birthday != null && _userGender != null && _race != null)) {
                   await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => UploadPicturesScreen(
-                                user: user,
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UploadPicturesScreen(
+                        user: user,
+                        alias: alias,
+                      ),
+                    ),
+                  );
                 } else {
                   print('not complete');
                 }
@@ -366,9 +375,9 @@ class NewUserInformationScreenState extends State<NewUserInformationScreen> {
         .document(user.uid)
         .collection('data')
         .document('userSettings')
-        .setData(<String, dynamic>{
+        .updateData(<String, dynamic>{
       'birthday': epochBirthday,
-    }, merge: true).catchError((error) {
+    }).catchError((error) {
       print('Error writing document: ' + error.toString());
     });
   }

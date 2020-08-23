@@ -37,7 +37,7 @@ Map<int, Color> color = {
   800: Color.fromRGBO(0, 0, 0, .9),
   900: Color.fromRGBO(0, 0, 0, 1),
 };
-MaterialColor black = MaterialColor(0xFF1c1c1c, color);
+MaterialColor black = MaterialColor(0xFF171717, color);
 MaterialColor white = MaterialColor(0xFFFFFFFF, color);
 
 void main() {
@@ -61,10 +61,67 @@ class MyApp extends StatelessWidget {
         Locale('fr', ''),
       ],
       title: 'LISA',
+      darkTheme: ThemeData(
+        primaryColor: Colors.white12,
+        primaryColorLight: Colors.white70,
+        primaryColorDark: Colors.white38,
+        primarySwatch: Colors.blueGrey,
+        canvasColor: Colors.black,
+        accentColor: Colors.blueGrey,
+        dividerColor: Colors.white30,
+        primaryColorBrightness: Brightness.dark,
+        brightness: Brightness.dark,
+        accentColorBrightness: Brightness.light,
+        textTheme: TextTheme(
+          headline1: TextStyle(color: Colors.white),
+          headline2: TextStyle(color: Colors.white),
+          headline3: TextStyle(color: Colors.white),
+          headline4: TextStyle(color: Colors.white),
+          headline5: TextStyle(color: Colors.white),
+          headline6: TextStyle(color: Colors.white),
+          bodyText1: TextStyle(color: Colors.white),
+          bodyText2: TextStyle(color: Colors.white),
+          subtitle1: TextStyle(color: Colors.white),
+          subtitle2: TextStyle(color: Colors.white70),
+          caption: TextStyle(color: Colors.white54),
+          button: TextStyle(color: Colors.white70),
+          overline: TextStyle(color: Colors.white70),
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+          opacity: 1,
+          size: 25,
+        ),
+      ),
       theme: ThemeData(
-        primarySwatch: black,
-        canvasColor: white,
-        accentColor: black,
+        primaryColor: Colors.grey[200],
+        primarySwatch: Colors.blueGrey,
+        canvasColor: Colors.white,
+        accentColor: Colors.black,
+        dividerColor: Colors.black12,
+        primaryColorBrightness: Brightness.light,
+        brightness: Brightness.light,
+        accentColorBrightness: Brightness.dark,
+        textTheme: TextTheme(
+          headline1: TextStyle(color: Colors.black87),
+          headline2: TextStyle(color: Colors.black87),
+          headline3: TextStyle(color: Colors.black87),
+          headline4: TextStyle(color: Colors.black87),
+          headline5: TextStyle(color: Colors.black87),
+          headline6: TextStyle(color: Colors.black87),
+          bodyText1: TextStyle(color: Colors.black87),
+          bodyText2: TextStyle(color: Colors.black87),
+          subtitle1: TextStyle(color: Colors.black87),
+          subtitle2: TextStyle(color: Colors.black87),
+          caption: TextStyle(color: black[500]),
+          button: TextStyle(color: Colors.black87),
+          overline: TextStyle(color: Colors.black87),
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.black87,
+          opacity: 1,
+          size: 25,
+        ),
       ),
       home: LoadingPage(),
     );
@@ -89,9 +146,12 @@ class _LoadingPageState extends State<LoadingPage> {
 
   bool loaded = false;
 
+  String _alias;
+
   @override
   void initState() {
     super.initState();
+
     _checkCurrentUser();
   }
 
@@ -101,7 +161,7 @@ class _LoadingPageState extends State<LoadingPage> {
       return SplashScreen();
     } else {
       if (!user.isEmailVerified) {
-        return WelcomeScreen(user: user);
+        return WelcomeScreen();
       }
       if (_profileCompleted) {
         // Display Home Screen
@@ -130,11 +190,14 @@ class _LoadingPageState extends State<LoadingPage> {
           ],
           child: HomeScreen(
             user: user,
-            username: user.email,
+            alias: _alias,
           ),
         );
       } else {
-        return NewUserInformationScreen(user: user);
+        return NewUserInformationScreen(
+          user: user,
+          alias: _alias,
+        );
       }
     }
   }
@@ -142,14 +205,16 @@ class _LoadingPageState extends State<LoadingPage> {
   void _checkCurrentUser() async {
     await _auth.currentUser().then((u) async {
       user = u;
+      if (user != null) {
+        var token = await user.getIdToken();
+        _alias = token.claims['alias'];
+      }
       (user != null)
           ? await _checkVerification()
           : await Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => WelcomeScreen(
-                  user: user,
-                ),
+                builder: (context) => WelcomeScreen(),
               ),
             );
     }).then((value) {

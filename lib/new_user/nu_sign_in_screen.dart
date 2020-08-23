@@ -30,6 +30,8 @@ class SignInScreenState extends State<MySignInScreen> {
   final _emailFieldKey = GlobalKey<FormFieldState>();
   final _passwordFieldKey = GlobalKey<FormFieldState>();
 
+  String _alias;
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -39,78 +41,63 @@ class SignInScreenState extends State<MySignInScreen> {
           title: Text('SIGN IN'),
           elevation: 4.0,
         ),
-        body: Container(
-          decoration: BoxDecoration(color: Colors.white),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextFormField(
-                key: _emailFieldKey,
-                controller: _controllerEmail,
-                keyboardType: TextInputType.text,
-                autocorrect: false,
-                autofocus: true,
-                autovalidate: true,
-                decoration: InputDecoration(
-                  icon: Icon(Icons.email),
-                  labelText: 'Email',
-                ),
-                validator: (email) {
-                  if (_firstTry == false && email.length < 4) {
-                    return 'Check length';
-                  } else if (_firstTry == false &&
-                      (!email.contains(RegExp(r'[@]')) || !email.contains(RegExp(r'[.]')))) {
-                    return 'Email not valid';
-                  } else {
-                    return null;
-                  }
-                },
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            TextFormField(
+              key: _emailFieldKey,
+              controller: _controllerEmail,
+              keyboardType: TextInputType.emailAddress,
+              autocorrect: false,
+              autofocus: true,
+              autovalidate: true,
+              decoration: InputDecoration(
+                icon: Icon(Icons.email),
+                labelText: 'Email',
               ),
-              TextFormField(
-                key: _passwordFieldKey,
-                controller: _controllerPassword,
-                keyboardType: TextInputType.text,
-                autocorrect: false,
-                autofocus: true,
-                autovalidate: true,
-                decoration: InputDecoration(
-                  icon: Icon(Icons.lock),
-                  labelText: 'Password',
-                  hintText: 'Password',
-                ),
+              validator: (email) {
+                if (_firstTry == false && email.length < 4) {
+                  return 'Check length';
+                } else if (_firstTry == false && (!email.contains(RegExp(r'[@]')) || !email.contains(RegExp(r'[.]')))) {
+                  return 'Email not valid';
+                } else {
+                  return null;
+                }
+              },
+            ),
+            TextFormField(
+              key: _passwordFieldKey,
+              controller: _controllerPassword,
+              keyboardType: TextInputType.visiblePassword,
+              autocorrect: false,
+              autofocus: true,
+              autovalidate: true,
+              decoration: InputDecoration(
+                icon: Icon(Icons.lock),
+                labelText: 'Password',
+                hintText: 'Password',
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    (wrong) ? 'Information not valid' : '',
-                    style: TextStyle(fontSize: 18, color: Colors.red),
-                  )
-                ],
-              ),
-              RaisedButton(
-                  child: Text('CONTINUE TO LISA'),
-                  onPressed: () {
-                    _firstTry = false;
-                    _handleSignIn(_controllerEmail.text.toString(), _controllerPassword.text.toString());
-                  })
-            ],
-          ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  (wrong) ? 'Information not valid' : '',
+                  style: TextStyle(fontSize: 18, color: Colors.red),
+                )
+              ],
+            ),
+            RaisedButton(
+                child: Text('CONTINUE TO LISA'),
+                onPressed: () {
+                  _firstTry = false;
+                  _handleSignIn(_controllerEmail.text.toString(), _controllerPassword.text.toString());
+                })
+          ],
         ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   Future<FirebaseUser> _handleSignIn(String e, String p) async {
@@ -119,6 +106,9 @@ class SignInScreenState extends State<MySignInScreen> {
 
       var authResult = await signInWithEmailAndPassword;
       final user = (authResult).user;
+
+      var token = await user.getIdToken();
+      _alias = token.claims['alias'];
 
       if (user.isEmailVerified) {
         var profileCompleted = false;
@@ -137,25 +127,33 @@ class SignInScreenState extends State<MySignInScreen> {
         });
         if (profileCompleted) {
           await Navigator.pushAndRemoveUntil(
-              context, MaterialPageRoute(builder: (context) => LoadingPage()), (route) => false);
+            context,
+            MaterialPageRoute(builder: (context) => LoadingPage()),
+            (route) => false,
+          );
         } else {
           await Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => NewUserInformationScreen(
-                        user: user,
-                      )),
-              (route) => false);
+            context,
+            MaterialPageRoute(
+              builder: (context) => NewUserInformationScreen(
+                user: user,
+                alias: _alias,
+              ),
+            ),
+            (route) => false,
+          );
         }
       } else {
         await Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-                builder: (context) => VerifyScreen(
-                      user: user,
-                      newUser: false,
-                    )),
-            (route) => false);
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerifyScreen(
+              user: user,
+              newUser: false,
+            ),
+          ),
+          (route) => false,
+        );
       }
     } catch (e) {
       print(e.toString());

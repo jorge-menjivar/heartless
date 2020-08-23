@@ -6,26 +6,25 @@
 	],
 	"settings": {
 		"workbench.colorCustomizations": {
-			"activityBar.background": "#ffffff",
-			"activityBar.activeBackground": "#ffffff",
-			"activityBar.activeBorder": "#df9f9f",
+			"activityBar.background": "#f3817f",
+			"activityBar.activeBackground": "#f3817f",
+			"activityBar.activeBorder": "#a8f7a9",
 			"activityBar.foreground": "#15202b",
 			"activityBar.inactiveForeground": "#15202b99",
-			"activityBarBadge.background": "#df9f9f",
+			"activityBarBadge.background": "#a8f7a9",
 			"activityBarBadge.foreground": "#15202b",
-			"titleBar.activeBackground": "#ffffff",
-			"titleBar.inactiveBackground": "#ffffff99",
+			"titleBar.activeBackground": "#ef5350",
+			"titleBar.inactiveBackground": "#ef535099",
 			"titleBar.activeForeground": "#15202b",
 			"titleBar.inactiveForeground": "#15202b99",
-			"statusBar.background": "#ffffff",
-			"statusBarItem.hoverBackground": "#e6e6e6",
-			"statusBar.foreground": "#15202b",
-			"statusBar.border": "#ffffff",
-			"titleBar.border": "#ffffff"
+			"statusBar.background": "#ef5350",
+			"statusBarItem.hoverBackground": "#eb2521",
+			"statusBar.foreground": "#15202b"
 		},
-		"peacock.color": "#ffffff",
+		"peacock.color": "#ef5350",
 		"editor.tabSize": 2,
 		"dart.lineLength": 120,
-		"dart.allowAnalytics": false
+		"dart.allowAnalytics": false,
+		"zenMode.silentNotifications": false
 	}
 }

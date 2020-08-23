@@ -1,21 +1,24 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'package:flutter_advanced_networkimage/provider.dart';
 
 // Storage
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/conversation_bloc.dart';
+import 'package:lise/bloc/public_profile_bloc.dart';
+import 'package:lise/data/public_data.dart';
+import 'package:lise/pages/public_profile.dart';
 import 'package:lise/utils/convert_match_time.dart';
+import 'package:lise/widgets/loading_progress_indicator.dart';
 import 'package:lise/widgets/matches_text_composer.dart';
 import 'package:lise/widgets/message_long_press_dialog.dart';
 import 'package:sqflite/sqflite.dart';
 
 class MatchedConversationScreen extends StatefulWidget {
   final String imageLink;
-  final String alias;
   final String otherUserId;
+  final String otherUserAlias;
   final String matchName;
   final String username;
   final String room;
@@ -24,8 +27,8 @@ class MatchedConversationScreen extends StatefulWidget {
 
   MatchedConversationScreen({
     @required this.imageLink,
-    @required this.alias,
     @required this.otherUserId,
+    @required this.otherUserAlias,
     @required this.matchName,
     @required this.username,
     @required this.room,
@@ -36,8 +39,8 @@ class MatchedConversationScreen extends StatefulWidget {
   @override
   MatchedConversationScreenState createState() => MatchedConversationScreenState(
         imageLink: this.imageLink,
-        alias: this.alias,
         otherUserId: this.otherUserId,
+        otherUserAlias: this.otherUserAlias,
         matchName: this.matchName,
         username: this.username,
         room: this.room,
@@ -46,10 +49,12 @@ class MatchedConversationScreen extends StatefulWidget {
       );
 }
 
+enum PopupMenuChoice { flag }
+
 class MatchedConversationScreenState extends State<MatchedConversationScreen> with WidgetsBindingObserver {
   final String imageLink;
-  final String alias;
   final String otherUserId;
+  final String otherUserAlias;
   final String matchName;
   final String username;
   final String room;
@@ -58,8 +63,8 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
 
   MatchedConversationScreenState({
     @required this.imageLink,
-    @required this.alias,
     @required this.otherUserId,
+    @required this.otherUserAlias,
     @required this.matchName,
     @required this.username,
     @required this.room,
@@ -69,16 +74,6 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
 
   final _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
-
-  // Text styles
-  var sentStyle = TextStyle(
-    fontSize: 16.0,
-    color: Colors.white,
-  );
-  var receivedStyle = TextStyle(
-    fontSize: 16.0,
-    color: Colors.black,
-  );
 
   var _showTime;
 
@@ -93,6 +88,8 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
   var _messagesList;
 
   var _loadedAllRows = false;
+
+  var _selection;
 
   @override
   void initState() {
@@ -125,10 +122,67 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Conversation with ' + matchName),
+        centerTitle: true,
         elevation: 4.0,
+        title: Column(
+          children: [
+            CupertinoButton(
+              minSize: 0,
+              padding: EdgeInsets.all(0),
+              child: SizedBox(
+                height: kToolbarHeight - 20,
+                width: kToolbarHeight - 20,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: CachedNetworkImageProvider(
+                        imageLink,
+                      ),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (parentContext) => BlocProvider(
+                      create: (childContext) => PublicProfileBloc(
+                        publicData: PublicDataRepository(),
+                      ),
+                      child: PublicProfileScreen(
+                        alias: otherUserAlias,
+                        name: matchName,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            Text(
+              matchName,
+              style: TextStyle(fontSize: 15),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          PopupMenuButton<PopupMenuChoice>(
+            onSelected: (PopupMenuChoice result) {
+              setState(() {
+                _selection = result;
+              });
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<PopupMenuChoice>>[
+              const PopupMenuItem<PopupMenuChoice>(
+                value: PopupMenuChoice.flag,
+                child: Text('Report'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: BlocListener<ConversationBloc, ConversationState>(
         listener: (context, state) {
@@ -171,22 +225,16 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
                 return builder(context, _messagesList);
               }
             }
-            return loading(context);
+            return loading_progress_indicator();
           },
         ),
       ),
     );
   }
 
-  Widget loading(BuildContext context) {
-    return Center(
-      child: CircularProgressIndicator(),
-    );
-  }
-
   Widget builder(BuildContext context, var messagesList) {
-    _colorSent = Colors.blueGrey[800];
-    _colorReceived = Colors.blueGrey[100];
+    _colorSent = Colors.blue[600];
+    _colorReceived = (Theme.of(context).brightness == Brightness.light) ? Colors.blueGrey[100] : Colors.white30;
 
     return Builder(
       builder: (BuildContext context) {
@@ -194,7 +242,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
           children: <Widget>[
             Container(
               height: _isLoading ? 100 : 0,
-              child: loading(context),
+              child: loading_progress_indicator(),
               decoration: BoxDecoration(
                 color: Colors.transparent,
               ),
@@ -215,7 +263,12 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
               color: Colors.black,
             ),
             Container(
-              child: matchesTextComposer(context, _scrollController, _textController, alias, room),
+              child: MatchesTextComposer(
+                scrollController: _scrollController,
+                textController: _textController,
+                userID: username,
+                room: room,
+              ),
             ),
           ],
         );
@@ -231,7 +284,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
       itemCount: (messagesList.isNotEmpty) ? messagesList.length : 0,
       itemBuilder: (context, i) {
         var row = messagesList[i];
-        if (row['birth'] == alias) {
+        if (row['birth'] == username) {
           return _buildSentRow(
             image: (row['image'] == 1) ? true : false,
             messagesList: messagesList,
@@ -272,7 +325,7 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
     // chat bubble
     final radius = BorderRadius.only(
       topLeft: Radius.circular(20.0),
-      topRight: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] == alias)
+      topRight: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] == username)
           ? Radius.circular(5.0)
           : Radius.circular(20.0),
       bottomLeft: Radius.circular(20.0),
@@ -335,7 +388,9 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
             child: Text(
               time.toString(),
               textAlign: TextAlign.right,
-              style: TextStyle(fontSize: 12.0),
+              style: TextStyle(
+                fontSize: 12.0,
+              ),
             ),
           ),
         ],
@@ -361,12 +416,11 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
     // Text style
     var textStyle = new TextStyle(
       fontSize: 17.0,
-      color: Colors.black,
     );
 
     // chat bubble
     final radius = BorderRadius.only(
-      topLeft: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] != alias)
+      topLeft: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] != username)
           ? Radius.circular(5.0)
           : Radius.circular(20.0),
       topRight: Radius.circular(20.0),
@@ -385,15 +439,14 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
             child: SizedBox(
               height: 40,
               width: 40,
-              child: (i > 1 && messagesList[i - 1]['birth'] != alias)
+              child: (i > 1 && messagesList[i - 1]['birth'] != username)
                   ? null
                   : Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         image: DecorationImage(
-                          image: AdvancedNetworkImage(
+                          image: CachedNetworkImageProvider(
                             imageLink,
-                            useDiskCache: true,
                           ),
                           fit: BoxFit.cover,
                         ),
@@ -471,7 +524,13 @@ class MatchedConversationScreenState extends State<MatchedConversationScreen> wi
   Widget gifImage(BorderRadius radius, String url) {
     return ClipRRect(
       borderRadius: radius,
-      child: Image.network(url, headers: {'accept': 'image/*'}),
+      child: CachedNetworkImage(
+        imageUrl: url,
+        httpHeaders: {'accept': 'image/*'},
+        placeholder: (context, valueString) {
+          return loading_progress_indicator();
+        },
+      ),
     );
   }
 }

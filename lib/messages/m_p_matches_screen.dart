@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -7,12 +8,12 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/conversation_bloc.dart';
 import 'package:lise/utils/convert_match_time.dart';
+import 'package:lise/widgets/loading_progress_indicator.dart';
 import 'package:lise/widgets/message_long_press_dialog.dart';
 import 'package:lise/widgets/p_matches_text_composer.dart';
 import 'package:sqflite/sqflite.dart';
 
 class PMatchesConversationScreen extends StatefulWidget {
-  final String alias;
   final String matchName;
   final String username;
   final String room;
@@ -20,7 +21,6 @@ class PMatchesConversationScreen extends StatefulWidget {
   final AppVariables appVariables;
 
   PMatchesConversationScreen({
-    @required this.alias,
     @required this.matchName,
     @required this.username,
     @required this.room,
@@ -30,7 +30,6 @@ class PMatchesConversationScreen extends StatefulWidget {
 
   @override
   PMatchesConversationScreenState createState() => PMatchesConversationScreenState(
-        alias: this.alias,
         matchName: this.matchName,
         username: this.username,
         room: this.room,
@@ -40,7 +39,6 @@ class PMatchesConversationScreen extends StatefulWidget {
 }
 
 class PMatchesConversationScreenState extends State<PMatchesConversationScreen> with WidgetsBindingObserver {
-  final String alias;
   final String matchName;
   final String username;
   final String room;
@@ -48,7 +46,6 @@ class PMatchesConversationScreenState extends State<PMatchesConversationScreen> 
   final AppVariables appVariables;
 
   PMatchesConversationScreenState({
-    @required this.alias,
     @required this.matchName,
     @required this.username,
     @required this.room,
@@ -130,7 +127,6 @@ class PMatchesConversationScreenState extends State<PMatchesConversationScreen> 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Conversation with ' + matchName),
         elevation: 4.0,
@@ -176,16 +172,10 @@ class PMatchesConversationScreenState extends State<PMatchesConversationScreen> 
                 return builder(context, _messagesList);
               }
             }
-            return loading(context);
+            return loading_progress_indicator();
           },
         ),
       ),
-    );
-  }
-
-  Widget loading(BuildContext context) {
-    return Center(
-      child: CircularProgressIndicator(),
     );
   }
 
@@ -199,7 +189,7 @@ class PMatchesConversationScreenState extends State<PMatchesConversationScreen> 
           children: <Widget>[
             Container(
               height: _isLoading ? 100 : 0,
-              child: loading(context),
+              child: loading_progress_indicator(),
               decoration: BoxDecoration(
                 color: Colors.transparent,
               ),
@@ -220,7 +210,12 @@ class PMatchesConversationScreenState extends State<PMatchesConversationScreen> 
               color: Colors.black,
             ),
             Container(
-              child: pMatchesTextComposer(context, _scrollController, _textController, alias, room),
+              child: PMatchesTextComposer(
+                scrollController: _scrollController,
+                textController: _textController,
+                userID: username,
+                room: room,
+              ),
             ),
           ],
         );
@@ -236,7 +231,7 @@ class PMatchesConversationScreenState extends State<PMatchesConversationScreen> 
       itemCount: (messagesList.isNotEmpty) ? messagesList.length : 0,
       itemBuilder: (context, i) {
         var row = messagesList[i];
-        if (row['birth'] == alias) {
+        if (row['birth'] == username) {
           return _buildSentRow(
             image: (row['image'] == 1) ? true : false,
             messagesList: messagesList,
@@ -277,7 +272,7 @@ class PMatchesConversationScreenState extends State<PMatchesConversationScreen> 
     // chat bubble
     final radius = BorderRadius.only(
       topLeft: Radius.circular(20.0),
-      topRight: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] == alias)
+      topRight: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] == username)
           ? Radius.circular(5.0)
           : Radius.circular(20.0),
       bottomLeft: Radius.circular(20.0),
@@ -371,7 +366,7 @@ class PMatchesConversationScreenState extends State<PMatchesConversationScreen> 
 
     // chat bubble
     final radius = BorderRadius.only(
-      topLeft: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] != alias)
+      topLeft: (i < messagesList.length - 1 && messagesList[i + 1]['birth'] != username)
           ? Radius.circular(5.0)
           : Radius.circular(20.0),
       topRight: Radius.circular(20.0),
@@ -390,7 +385,7 @@ class PMatchesConversationScreenState extends State<PMatchesConversationScreen> 
             child: SizedBox(
               height: 40,
               width: 40,
-              child: (i > 1 && messagesList[i - 1]['birth'] != alias)
+              child: (i > 1 && messagesList[i - 1]['birth'] != username)
                   ? null
                   : CircleAvatar(
                       child: Text(matchName.toUpperCase()[0]),
@@ -467,7 +462,13 @@ class PMatchesConversationScreenState extends State<PMatchesConversationScreen> 
   Widget gifImage(BorderRadius radius, String url) {
     return ClipRRect(
       borderRadius: radius,
-      child: Image.network(url, headers: {'accept': 'image/*'}),
+      child: CachedNetworkImage(
+        imageUrl: url,
+        httpHeaders: {'accept': 'image/*'},
+        placeholder: (context, valueString) {
+          return loading_progress_indicator();
+        },
+      ),
     );
   }
 }

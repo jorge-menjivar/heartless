@@ -10,33 +10,9 @@ import 'package:lise/pages/profile/personal/race_screen.dart';
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-Map<int, Color> color = {
-  50: Color.fromRGBO(0, 0, 0, .1),
-  100: Color.fromRGBO(0, 0, 0, .2),
-  200: Color.fromRGBO(0, 0, 0, .3),
-  300: Color.fromRGBO(0, 0, 0, .4),
-  400: Color.fromRGBO(0, 0, 0, .5),
-  500: Color.fromRGBO(0, 0, 0, .6),
-  600: Color.fromRGBO(0, 0, 0, .7),
-  700: Color.fromRGBO(0, 0, 0, .8),
-  800: Color.fromRGBO(0, 0, 0, .9),
-  900: Color.fromRGBO(0, 0, 0, 1),
-};
-MaterialColor black = MaterialColor(0xFF000000, color);
-MaterialColor white = MaterialColor(0xFFFFFFFF, color);
-
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
-  color: Colors.black,
 );
-final _subFont = const TextStyle(
-  color: Colors.black,
-);
-final _trailFont = const TextStyle(
-  color: Colors.black,
-);
-final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
-var _iconColor = black;
 
 class PersonalInformationScreen extends StatefulWidget {
   PersonalInformationScreen({@required this.user});
@@ -130,7 +106,6 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
 
     return Scaffold(
         key: _scaffoldKey,
-        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text('My Information'),
           elevation: 4.0,
@@ -145,7 +120,8 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
             ListTile(
               leading: FaIcon(
                 FontAwesomeIcons.signature,
-                color: black,
+                color: IconTheme.of(context).color,
+                size: IconTheme.of(context).size,
               ),
               title: Row(
                 children: <Widget>[
@@ -153,7 +129,6 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
                     (_name != null) ? _name : '',
                     style: TextStyle(
                       fontSize: 26.0,
-                      color: Colors.black,
                     ),
                   ),
                 ],
@@ -161,13 +136,11 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
             ),
             Container(
               padding: EdgeInsets.all(10),
-              color: white,
               child: Text(
                 'We got your back!\nYour name and pictures are never shown together to strangers.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12.0,
-                  color: Colors.black,
                 ),
               ),
             ),
@@ -175,7 +148,8 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
             ListTile(
               leading: FaIcon(
                 FontAwesomeIcons.birthdayCake,
-                color: black,
+                color: IconTheme.of(context).color,
+                size: IconTheme.of(context).size,
               ),
               title: Row(
                 children: <Widget>[
@@ -207,7 +181,8 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
             ListTile(
                 leading: FaIcon(
                   FontAwesomeIcons.baby,
-                  color: black,
+                  color: IconTheme.of(context).color,
+                  size: IconTheme.of(context).size,
                 ),
                 title: Text(
                   'My Gender',
@@ -218,17 +193,20 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
                 onLongPress: () {},
                 onTap: () async {
                   await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => GenderScreen(
-                                user: user,
-                              ))).then((value) => _downloadData());
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GenderScreen(
+                        user: user,
+                      ),
+                    ),
+                  ).then((value) => _downloadData());
                 }),
             Divider(color: Colors.transparent),
             ListTile(
                 leading: FaIcon(
                   FontAwesomeIcons.child,
-                  color: black,
+                  color: IconTheme.of(context).color,
+                  size: IconTheme.of(context).size,
                 ),
                 title: Text(
                   'My Race',

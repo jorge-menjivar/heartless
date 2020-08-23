@@ -24,31 +24,38 @@ class PMatchesRepository implements PMatchesData {
     var list = [];
     for (var match in pMatchesDocs) {
       try {
-        var sqlRoom = '`' + match['room'] + '`';
-        var messagesList = await db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC');
-        var values;
-        if (messagesList.isNotEmpty) {
-          var lastMessage = messagesList[0];
-          values = {
+        if (match['room'] != null) {
+          var sqlRoom = '`' + match['room'] + '`';
+          var messagesList = await db.rawQuery('SELECT * FROM $sqlRoom ORDER BY ${Message.db_sTime} DESC');
+          var values;
+          if (messagesList.isNotEmpty) {
+            var lastMessage = messagesList[0];
+            values = {
+              'key': match.documentID,
+              'room': match['room'],
+              'otherUser': match['otherUser'],
+              'last_message': lastMessage['message'],
+              'last_message_from': lastMessage['birth'],
+              'last_message_time': int.parse(lastMessage['sTime']),
+            };
+          } else if (messagesList.isEmpty) {
+            values = {
+              'key': match.documentID,
+              'room': match['room'],
+              'otherUser': match['otherUser'],
+              'last_message': '',
+              'last_message_from': 'empty',
+              'last_message_time': 0,
+            };
+          }
+          list.add(values);
+        } else {
+          var values = {
             'key': match.documentID,
-            'room': match['room'],
-            'otherUser': match['otherUser'],
-            'last_message': lastMessage['message'],
-            'last_message_from': lastMessage['birth'],
-            'last_message_time': int.parse(lastMessage['sTime']),
+            'requestID': match['requestID'],
           };
-        } else if (messagesList.isEmpty) {
-          values = {
-            'key': match.documentID,
-            'room': match['room'],
-            'otherUser': match['otherUser'],
-            'last_message': '',
-            'last_message_from': 'empty',
-            'last_message_time': 0,
-          };
+          list.add(values);
         }
-
-        list.add(values);
       } catch (e) {
         print(e);
       }
@@ -66,7 +73,7 @@ class PMatchesRepository implements PMatchesData {
         if (messagesList.isNotEmpty) {
           var lastMessage = messagesList[0];
           values = {
-            'key': match.documentID,
+            'key': match['key'],
             'room': match['room'],
             'otherUser': match['otherUser'],
             'last_message': lastMessage['message'],
@@ -75,7 +82,7 @@ class PMatchesRepository implements PMatchesData {
           };
         } else if (messagesList.isEmpty) {
           values = {
-            'key': match.documentID,
+            'key': match['key'],
             'room': match['room'],
             'otherUser': match['otherUser'],
             'last_message': '',

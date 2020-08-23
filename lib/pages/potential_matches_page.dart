@@ -21,7 +21,6 @@ class PotentialMatchesScreen extends StatefulWidget {
   final Database db;
   final GlobalKey<ScaffoldState> scaffoldKey;
   final FirebaseUser user;
-  final String alias;
   final AppVariables appVariables;
 
   PotentialMatchesScreen({
@@ -29,7 +28,6 @@ class PotentialMatchesScreen extends StatefulWidget {
     @required this.db,
     @required this.scaffoldKey,
     @required this.user,
-    @required this.alias,
     @required this.appVariables,
   }) : super(key: key);
 
@@ -38,32 +36,29 @@ class PotentialMatchesScreen extends StatefulWidget {
         db: this.db,
         scaffoldKey: this.scaffoldKey,
         user: this.user,
-        alias: this.alias,
         appVariables: this.appVariables,
       );
 }
 
 class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with AutomaticKeepAliveClientMixin {
   final Database db;
-  final scaffoldKey;
-  final user;
-  final alias;
+  final GlobalKey<ScaffoldState> scaffoldKey;
+  final FirebaseUser user;
   final AppVariables appVariables;
 
   _PotentialMatchesScreenState({
     @required this.db,
     @required this.scaffoldKey,
     @required this.user,
-    @required this.alias,
     @required this.appVariables,
   });
 
   ScrollController _scrollController;
 
-  final _listTitleStyle = const TextStyle(color: Colors.black, fontWeight: FontWeight.bold);
-  final _biggerFont = const TextStyle(fontSize: 18.0, color: Colors.black);
-  final _subFont = const TextStyle(color: Colors.black);
-  final _trailFont = const TextStyle(color: Colors.black);
+  final _listTitleStyle = const TextStyle(fontWeight: FontWeight.bold);
+  final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _subFont = const TextStyle(fontSize: 14.0);
+  final _trailFont = const TextStyle(fontSize: 14.0);
 
   var variablesInitialized = false;
 
@@ -84,11 +79,11 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
       padding: const EdgeInsets.all(1),
       controller: _scrollController,
       itemCount: pMatchesList.length + 2,
-      itemBuilder: (context, i) {
+      itemBuilder: (itemBuilderContext, i) {
         if (i == 0) {
           return ListTile(
             leading: Text(
-              AppLocalizations.of(context).translate('POTENTIAL_MATCHES'),
+              AppLocalizations.of(itemBuilderContext).translate('POTENTIAL_MATCHES'),
               textAlign: TextAlign.left,
               style: _listTitleStyle,
             ),
@@ -98,13 +93,14 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
         if (i == pMatchesList.length + 1) {
           return ListTile(
             title: Text(
-              AppLocalizations.of(context).translate('Find_someone_new'),
+              AppLocalizations.of(itemBuilderContext).translate('Find_someone_new'),
               textAlign: TextAlign.left,
               style: _biggerFont,
             ),
             trailing: FaIcon(
               FontAwesomeIcons.userPlus,
-              color: Colors.black,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
             ),
             onTap: () {
               sendPotentialMatchRequest(scaffoldKey);
@@ -116,26 +112,27 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
         var lastMessage;
         var time;
 
-        if (pMatch['pending'] == true) {
+        if (pMatch['room'] == null) {
           return ListTile(
             title: Text(
-              AppLocalizations.of(context).translate('Searching_the_world_title'),
+              AppLocalizations.of(itemBuilderContext).translate('Searching_the_world_title'),
               textAlign: TextAlign.left,
               style: _biggerFont,
             ),
             subtitle: Text(
-              AppLocalizations.of(context).translate('Searching_the_world_subtitle'),
+              AppLocalizations.of(itemBuilderContext).translate('Searching_the_world_subtitle'),
               style: _subFont,
               textAlign: TextAlign.left,
               maxLines: 1,
             ),
             trailing: FaIcon(
               FontAwesomeIcons.clock,
-              color: Colors.black,
+              color: IconTheme.of(context).color,
+              size: IconTheme.of(context).size,
             ),
             onTap: () {},
             onLongPress: () {
-              showDeleteDialog(context, 'request', 'request').then((v) {
+              showDeleteDialog(itemBuilderContext, 'request', 'request').then((v) {
                 if (v) {
                   deleteRequest(pMatch['key'], scaffoldKey);
                 }
@@ -154,10 +151,12 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
               lastMessage = pMatch['last_message'];
             }
           } else {
-            lastMessage = AppLocalizations.of(context).translate('Start_Conversation');
+            lastMessage = AppLocalizations.of(itemBuilderContext).translate('Start_Conversation');
           }
           return ListTile(
-            leading: CircleAvatar(child: Text(pMatch['otherUser'].toUpperCase()[0])),
+            leading: CircleAvatar(
+              child: Text(pMatch['otherUser'].toUpperCase()[0]),
+            ),
             title: Text(
               pMatch['otherUser'],
               textAlign: TextAlign.left,
@@ -173,7 +172,7 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
             ),
             trailing: Text(
               convertPMatchTime(
-                context: context,
+                context: itemBuilderContext,
                 userID: user.uid,
                 time: int.parse(pMatch['key']),
                 roomKey: pMatch['key'],
@@ -185,21 +184,20 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
               appVariables.convoOpen[pMatch['room']] = true;
               // If the conversation is not finished go to chat, otherwise go to select connections screen
               (convertPMatchTime(
-                        context: context,
+                        context: itemBuilderContext,
                         userID: user.uid,
                         time: int.parse(pMatch['key']),
                         roomKey: pMatch['key'],
                       ) !=
-                      AppLocalizations.of(context).translate('COMPLETED'))
+                      AppLocalizations.of(itemBuilderContext).translate('COMPLETED'))
                   ? Navigator.push(
-                      context,
+                      itemBuilderContext,
                       MaterialPageRoute(
                         builder: (childContext) => BlocProvider.value(
-                          value: BlocProvider.of<ConversationBloc>(context),
+                          value: BlocProvider.of<ConversationBloc>(itemBuilderContext),
                           child: PMatchesConversationScreen(
-                            alias: alias,
                             matchName: pMatch['otherUser'],
-                            username: user.displayName,
+                            username: user.uid,
                             room: pMatch['room'],
                             db: this.db,
                             appVariables: this.appVariables,
@@ -210,7 +208,7 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
                       appVariables.convoRowCount = AppVariables.DEFAULT_ROW_COUNT;
                     })
                   : Navigator.push(
-                      context,
+                      itemBuilderContext,
                       MaterialPageRoute(
                         builder: (context) => SelectMatchesScreen(
                           user: user,
@@ -222,7 +220,7 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
             },
             onLongPress: () {
               setState(() {
-                showDeleteDialog(context, pMatch['otherUser'], 'pMatch').then((v) {
+                showDeleteDialog(itemBuilderContext, pMatch['otherUser'], 'pMatch').then((v) {
                   if (v) {
                     deletePotentialMatch(int.parse(pMatch['key']), pMatch['room'], scaffoldKey);
                   }
