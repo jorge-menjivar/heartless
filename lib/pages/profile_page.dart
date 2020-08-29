@@ -1,14 +1,21 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:frino_icons/frino_icons.dart';
 import 'package:lise/bloc/profile_bloc.dart';
 import 'package:lise/pages/profile/dev_settings.dart';
 import 'package:lise/pages/profile/personal_information_screen.dart';
 import 'package:lise/pages/profile/profile_pictures_screen.dart';
 import 'package:lise/pages/profile/search_information_screen.dart';
+import 'package:lise/pages/profile/settings.dart';
 import 'package:lise/pages/profile/wol_screen.dart';
 import 'package:lise/widgets/loading_progress_indicator.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../localizations.dart';
 import '../main.dart';
@@ -68,6 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
   Widget build(BuildContext context) {
     super.build(context);
     return ListView(
+      physics: BouncingScrollPhysics(),
       padding: const EdgeInsets.all(1),
       children: <Widget>[
         ListTile(
@@ -154,8 +162,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
           decoration: BoxDecoration(),
           child: ListTile(
             dense: true,
-            leading: FaIcon(
-              FontAwesomeIcons.userAlt,
+            leading: Icon(
+              FrinoIcons.f_user,
               color: IconTheme.of(context).color,
               size: IconTheme.of(context).size,
             ),
@@ -187,8 +195,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
           decoration: BoxDecoration(),
           child: ListTile(
             dense: true,
-            leading: FaIcon(
-              FontAwesomeIcons.search,
+            leading: Icon(
+              FrinoIcons.f_search,
               color: IconTheme.of(context).color,
               size: IconTheme.of(context).size,
             ),
@@ -220,8 +228,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
           decoration: BoxDecoration(),
           child: ListTile(
             dense: true,
-            leading: FaIcon(
-              FontAwesomeIcons.snowboarding,
+            leading: Icon(
+              FrinoIcons.f_pulse,
               color: IconTheme.of(context).color,
               size: IconTheme.of(context).size,
             ),
@@ -253,8 +261,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
           decoration: BoxDecoration(),
           child: ListTile(
             dense: true,
-            leading: FaIcon(
-              FontAwesomeIcons.wrench,
+            leading: Icon(
+              FrinoIcons.f_settings,
               color: IconTheme.of(context).color,
               size: IconTheme.of(context).size,
             ),
@@ -269,9 +277,14 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
               textAlign: TextAlign.left,
               maxLines: 1,
             ),
-            onTap: () {
-              setState(() {});
-            },
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SettingsScreen(
+                  user: user,
+                ),
+              ),
+            ),
           ),
         ),
         Divider(color: Colors.transparent),
@@ -281,8 +294,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
           decoration: BoxDecoration(),
           child: ListTile(
             dense: true,
-            leading: FaIcon(
-              FontAwesomeIcons.dev,
+            leading: Icon(
+              FrinoIcons.f_code,
               color: IconTheme.of(context).color,
               size: IconTheme.of(context).size,
             ),
@@ -310,8 +323,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
           decoration: BoxDecoration(),
           child: ListTile(
             dense: true,
-            leading: FaIcon(
-              FontAwesomeIcons.signOutAlt,
+            leading: Icon(
+              FrinoIcons.f_logout,
               color: IconTheme.of(context).color,
               size: IconTheme.of(context).size,
             ),
@@ -321,13 +334,18 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
               style: _biggerFont,
             ),
             onTap: () {
-              FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LoadingPage(),
-                ),
-              );
+              signOut().then((success) {
+                if (success) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoadingPage(),
+                    ),
+                  );
+                } else {
+                  //TODO
+                }
+              });
             },
           ),
         ),
@@ -336,6 +354,26 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
     );
   }
 
+  /// Returns true if successfully removed all user information.
+  Future<bool> signOut() async {
+    try {
+      //TODO dispose of listeners
+
+      // Get a location using path_provider
+      Directory documentsDirectory = await getApplicationDocumentsDirectory();
+      String path = join(documentsDirectory.path, 'convos', 'messages');
+      await deleteDatabase(path);
+
+      await FirebaseAuth.instance.signOut();
+
+      return true;
+    } catch (e) {
+      print('ERROR ON SIGN OUT:\n${e.toString()}');
+      return false;
+    }
+  }
+
+  /// An empty placeholder to keep the screen from loosing posture
   Widget emptyPlaceHolder() {
     return Column(
       children: [

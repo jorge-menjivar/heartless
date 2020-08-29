@@ -27,7 +27,6 @@ class ProfilePicturesScreenState extends State<ProfilePicturesScreen> {
     return Scaffold(
         appBar: AppBar(
           title: Text('My Public Profile'),
-          elevation: 4.0,
         ),
         body: UploadImagesPage(alias: alias, placeholder: loading_progress_indicator()));
   }

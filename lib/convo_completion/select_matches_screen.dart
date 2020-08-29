@@ -1,15 +1,22 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:lise/widgets/loading_progress_indicator.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lise/bloc/public_profile_bloc.dart';
+import 'package:lise/data/public_data.dart';
+import 'package:lise/pages/public_profile.dart';
+import 'package:lise/widgets/animatedDismissibleIconBackground.dart';
+import 'package:lise/widgets/randomDismissIconData.dart';
 import 'package:location/location.dart';
 import 'package:pedantic/pedantic.dart';
 
@@ -24,7 +31,7 @@ class SelectMatchesScreen extends StatefulWidget {
   SelectMatchesScreenState createState() => SelectMatchesScreenState(user: user, room: room, roomKey: roomKey);
 }
 
-class SelectMatchesScreenState extends State<SelectMatchesScreen> {
+class SelectMatchesScreenState extends State<SelectMatchesScreen> with TickerProviderStateMixin {
   FirebaseUser user;
   final String room;
   final String roomKey;
@@ -36,19 +43,22 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
   ScrollController _scrollController;
 
   final _profiles = {};
-  double _picSize;
 
   final _profilePicImageLinks = [];
 
   var _users = [];
 
+  int flag = 0;
+
+  AnimationController _animationController;
+
   @override
   void initState() {
     super.initState();
-    _picSize = 350.0;
+    _animationController = AnimationController(value: 1, vsync: this);
+    _scrollController = ScrollController();
     _downloadData();
     _loadProfilePictures();
-    _scrollController = ScrollController();
   }
 
   Future<void> _downloadData() async {
@@ -122,7 +132,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
     // Getting the picture download URL for each user from the downloaded array
     for (var userId in _users) {
       try {
-        _profiles[userId] = false;
+        _profiles[userId] = true;
         _profilePicImageLinks
             .add(await FirebaseStorage().ref().child('users/${userId}/profile_pictures/pic1.jpg').getDownloadURL());
       } catch (e) {
@@ -148,21 +158,20 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Select the people you find attractive',
+                'Dismiss the people you don\'t find attractive',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              Divider(color: Colors.transparent),
               SizedBox(
-                height: _picSize + 40,
+                width: 500,
+                height: 500,
                 child: _buildCards(),
               ),
-              Divider(
-                height: 40,
-                color: Colors.transparent,
-              ),
+              Divider(color: Colors.transparent),
               CupertinoButton(
                 color: Theme.of(context).accentColor,
                 child: Text(
@@ -189,47 +198,60 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
   }
 
   Widget _buildCards() {
-    return ListView.builder(
-      physics: BouncingScrollPhysics(),
-      scrollDirection: Axis.horizontal,
-      controller: _scrollController,
+    _animationController.animateTo(1, duration: Duration(milliseconds: 1));
+    return CarouselSlider.builder(
+      options: CarouselOptions(
+        scrollDirection: Axis.horizontal,
+        viewportFraction: 1,
+        aspectRatio: 12 / 16,
+        disableCenter: true,
+        enlargeCenterPage: true,
+        enableInfiniteScroll: false,
+        autoPlay: true,
+      ),
       itemCount: _profilePicImageLinks.length,
-      itemBuilder: (context, i) {
-        return Center(
-          child: Container(
-            margin: EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10000.0),
-              color: (_profiles[_users[i]]) ? Colors.green : Colors.black12,
+      itemBuilder: (BuildContext context, int i) => Container(
+        child: Dismissible(
+          key: Key(_users[i]),
+          background: AnimatedDismissibleIconBackground(
+            listenable: _animationController,
+            iconData: randomDismissIconData(),
+          ),
+          direction: DismissDirection.up,
+          child: RawMaterialButton(
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            child: CachedNetworkImage(
+              imageUrl: _profilePicImageLinks[i],
+              fit: BoxFit.fill,
             ),
-            padding: EdgeInsets.all(6),
-            child: SizedBox(
-              width: _picSize,
-              height: _picSize,
-              child: RawMaterialButton(
-                highlightColor: Colors.transparent,
-                splashColor: Colors.transparent,
-                hoverColor: Colors.transparent,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10000.0),
-                  child: CachedNetworkImage(
-                    imageUrl: _profilePicImageLinks[i],
-                    fit: BoxFit.fill,
-                    placeholder: (context, valueString) {
-                      return loading_progress_indicator();
-                    },
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (parentContext) => BlocProvider(
+                    create: (childContext) => PublicProfileBloc(
+                      publicData: PublicDataRepository(),
+                    ),
+                    child: PublicProfileScreen(
+                      alias: _users[i],
+                    ),
                   ),
                 ),
-                onPressed: () {
-                  setState(() {
-                    _profiles[_users[i]] = !_profiles[_users[i]];
-                  });
-                },
-              ),
-            ),
+              );
+            },
           ),
-        );
-      },
+          onDismissed: (dismissDirection) {
+            _animationController
+                .animateTo(0, duration: Duration(milliseconds: 150), curve: Curves.easeOutQuart)
+                .whenComplete(() => setState(() {}));
+            _profiles[_users[i]] = false;
+            _users.removeAt(i);
+            _profilePicImageLinks.removeAt(i);
+          },
+        ),
+      ),
     );
   }
 
@@ -320,6 +342,7 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> {
 
   @override
   void dispose() {
+    _animationController.dispose();
     super.dispose();
   }
 }

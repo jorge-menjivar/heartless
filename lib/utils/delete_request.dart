@@ -1,14 +1,9 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:lise/widgets/loading_dialog.dart';
 
-Future<void> deleteRequest(String key, GlobalKey<ScaffoldState> scaffoldKey) async {
-  final snackBar = SnackBar(
-    content: Text(
-      //TODO
-      'Deleting Request',
-    ),
-  );
-  scaffoldKey.currentState.showSnackBar(snackBar);
+Future<void> deleteRequest(BuildContext context, String key, GlobalKey<ScaffoldState> scaffoldKey) async {
+  showLoadingDialog(context);
 
   // Getting instance of the server function
   final callable = CloudFunctions.instance.getHttpsCallable(
@@ -22,6 +17,6 @@ Future<void> deleteRequest(String key, GlobalKey<ScaffoldState> scaffoldKey) asy
     },
   );
 
-  scaffoldKey.currentState.hideCurrentSnackBar();
+  Navigator.pop(context);
   return;
 }

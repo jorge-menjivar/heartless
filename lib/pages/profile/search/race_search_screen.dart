@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:frino_icons/frino_icons.dart';
 
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
@@ -74,7 +75,6 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
             key: _scaffoldKey,
             appBar: AppBar(
               title: Text('Races'),
-              elevation: 4.0,
             ),
             body: ListView(
               shrinkWrap: true,
@@ -84,8 +84,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
               children: <Widget>[
                 Divider(color: Colors.transparent),
                 ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.child,
+                    leading: Icon(
+                      FrinoIcons.f_tree,
                       color: IconTheme.of(context).color,
                       size: IconTheme.of(context).size,
                     ),
@@ -94,8 +94,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
-                    trailing: FaIcon(
-                      FontAwesomeIcons.check,
+                    trailing: Icon(
+                      FrinoIcons.f_check,
                       color: (_asian) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
@@ -105,8 +105,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.child,
+                    leading: Icon(
+                      FrinoIcons.f_tree,
                       color: IconTheme.of(context).color,
                       size: IconTheme.of(context).size,
                     ),
@@ -115,8 +115,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
-                    trailing: FaIcon(
-                      FontAwesomeIcons.check,
+                    trailing: Icon(
+                      FrinoIcons.f_check,
                       color: (_black) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
@@ -126,8 +126,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.child,
+                    leading: Icon(
+                      FrinoIcons.f_tree,
                       color: IconTheme.of(context).color,
                       size: IconTheme.of(context).size,
                     ),
@@ -136,8 +136,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
-                    trailing: FaIcon(
-                      FontAwesomeIcons.check,
+                    trailing: Icon(
+                      FrinoIcons.f_check,
                       color: (_latinx) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
@@ -147,8 +147,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.child,
+                    leading: Icon(
+                      FrinoIcons.f_tree,
                       color: IconTheme.of(context).color,
                       size: IconTheme.of(context).size,
                     ),
@@ -157,8 +157,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
-                    trailing: FaIcon(
-                      FontAwesomeIcons.check,
+                    trailing: Icon(
+                      FrinoIcons.f_check,
                       color: (_white) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
@@ -168,8 +168,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.child,
+                    leading: Icon(
+                      FrinoIcons.f_tree,
                       color: IconTheme.of(context).color,
                       size: IconTheme.of(context).size,
                     ),
@@ -178,8 +178,8 @@ class RaceSearchScreenState extends State<RaceSearchScreen> {
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
-                    trailing: FaIcon(
-                      FontAwesomeIcons.check,
+                    trailing: Icon(
+                      FrinoIcons.f_check,
                       color: (_other) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {

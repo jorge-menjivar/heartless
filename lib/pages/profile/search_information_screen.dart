@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:frino_icons/frino_icons.dart';
 import 'package:lise/pages/profile/search/gender_search_screen.dart';
 import 'package:lise/pages/profile/search/race_search_screen.dart';
 
@@ -68,7 +69,6 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
         key: _scaffoldKey,
         appBar: AppBar(
           title: Text('Search Settings'),
-          elevation: 4.0,
         ),
         body: ListView(
           controller: _scrollController,
@@ -76,8 +76,8 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
           children: <Widget>[
             Divider(color: Colors.transparent),
             ListTile(
-                leading: FaIcon(
-                  FontAwesomeIcons.genderless,
+                leading: Icon(
+                  FrinoIcons.f_search,
                   color: IconTheme.of(context).color,
                   size: IconTheme.of(context).size,
                 ),
@@ -97,8 +97,8 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
                 }),
             Divider(color: Colors.transparent),
             ListTile(
-                leading: FaIcon(
-                  FontAwesomeIcons.child,
+                leading: Icon(
+                  FrinoIcons.f_rocking_horse,
                   color: IconTheme.of(context).color,
                   size: IconTheme.of(context).size,
                 ),
@@ -117,8 +117,8 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
                 }),
             Divider(color: Colors.grey),
             ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.calendarAlt,
+              leading: Icon(
+                FrinoIcons.f_calendar,
                 color: IconTheme.of(context).color,
                 size: IconTheme.of(context).size,
               ),
@@ -153,8 +153,8 @@ class SearchInformationScreenState extends State<SearchInformationScreen> {
                 }),
             Divider(color: Colors.grey),
             ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.streetView,
+              leading: Icon(
+                FrinoIcons.f_compass,
                 color: IconTheme.of(context).color,
                 size: IconTheme.of(context).size,
               ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:frino_icons/frino_icons.dart';
 import 'package:lise/pages/profile/personal/gender_screen.dart';
 import 'package:lise/pages/profile/personal/race_screen.dart';
 
@@ -108,7 +109,6 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
         key: _scaffoldKey,
         appBar: AppBar(
           title: Text('My Information'),
-          elevation: 4.0,
         ),
         body: ListView(
           shrinkWrap: true,
@@ -118,8 +118,8 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
           children: <Widget>[
             Divider(color: Colors.transparent),
             ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.signature,
+              leading: Icon(
+                FrinoIcons.f_edit,
                 color: IconTheme.of(context).color,
                 size: IconTheme.of(context).size,
               ),
@@ -146,8 +146,8 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
             ),
             Divider(color: Colors.grey),
             ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.birthdayCake,
+              leading: Icon(
+                FrinoIcons.f_birthday,
                 color: IconTheme.of(context).color,
                 size: IconTheme.of(context).size,
               ),
@@ -179,8 +179,8 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
             ),
             Divider(color: Colors.transparent),
             ListTile(
-                leading: FaIcon(
-                  FontAwesomeIcons.baby,
+                leading: Icon(
+                  FrinoIcons.f_baby,
                   color: IconTheme.of(context).color,
                   size: IconTheme.of(context).size,
                 ),
@@ -203,8 +203,8 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
                 }),
             Divider(color: Colors.transparent),
             ListTile(
-                leading: FaIcon(
-                  FontAwesomeIcons.child,
+                leading: Icon(
+                  FrinoIcons.f_rocking_horse,
                   color: IconTheme.of(context).color,
                   size: IconTheme.of(context).size,
                 ),

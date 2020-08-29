@@ -179,6 +179,7 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
               showDeleteDialog(context, match['otherUser'], 'match').then((v) {
                 if (v) {
                   deleteMatch(
+                    context,
                     db,
                     int.parse(match['key']),
                     match['room'],

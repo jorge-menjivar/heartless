@@ -1,18 +1,13 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:lise/utils/database.dart';
+import 'package:lise/widgets/loading_dialog.dart';
 import 'package:sqflite/sqflite.dart';
 
-Future<void> deleteMatch(Database db, int time, String room, GlobalKey<ScaffoldState> scaffoldKey) async {
-  final snackBar = SnackBar(
-    content: Text(
-      //TODO
-      'Deleting Match',
-    ),
-  );
-  scaffoldKey.currentState.showSnackBar(snackBar);
+Future<void> deleteMatch(
+    BuildContext context, Database db, int time, String room, GlobalKey<ScaffoldState> scaffoldKey) async {
+  showLoadingDialog(context);
 
-  /*
   // Getting instance of the server function
   final callable = CloudFunctions.instance.getHttpsCallable(
     functionName: 'deleteMatch',
@@ -25,10 +20,9 @@ Future<void> deleteMatch(Database db, int time, String room, GlobalKey<ScaffoldS
       'room': room,
     },
   );
-  */
 
   dropTable(db, room);
 
-  scaffoldKey.currentState.hideCurrentSnackBar();
+  Navigator.pop(context);
   return;
 }

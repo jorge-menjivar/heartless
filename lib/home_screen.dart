@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_tab_bar_no_ripple/flutter_tab_bar_no_ripple.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:frino_icons/frino_icons.dart';
 import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/p_matches_bloc.dart';
 import 'package:lise/bloc/profile_bloc.dart';
@@ -395,32 +396,26 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ),
         bottomNavigationBar: SafeArea(
           child: TabBarNoRipple(
-            indicator: BoxDecoration(
-              color: Colors.redAccent[400],
-              borderRadius: BorderRadius.all(
-                Radius.circular(50),
-              ),
-            ),
             indicatorColor: Colors.transparent,
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.blueGrey[600],
+            labelColor: Colors.red,
+            unselectedLabelColor: Colors.blueGrey[400],
             tabs: [
               Tab(
                 icon: Icon(
-                  CupertinoIcons.search,
-                  size: 30,
+                  FrinoIcons.f_search_classic,
+                  size: 29,
                 ),
               ),
               Tab(
                 icon: Icon(
-                  CupertinoIcons.conversation_bubble,
-                  size: 30,
+                  FrinoIcons.f_chat_text,
+                  size: 26,
                 ),
               ),
               Tab(
                 icon: Icon(
-                  CupertinoIcons.pencil,
-                  size: 30,
+                  FrinoIcons.f_id,
+                  size: 32,
                 ),
               )
             ],

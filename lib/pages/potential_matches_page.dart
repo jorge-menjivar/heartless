@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:frino_icons/frino_icons.dart';
 import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/conversation_bloc.dart';
 import 'package:lise/bloc/p_matches_bloc.dart';
@@ -13,6 +14,7 @@ import 'package:lise/utils/delete_p_match.dart';
 import 'package:lise/utils/delete_request.dart';
 import 'package:lise/utils/send_p_match_request.dart';
 import 'package:lise/widgets/delete_dialog.dart';
+import 'package:lise/widgets/loading_dialog.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../localizations.dart';
@@ -97,13 +99,13 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
               textAlign: TextAlign.left,
               style: _biggerFont,
             ),
-            trailing: FaIcon(
-              FontAwesomeIcons.userPlus,
+            trailing: Icon(
+              FrinoIcons.f_user_add,
               color: IconTheme.of(context).color,
               size: IconTheme.of(context).size,
             ),
             onTap: () {
-              sendPotentialMatchRequest(scaffoldKey);
+              sendPotentialMatchRequest(context, scaffoldKey);
             },
           );
         }
@@ -125,8 +127,8 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
               textAlign: TextAlign.left,
               maxLines: 1,
             ),
-            trailing: FaIcon(
-              FontAwesomeIcons.clock,
+            trailing: Icon(
+              FrinoIcons.f_clock,
               color: IconTheme.of(context).color,
               size: IconTheme.of(context).size,
             ),
@@ -134,7 +136,7 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
             onLongPress: () {
               showDeleteDialog(itemBuilderContext, 'request', 'request').then((v) {
                 if (v) {
-                  deleteRequest(pMatch['key'], scaffoldKey);
+                  deleteRequest(context, pMatch['key'], scaffoldKey);
                 }
               });
               setState(() {});
@@ -222,7 +224,7 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
               setState(() {
                 showDeleteDialog(itemBuilderContext, pMatch['otherUser'], 'pMatch').then((v) {
                   if (v) {
-                    deletePotentialMatch(int.parse(pMatch['key']), pMatch['room'], scaffoldKey);
+                    deletePotentialMatch(context, int.parse(pMatch['key']), pMatch['room'], scaffoldKey);
                   }
                 });
               });

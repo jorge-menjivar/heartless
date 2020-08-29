@@ -102,59 +102,67 @@ class SignInScreenState extends State<MySignInScreen> {
 
   Future<FirebaseUser> _handleSignIn(String e, String p) async {
     try {
-      var signInWithEmailAndPassword = _auth.signInWithEmailAndPassword(email: e, password: p);
+      // Sign in with the provided information
+      await _auth.signInWithEmailAndPassword(email: e, password: p).then((authResult) async {
+        if (authResult.user != null) {
+          // Getting the user and auth claims from the result
+          final user = (authResult).user;
+          var token = await user.getIdToken();
+          _alias = token.claims['alias'];
 
-      var authResult = await signInWithEmailAndPassword;
-      final user = (authResult).user;
+          print('SIGN IN SUCCESSFUL');
 
-      var token = await user.getIdToken();
-      _alias = token.claims['alias'];
-
-      if (user.isEmailVerified) {
-        var profileCompleted = false;
-        await Firestore.instance
-            .collection('users')
-            .document(user.uid)
-            .collection('data')
-            .document('private')
-            .get()
-            .then((doc) {
-          if (!doc.exists) {
-            print('No data document!');
-          } else {
-            profileCompleted = doc.data['profileCompleted'];
+          // Continue to home screen or new user screen if email is  verified
+          if (user.isEmailVerified) {
+            var profileCompleted = false;
+            await Firestore.instance
+                .collection('users')
+                .document(user.uid)
+                .collection('data')
+                .document('private')
+                .get()
+                .then((doc) {
+              if (!doc.exists) {
+                print('No data document!');
+              } else {
+                profileCompleted = doc.data['profileCompleted'];
+              }
+            });
+            if (profileCompleted) {
+              await Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => LoadingPage()),
+                (route) => false,
+              );
+            } else {
+              await Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NewUserInformationScreen(
+                    user: user,
+                    alias: _alias,
+                  ),
+                ),
+                (route) => false,
+              );
+            }
           }
-        });
-        if (profileCompleted) {
-          await Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => LoadingPage()),
-            (route) => false,
-          );
-        } else {
-          await Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => NewUserInformationScreen(
-                user: user,
-                alias: _alias,
+
+          // Continue to email verification screen if not verified
+          else {
+            await Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VerifyScreen(
+                  user: user,
+                  newUser: false,
+                ),
               ),
-            ),
-            (route) => false,
-          );
+              (route) => false,
+            );
+          }
         }
-      } else {
-        await Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => VerifyScreen(
-              user: user,
-              newUser: false,
-            ),
-          ),
-          (route) => false,
-        );
-      }
+      });
     } catch (e) {
       print(e.toString());
       wrong = true;

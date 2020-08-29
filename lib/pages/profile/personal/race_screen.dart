@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:frino_icons/frino_icons.dart';
 
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
@@ -52,8 +53,8 @@ class RaceScreenState extends State<RaceScreen> {
           children: <Widget>[
             Divider(color: Colors.transparent),
             ListTile(
-                leading: FaIcon(
-                  FontAwesomeIcons.child,
+                leading: Icon(
+                  FrinoIcons.f_tree,
                   color: IconTheme.of(context).color,
                   size: IconTheme.of(context).size,
                 ),
@@ -69,8 +70,8 @@ class RaceScreenState extends State<RaceScreen> {
                 }),
             Divider(color: Colors.grey),
             ListTile(
-                leading: FaIcon(
-                  FontAwesomeIcons.child,
+                leading: Icon(
+                  FrinoIcons.f_tree,
                   color: IconTheme.of(context).color,
                   size: IconTheme.of(context).size,
                 ),
@@ -86,8 +87,8 @@ class RaceScreenState extends State<RaceScreen> {
                 }),
             Divider(color: Colors.grey),
             ListTile(
-                leading: FaIcon(
-                  FontAwesomeIcons.child,
+                leading: Icon(
+                  FrinoIcons.f_tree,
                   color: IconTheme.of(context).color,
                   size: IconTheme.of(context).size,
                 ),
@@ -103,8 +104,8 @@ class RaceScreenState extends State<RaceScreen> {
                 }),
             Divider(color: Colors.grey),
             ListTile(
-                leading: FaIcon(
-                  FontAwesomeIcons.child,
+                leading: Icon(
+                  FrinoIcons.f_tree,
                   color: IconTheme.of(context).color,
                   size: IconTheme.of(context).size,
                 ),
@@ -120,8 +121,8 @@ class RaceScreenState extends State<RaceScreen> {
                 }),
             Divider(color: Colors.grey),
             ListTile(
-                leading: FaIcon(
-                  FontAwesomeIcons.child,
+                leading: Icon(
+                  FrinoIcons.f_tree,
                   color: IconTheme.of(context).color,
                   size: IconTheme.of(context).size,
                 ),

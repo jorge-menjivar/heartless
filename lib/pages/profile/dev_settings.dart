@@ -8,25 +8,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-Map<int, Color> color = {
-  50: Color.fromRGBO(0, 0, 0, .1),
-  100: Color.fromRGBO(0, 0, 0, .2),
-  200: Color.fromRGBO(0, 0, 0, .3),
-  300: Color.fromRGBO(0, 0, 0, .4),
-  400: Color.fromRGBO(0, 0, 0, .5),
-  500: Color.fromRGBO(0, 0, 0, .6),
-  600: Color.fromRGBO(0, 0, 0, .7),
-  700: Color.fromRGBO(0, 0, 0, .8),
-  800: Color.fromRGBO(0, 0, 0, .9),
-  900: Color.fromRGBO(0, 0, 0, 1),
-};
-MaterialColor black = MaterialColor(0xFF000000, color);
-MaterialColor white = MaterialColor(0xFFFFFFFF, color);
+import 'package:frino_icons/frino_icons.dart';
 
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
-  color: Colors.black,
 );
 
 class DevSettings extends StatefulWidget {
@@ -50,6 +35,7 @@ class DevSettingsState extends State<DevSettings> {
   bool _deletePMatches = false;
   bool _deleteUsersMet = false;
   bool _restoreTokens = false;
+  bool _deleteDatabase = false;
 
   @override
   void initState() {
@@ -62,10 +48,8 @@ class DevSettingsState extends State<DevSettings> {
       onWillPop: _save,
       child: Scaffold(
         key: _scaffoldKey,
-        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text('DEV Settings'),
-          elevation: 4.0,
         ),
         body: ListView(
           shrinkWrap: true,
@@ -75,18 +59,19 @@ class DevSettingsState extends State<DevSettings> {
           children: <Widget>[
             Divider(color: Colors.transparent),
             ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.bug,
-                color: black,
+              leading: Icon(
+                FrinoIcons.f_code,
+                color: IconTheme.of(context).color,
+                size: IconTheme.of(context).size,
               ),
               title: Text(
                 'Delete Matches',
                 textAlign: TextAlign.left,
                 style: _biggerFont,
               ),
-              trailing: FaIcon(
-                FontAwesomeIcons.check,
-                color: (_deleteMatches) ? black : Colors.transparent,
+              trailing: Icon(
+                FrinoIcons.f_check,
+                color: (_deleteMatches) ? Colors.green : Colors.transparent,
               ),
               onTap: () async {
                 setState(() {
@@ -96,18 +81,19 @@ class DevSettingsState extends State<DevSettings> {
             ),
             Divider(color: Colors.grey),
             ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.bug,
-                color: black,
+              leading: Icon(
+                FrinoIcons.f_code,
+                color: IconTheme.of(context).color,
+                size: IconTheme.of(context).size,
               ),
               title: Text(
                 'Delete Potential Matches',
                 textAlign: TextAlign.left,
                 style: _biggerFont,
               ),
-              trailing: FaIcon(
-                FontAwesomeIcons.check,
-                color: (_deletePMatches) ? black : Colors.transparent,
+              trailing: Icon(
+                FrinoIcons.f_check,
+                color: (_deletePMatches) ? Colors.green : Colors.transparent,
               ),
               onTap: () async {
                 setState(() {
@@ -117,18 +103,19 @@ class DevSettingsState extends State<DevSettings> {
             ),
             Divider(color: Colors.grey),
             ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.bug,
-                color: black,
+              leading: Icon(
+                FrinoIcons.f_code,
+                color: IconTheme.of(context).color,
+                size: IconTheme.of(context).size,
               ),
               title: Text(
                 'Delete Users Met',
                 textAlign: TextAlign.left,
                 style: _biggerFont,
               ),
-              trailing: FaIcon(
-                FontAwesomeIcons.check,
-                color: (_deleteUsersMet) ? black : Colors.transparent,
+              trailing: Icon(
+                FrinoIcons.f_check,
+                color: (_deleteUsersMet) ? Colors.green : Colors.transparent,
               ),
               onTap: () async {
                 setState(() {
@@ -138,18 +125,19 @@ class DevSettingsState extends State<DevSettings> {
             ),
             Divider(color: Colors.grey),
             ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.bug,
-                color: black,
+              leading: Icon(
+                FrinoIcons.f_code,
+                color: IconTheme.of(context).color,
+                size: IconTheme.of(context).size,
               ),
               title: Text(
                 'Restore Tokens',
                 textAlign: TextAlign.left,
                 style: _biggerFont,
               ),
-              trailing: FaIcon(
-                FontAwesomeIcons.check,
-                color: (_restoreTokens) ? black : Colors.transparent,
+              trailing: Icon(
+                FrinoIcons.f_check,
+                color: (_restoreTokens) ? Colors.green : Colors.transparent,
               ),
               onTap: () async {
                 setState(() {
@@ -159,22 +147,23 @@ class DevSettingsState extends State<DevSettings> {
             ),
             Divider(color: Colors.grey),
             ListTile(
-              leading: FaIcon(
-                FontAwesomeIcons.bug,
-                color: black,
+              leading: Icon(
+                FrinoIcons.f_code,
+                color: IconTheme.of(context).color,
+                size: IconTheme.of(context).size,
               ),
               title: Text(
                 'Delete database',
                 textAlign: TextAlign.left,
                 style: _biggerFont,
               ),
-              trailing: FaIcon(
-                FontAwesomeIcons.check,
-                color: (_restoreTokens) ? black : Colors.transparent,
+              trailing: Icon(
+                FrinoIcons.f_check,
+                color: (_deleteDatabase) ? Colors.green : Colors.transparent,
               ),
               onTap: () async {
                 setState(() {
-                  _restoreTokens = !_restoreTokens;
+                  _deleteDatabase = !_deleteDatabase;
                 });
               },
             ),

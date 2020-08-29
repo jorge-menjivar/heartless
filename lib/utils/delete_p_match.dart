@@ -1,14 +1,10 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:lise/widgets/loading_dialog.dart';
 
-Future<void> deletePotentialMatch(int time, String room, GlobalKey<ScaffoldState> scaffoldKey) async {
-  final snackBar = SnackBar(
-    content: Text(
-      //TODO
-      'Deleting Potential Match',
-    ),
-  );
-  scaffoldKey.currentState.showSnackBar(snackBar);
+Future<void> deletePotentialMatch(
+    BuildContext context, int time, String room, GlobalKey<ScaffoldState> scaffoldKey) async {
+  showLoadingDialog(context);
   // Getting instance of the server function
   final callable = CloudFunctions.instance.getHttpsCallable(
     functionName: 'deletePotentialMatch',
@@ -20,6 +16,6 @@ Future<void> deletePotentialMatch(int time, String room, GlobalKey<ScaffoldState
     'room': room,
   });
 
-  scaffoldKey.currentState.hideCurrentSnackBar();
+  Navigator.pop(context);
   return;
 }

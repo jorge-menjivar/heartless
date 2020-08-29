@@ -1,9 +1,12 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:lise/widgets/loading_dialog.dart';
+import 'package:lise/widgets/not_enough_tokens_dialog.dart';
 import 'package:location/location.dart';
 
 /// Updates the location of the device to the database and sends a request for a potential match.
-Future<bool> sendPotentialMatchRequest(GlobalKey<ScaffoldState> scaffoldKey) async {
+Future<void> sendPotentialMatchRequest(BuildContext context, GlobalKey<ScaffoldState> scaffoldKey) async {
+  showLoadingDialog(context);
   var location = Location();
 
   bool serviceEnabled;
@@ -33,14 +36,6 @@ Future<bool> sendPotentialMatchRequest(GlobalKey<ScaffoldState> scaffoldKey) asy
   // Getting location form device.
   locationData = await location.getLocation();
 
-  final snackBar = SnackBar(
-    content: Text(
-      //TODO
-      'Sending Request',
-    ),
-  );
-  scaffoldKey.currentState.showSnackBar(snackBar);
-
   // Getting instance of the server function
   final callable = CloudFunctions.instance.getHttpsCallable(
     functionName: 'getPotentialMatch',
@@ -53,9 +48,11 @@ Future<bool> sendPotentialMatchRequest(GlobalKey<ScaffoldState> scaffoldKey) asy
       'longitude': locationData.longitude,
     },
   );
+  Navigator.pop(context);
 
-  print(resp.data['success']);
-
-  scaffoldKey.currentState.hideCurrentSnackBar();
-  return (resp.data['success']);
+  // If not able to send a new request because not enough tokens
+  if (!resp.data['success']) {
+    showNotEnoughTokensDialog(context);
+  }
+  return;
 }

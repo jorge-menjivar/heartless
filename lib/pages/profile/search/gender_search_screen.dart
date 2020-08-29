@@ -8,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:frino_icons/frino_icons.dart';
 
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
@@ -75,7 +76,6 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
             key: _scaffoldKey,
             appBar: AppBar(
               title: Text('I am interested in'),
-              elevation: 4.0,
             ),
             body: ListView(
               shrinkWrap: true,
@@ -85,8 +85,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
               children: <Widget>[
                 Divider(color: Colors.transparent),
                 ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.venus,
+                    leading: Icon(
+                      FrinoIcons.f_lab,
                       color: IconTheme.of(context).color,
                       size: IconTheme.of(context).size,
                     ),
@@ -95,8 +95,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
-                    trailing: FaIcon(
-                      FontAwesomeIcons.check,
+                    trailing: Icon(
+                      FrinoIcons.f_check,
                       color: (_women) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
@@ -106,8 +106,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.mars,
+                    leading: Icon(
+                      FrinoIcons.f_lab,
                       color: IconTheme.of(context).color,
                       size: IconTheme.of(context).size,
                     ),
@@ -116,8 +116,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
-                    trailing: FaIcon(
-                      FontAwesomeIcons.check,
+                    trailing: Icon(
+                      FrinoIcons.f_check,
                       color: (_men) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
@@ -127,8 +127,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.transgender,
+                    leading: Icon(
+                      FrinoIcons.f_lab,
                       color: IconTheme.of(context).color,
                       size: IconTheme.of(context).size,
                     ),
@@ -137,8 +137,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
-                    trailing: FaIcon(
-                      FontAwesomeIcons.check,
+                    trailing: Icon(
+                      FrinoIcons.f_check,
                       color: (_transWomen) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
@@ -148,8 +148,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.transgender,
+                    leading: Icon(
+                      FrinoIcons.f_lab,
                       color: IconTheme.of(context).color,
                       size: IconTheme.of(context).size,
                     ),
@@ -158,8 +158,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
-                    trailing: FaIcon(
-                      FontAwesomeIcons.check,
+                    trailing: Icon(
+                      FrinoIcons.f_check,
                       color: (_transMen) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {
@@ -169,8 +169,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                     }),
                 Divider(color: Colors.grey),
                 ListTile(
-                    leading: FaIcon(
-                      FontAwesomeIcons.genderless,
+                    leading: Icon(
+                      FrinoIcons.f_lab,
                       color: IconTheme.of(context).color,
                       size: IconTheme.of(context).size,
                     ),
@@ -179,8 +179,8 @@ class GenderSearchScreenState extends State<GenderSearchScreen> {
                       textAlign: TextAlign.left,
                       style: _biggerFont,
                     ),
-                    trailing: FaIcon(
-                      FontAwesomeIcons.check,
+                    trailing: Icon(
+                      FrinoIcons.f_check,
                       color: (_others) ? Colors.green : Colors.transparent,
                     ),
                     onTap: () async {

@@ -62,7 +62,7 @@ class MyApp extends StatelessWidget {
       ],
       title: 'LISA',
       darkTheme: ThemeData(
-        primaryColor: Colors.white12,
+        primaryColor: Colors.black,
         primaryColorLight: Colors.white70,
         primaryColorDark: Colors.white38,
         primarySwatch: Colors.blueGrey,
@@ -92,9 +92,14 @@ class MyApp extends StatelessWidget {
           opacity: 1,
           size: 25,
         ),
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+          elevation: 2,
+          shadowColor: Colors.black,
+        ),
       ),
       theme: ThemeData(
-        primaryColor: Colors.grey[200],
+        primaryColor: Colors.white,
         primarySwatch: Colors.blueGrey,
         canvasColor: Colors.white,
         accentColor: Colors.black,
@@ -121,6 +126,11 @@ class MyApp extends StatelessWidget {
           color: Colors.black87,
           opacity: 1,
           size: 25,
+        ),
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+          elevation: 1,
+          shadowColor: Colors.black,
         ),
       ),
       home: LoadingPage(),
