@@ -4,11 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frino_icons/frino_icons.dart';
+import 'package:lise/utils/send_edit_like_call.dart';
 
 class WayOfLivingScreen extends StatefulWidget {
   WayOfLivingScreen({@required this.user});
@@ -25,7 +24,6 @@ class WayOfLivingScreenState extends State<WayOfLivingScreen> {
   final FirebaseUser user;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  ScrollController _scrollController;
 
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
@@ -33,7 +31,7 @@ class WayOfLivingScreenState extends State<WayOfLivingScreen> {
 
   var _userLikes = [];
 
-  final MAX = 6;
+  final MAX = 10;
 
   final _listTitleStyle = const TextStyle(fontWeight: FontWeight.bold);
 
@@ -42,7 +40,6 @@ class WayOfLivingScreenState extends State<WayOfLivingScreen> {
   void initState() {
     super.initState();
     _textController = TextEditingController();
-    _scrollController = ScrollController();
     _downloadData();
   }
 
@@ -55,6 +52,23 @@ class WayOfLivingScreenState extends State<WayOfLivingScreen> {
         .then((snapshot) {
       for (var doc in snapshot.documents) {
         _mostLiked.add(doc.documentID);
+      }
+    });
+
+    await Firestore.instance
+        .collection('users')
+        .document(user.uid)
+        .collection('data')
+        .document('likes')
+        .get()
+        .then((doc) {
+      _userLikes = doc.data['likesList'];
+      for (int i = 0; i < _userLikes.length; i++) {
+        listKey.currentState.insertItem(i,
+            duration: Duration(
+              milliseconds: 300,
+            ));
+        setState(() {});
       }
     });
 
@@ -124,11 +138,11 @@ class WayOfLivingScreenState extends State<WayOfLivingScreen> {
             child: Container(
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
                 color: (Theme.of(context).brightness == Brightness.dark) ? Colors.white12 : Colors.black12,
               ),
               child: AnimatedList(
                 key: listKey,
+                reverse: true,
                 physics: BouncingScrollPhysics(),
                 shrinkWrap: true,
                 controller: ScrollController(),
@@ -243,6 +257,12 @@ class WayOfLivingScreenState extends State<WayOfLivingScreen> {
           ),
         );
 
+        sendEditLikeCall(
+          context,
+          interestName: _userLikes[index],
+          action: EditLikeAction.remove,
+        );
+
         _userLikes.removeAt(index);
 
         setState(() {});
@@ -265,12 +285,22 @@ class WayOfLivingScreenState extends State<WayOfLivingScreen> {
     );
   }
 
-  Future<void> _addInterest(String interest) {
-    listKey.currentState.insertItem(_userLikes.length,
-        duration: Duration(
-          milliseconds: 300,
-        ));
-    _userLikes.add(interest);
-    setState(() {});
+  Future<void> _addInterest(String interest) async {
+    if (_userLikes.length < MAX && !_userLikes.contains(interest)) {
+      listKey.currentState.insertItem(_userLikes.length,
+          duration: Duration(
+            milliseconds: 300,
+          ));
+      _userLikes.add(interest);
+
+      setState(() {});
+      await sendEditLikeCall(
+        context,
+        interestName: interest,
+        action: EditLikeAction.add,
+      );
+    }
+
+    return;
   }
 }

@@ -149,7 +149,6 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> with TickerPro
     return Scaffold(
       appBar: AppBar(
         title: Text('Looks'),
-        elevation: 4.0,
       ),
       body: Builder(
         builder: (BuildContext context) {
@@ -199,57 +198,59 @@ class SelectMatchesScreenState extends State<SelectMatchesScreen> with TickerPro
 
   Widget _buildCards() {
     _animationController.animateTo(1, duration: Duration(milliseconds: 1));
-    return CarouselSlider.builder(
-      options: CarouselOptions(
-        scrollDirection: Axis.horizontal,
-        viewportFraction: 1,
-        aspectRatio: 12 / 16,
-        disableCenter: true,
-        enlargeCenterPage: true,
-        enableInfiniteScroll: false,
-        autoPlay: true,
-      ),
-      itemCount: _profilePicImageLinks.length,
-      itemBuilder: (BuildContext context, int i) => Container(
-        child: Dismissible(
-          key: Key(_users[i]),
-          background: AnimatedDismissibleIconBackground(
-            listenable: _animationController,
-            iconData: randomDismissIconData(),
-          ),
-          direction: DismissDirection.up,
-          child: RawMaterialButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            hoverColor: Colors.transparent,
-            child: CachedNetworkImage(
-              imageUrl: _profilePicImageLinks[i],
-              fit: BoxFit.fill,
+    return Center(
+      child: CarouselSlider.builder(
+        options: CarouselOptions(
+          scrollDirection: Axis.horizontal,
+          viewportFraction: 1,
+          aspectRatio: 12 / 16,
+          disableCenter: true,
+          enlargeCenterPage: true,
+          enableInfiniteScroll: false,
+          autoPlay: true,
+        ),
+        itemCount: _profilePicImageLinks.length,
+        itemBuilder: (BuildContext context, int i) => Container(
+          child: Dismissible(
+            key: Key(_users[i]),
+            background: AnimatedDismissibleIconBackground(
+              listenable: _animationController,
+              iconData: randomDismissIconData(),
             ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (parentContext) => BlocProvider(
-                    create: (childContext) => PublicProfileBloc(
-                      publicData: PublicDataRepository(),
-                    ),
-                    child: PublicProfileScreen(
-                      alias: _users[i],
+            direction: DismissDirection.up,
+            child: RawMaterialButton(
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              child: CachedNetworkImage(
+                imageUrl: _profilePicImageLinks[i],
+                fit: BoxFit.fill,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (parentContext) => BlocProvider(
+                      create: (childContext) => PublicProfileBloc(
+                        publicData: PublicDataRepository(),
+                      ),
+                      child: PublicProfileScreen(
+                        alias: _users[i],
+                      ),
                     ),
                   ),
-                ),
-              );
+                );
+              },
+            ),
+            onDismissed: (dismissDirection) {
+              _animationController
+                  .animateTo(0, duration: Duration(milliseconds: 150), curve: Curves.easeOutQuart)
+                  .whenComplete(() => setState(() {}));
+              _profiles[_users[i]] = false;
+              _users.removeAt(i);
+              _profilePicImageLinks.removeAt(i);
             },
           ),
-          onDismissed: (dismissDirection) {
-            _animationController
-                .animateTo(0, duration: Duration(milliseconds: 150), curve: Curves.easeOutQuart)
-                .whenComplete(() => setState(() {}));
-            _profiles[_users[i]] = false;
-            _users.removeAt(i);
-            _profilePicImageLinks.removeAt(i);
-          },
         ),
       ),
     );

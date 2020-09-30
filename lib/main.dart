@@ -1,13 +1,19 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:firebase_admob/firebase_admob.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/conversation_bloc.dart';
+import 'package:lise/bloc/meetings_bloc.dart';
 import 'package:lise/bloc/p_matches_bloc.dart';
 import 'package:lise/bloc/profile_bloc.dart';
+import 'package:lise/data/meetings_data.dart';
 import 'package:lise/data/messages_data.dart';
 import 'package:lise/data/p_matches_data.dart';
 import 'package:lise/home_screen.dart';
@@ -61,48 +67,11 @@ class MyApp extends StatelessWidget {
         Locale('fr', ''),
       ],
       title: 'LISA',
-      darkTheme: ThemeData(
-        primaryColor: Colors.black,
-        primaryColorLight: Colors.white70,
-        primaryColorDark: Colors.white38,
-        primarySwatch: Colors.blueGrey,
-        canvasColor: Colors.black,
-        accentColor: Colors.blueGrey,
-        dividerColor: Colors.white30,
-        primaryColorBrightness: Brightness.dark,
-        brightness: Brightness.dark,
-        accentColorBrightness: Brightness.light,
-        textTheme: TextTheme(
-          headline1: TextStyle(color: Colors.white),
-          headline2: TextStyle(color: Colors.white),
-          headline3: TextStyle(color: Colors.white),
-          headline4: TextStyle(color: Colors.white),
-          headline5: TextStyle(color: Colors.white),
-          headline6: TextStyle(color: Colors.white),
-          bodyText1: TextStyle(color: Colors.white),
-          bodyText2: TextStyle(color: Colors.white),
-          subtitle1: TextStyle(color: Colors.white),
-          subtitle2: TextStyle(color: Colors.white70),
-          caption: TextStyle(color: Colors.white54),
-          button: TextStyle(color: Colors.white70),
-          overline: TextStyle(color: Colors.white70),
-        ),
-        iconTheme: IconThemeData(
-          color: Colors.white,
-          opacity: 1,
-          size: 25,
-        ),
-        appBarTheme: AppBarTheme(
-          centerTitle: true,
-          elevation: 2,
-          shadowColor: Colors.black,
-        ),
-      ),
       theme: ThemeData(
         primaryColor: Colors.white,
-        primarySwatch: Colors.blueGrey,
+        primarySwatch: Colors.red,
         canvasColor: Colors.white,
-        accentColor: Colors.black,
+        accentColor: Colors.redAccent[400],
         dividerColor: Colors.black12,
         primaryColorBrightness: Brightness.light,
         brightness: Brightness.light,
@@ -132,6 +101,61 @@ class MyApp extends StatelessWidget {
           elevation: 1,
           shadowColor: Colors.black,
         ),
+        cupertinoOverrideTheme: CupertinoThemeData(
+          textTheme: CupertinoTextThemeData(
+            primaryColor: Colors.black87,
+          ),
+          primaryColor: Colors.red,
+          primaryContrastingColor: Colors.black,
+          barBackgroundColor: Colors.white,
+        ),
+        cardColor: Colors.grey[50],
+      ),
+      darkTheme: ThemeData(
+        primaryColor: Colors.black,
+        primaryColorLight: Colors.white70,
+        primaryColorDark: Colors.white38,
+        primarySwatch: Colors.red,
+        canvasColor: Colors.black,
+        accentColor: Colors.redAccent[400],
+        dividerColor: Colors.white30,
+        primaryColorBrightness: Brightness.dark,
+        brightness: Brightness.dark,
+        accentColorBrightness: Brightness.light,
+        textTheme: TextTheme(
+          headline1: TextStyle(color: Colors.white),
+          headline2: TextStyle(color: Colors.white),
+          headline3: TextStyle(color: Colors.white),
+          headline4: TextStyle(color: Colors.white),
+          headline5: TextStyle(color: Colors.white),
+          headline6: TextStyle(color: Colors.white),
+          bodyText1: TextStyle(color: Colors.white),
+          bodyText2: TextStyle(color: Colors.white),
+          subtitle1: TextStyle(color: Colors.white),
+          subtitle2: TextStyle(color: Colors.white70),
+          caption: TextStyle(color: Colors.white54),
+          button: TextStyle(color: Colors.white70),
+          overline: TextStyle(color: Colors.white70),
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.white,
+          opacity: 1,
+          size: 25,
+        ),
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+          elevation: 2,
+          shadowColor: Colors.black,
+        ),
+        cupertinoOverrideTheme: CupertinoThemeData(
+          textTheme: CupertinoTextThemeData(
+            primaryColor: Colors.white,
+          ),
+          primaryColor: Colors.red,
+          primaryContrastingColor: Colors.white,
+          barBackgroundColor: Colors.black,
+        ),
+        cardColor: Colors.grey[800],
       ),
       home: LoadingPage(),
     );
@@ -161,8 +185,19 @@ class _LoadingPageState extends State<LoadingPage> {
   @override
   void initState() {
     super.initState();
-
+    _startAdMob();
     _checkCurrentUser();
+  }
+
+  Future<void> _startAdMob() async {
+    var adMobAppID;
+    if (Platform.isIOS) {
+      adMobAppID = AppVariables.AD_MOB_APP_ID_IOS;
+    } else if (Platform.isAndroid) {
+      adMobAppID = AppVariables.AD_MOB_APP_ID_ANDROID;
+    }
+
+    FirebaseAdMob.instance.initialize(appId: adMobAppID);
   }
 
   @override
@@ -170,7 +205,7 @@ class _LoadingPageState extends State<LoadingPage> {
     if (!loaded) {
       return SplashScreen();
     } else {
-      if (!user.isEmailVerified) {
+      if (!user.isEmailVerified || user.phoneNumber == null || user.phoneNumber == "") {
         return WelcomeScreen();
       }
       if (_profileCompleted) {
@@ -197,6 +232,11 @@ class _LoadingPageState extends State<LoadingPage> {
                 userData: UserDataRepository(),
               ),
             ),
+            BlocProvider(
+              create: (context) => MeetingsBloc(
+                meetingsData: MeetingsRepository(),
+              ),
+            )
           ],
           child: HomeScreen(
             user: user,

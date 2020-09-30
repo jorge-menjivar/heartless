@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lise/new_user/nu_verify_phone_number.dart';
 import 'nu_information_screen.dart';
 import 'nu_verification_screen.dart';
 import 'package:lise/main.dart';
@@ -113,7 +114,7 @@ class SignInScreenState extends State<MySignInScreen> {
           print('SIGN IN SUCCESSFUL');
 
           // Continue to home screen or new user screen if email is  verified
-          if (user.isEmailVerified) {
+          if (user.isEmailVerified && user.phoneNumber != null) {
             var profileCompleted = false;
             await Firestore.instance
                 .collection('users')
@@ -150,6 +151,15 @@ class SignInScreenState extends State<MySignInScreen> {
 
           // Continue to email verification screen if not verified
           else {
+            if (user.phoneNumber == null) {
+              await Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => VerifyPhoneNumberScreen(),
+                ),
+                (route) => false,
+              );
+            }
             await Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(

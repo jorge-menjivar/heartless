@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 IconData randomDismissIconData() {
-  var random = Random().nextInt(4);
+  var random = Random(DateTime.now().millisecondsSinceEpoch).nextInt(4);
   var dismissIcon;
   switch (random) {
     case 0:

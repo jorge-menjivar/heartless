@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -10,6 +11,7 @@ import 'package:lise/pages/profile/personal/race_screen.dart';
 
 // Storage
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:lise/widgets/cupertino_date_time_picker.dart';
 
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
@@ -146,37 +148,55 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
             ),
             Divider(color: Colors.grey),
             ListTile(
-              leading: Icon(
-                FrinoIcons.f_birthday,
-                color: IconTheme.of(context).color,
-                size: IconTheme.of(context).size,
-              ),
-              title: Row(
-                children: <Widget>[
-                  Text(
-                    'My Birthday',
-                    style: _biggerFont,
-                  ),
-                ],
-              ),
-              subtitle: Text(
-                (_birthday != null) ? _readableTimeString(_birthday) : _readableTimeString(DateTime(2000, 1, 1)),
-              ),
-              onTap: () => showDatePicker(
-                helpText: 'SELECT BIRTHDAY',
-                fieldLabelText: 'Birthday',
-                initialEntryMode: DatePickerEntryMode.input,
-                initialDatePickerMode: DatePickerMode.year,
-                firstDate: dateStart,
-                initialDate: (_birthday != null) ? _birthday : DateTime(2000, 1, 1),
-                lastDate: dateEnd,
-                context: context,
-              ).then((v) async {
-                if (v != null) {
-                  await _updateBirthday(v);
-                }
-              }),
-            ),
+                leading: Icon(
+                  FrinoIcons.f_birthday,
+                  color: IconTheme.of(context).color,
+                  size: IconTheme.of(context).size,
+                ),
+                title: Row(
+                  children: <Widget>[
+                    Text(
+                      'My Birthday',
+                      style: _biggerFont,
+                    ),
+                  ],
+                ),
+                subtitle: Text(
+                  (_birthday != null) ? _readableTimeString(_birthday) : _readableTimeString(DateTime(2000, 1, 1)),
+                ),
+                onTap: () {
+                  Platform.isIOS
+                      ? showCupertinoDateTimePicker(
+                          context: context,
+                          dateStart: dateStart,
+                          dateEnd: dateEnd,
+                          title: Text(
+                            'Select your birthday',
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
+                          ),
+                          birthday: (_birthday != null) ? _birthday : null,
+                        ).then((v) async {
+                          if (v != null) {
+                            await _updateBirthday(v);
+                          }
+                        })
+                      : showDatePicker(
+                          helpText: 'SELECT BIRTHDAY',
+                          fieldLabelText: 'Birthday',
+                          initialEntryMode: DatePickerEntryMode.input,
+                          initialDatePickerMode: DatePickerMode.year,
+                          firstDate: dateStart,
+                          initialDate: (_birthday != null) ? _birthday : DateTime(2000, 1, 1),
+                          lastDate: dateEnd,
+                          context: context,
+                        ).then((v) async {
+                          if (v != null) {
+                            await _updateBirthday(v);
+                          }
+                        });
+                }),
             Divider(color: Colors.transparent),
             ListTile(
                 leading: Icon(

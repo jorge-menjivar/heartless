@@ -52,8 +52,8 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
 
   ScrollController _scrollController;
 
-  final _listTitleStyle = const TextStyle(fontWeight: FontWeight.bold);
-  final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _listTitleStyle = const TextStyle(fontWeight: FontWeight.w800);
+  final _biggerFont = const TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600);
   final _subFont = const TextStyle(fontSize: 14.0);
   final _trailFont = const TextStyle(fontSize: 14.0);
 
@@ -114,21 +114,18 @@ class _MatchesScreenState extends State<MatchesScreen> with AutomaticKeepAliveCl
           lastMessage = AppLocalizations.of(context).translate('Start_Conversation');
         }
         return ListTile(
-          leading: Container(
-            decoration: BoxDecoration(color: Colors.transparent, shape: BoxShape.circle),
-            child: SizedBox(
-              height: 50,
-              width: 50,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: AdvancedNetworkImage(
-                      match['imageLink'],
-                      useDiskCache: true,
-                    ),
-                    fit: BoxFit.cover,
+          leading: CircleAvatar(
+            minRadius: 27,
+            maxRadius: 27,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: AdvancedNetworkImage(
+                    match['imageLink'],
+                    useDiskCache: true,
                   ),
+                  fit: BoxFit.cover,
                 ),
               ),
             ),

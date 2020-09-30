@@ -15,13 +15,29 @@
       },
       "oauth_client": [
         {
+          "client_id": "938853592930-p94bjeoh0tkm9j88j10nbria52n9ohd3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.prospectusoft.lise",
+            "certificate_hash": "67057d821af19e466e5811aafdd71b94c399d4cd"
+          }
+        },
+        {
+          "client_id": "938853592930-ineg2fl6v7q6cqsohkliopuo65dps54m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.prospectusoft.lise",
+            "certificate_hash": "e449451677483ddc0a05e2c53bcf487fad3303bc"
+          }
+        },
+        {
           "client_id": "938853592930-670pc34sot08klenl2sie649ngfjs7a0.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB2magNkm_9m6nMETMBPyzBDd3yqm3w52A"
+          "current_key": "AIzaSyArHSUSYs1OLBkRWCyRW_ZVzFusa1D4jmY"
         }
       ],
       "services": {
@@ -40,7 +56,8 @@
             }
           ]
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-3406887840465649~2347320999"
     }
   ],
   "configuration_version": "1"

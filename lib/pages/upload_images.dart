@@ -98,7 +98,7 @@ class _UploadImagesPageState extends State<UploadImagesPage> {
               borderRadius: BorderRadius.circular(30.0),
               color: (Theme.of(context).brightness == Brightness.light) ? Colors.black12 : Colors.white12,
             ),
-            padding: EdgeInsets.all(6),
+            padding: EdgeInsets.all(0),
             child: SizedBox(
               width: mainPicSize,
               height: mainPicSize,
@@ -118,7 +118,7 @@ class _UploadImagesPageState extends State<UploadImagesPage> {
                 borderRadius: BorderRadius.circular(30.0),
                 color: (Theme.of(context).brightness == Brightness.light) ? Colors.black12 : Colors.white12,
               ),
-              padding: EdgeInsets.all(6),
+              padding: EdgeInsets.all(0),
               child: SizedBox(
                 width: secondaryPicSize,
                 height: secondaryPicSize,
@@ -139,7 +139,7 @@ class _UploadImagesPageState extends State<UploadImagesPage> {
                 borderRadius: BorderRadius.circular(30.0),
                 color: (Theme.of(context).brightness == Brightness.light) ? Colors.black12 : Colors.white12,
               ),
-              padding: EdgeInsets.all(6),
+              padding: EdgeInsets.all(0),
               child: SizedBox(
                 width: secondaryPicSize,
                 height: secondaryPicSize,

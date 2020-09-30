@@ -46,13 +46,8 @@ class VerifyScreenState extends State<VerifyScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              FaIcon(
-                FontAwesomeIcons.heartBroken,
-                color: Colors.redAccent[400],
-                size: 25,
-              ),
               Text(
-                ' Heartless',
+                'Verify Email',
                 style: TextStyle(fontSize: 25),
               )
             ],

@@ -8,6 +8,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frino_icons/frino_icons.dart';
 import 'package:giphy_picker/giphy_picker.dart';
 
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+
 class PMatchesTextComposer extends StatelessWidget {
   final ScrollController scrollController;
   final TextEditingController textController;
@@ -30,11 +32,12 @@ class PMatchesTextComposer extends StatelessWidget {
           Row(
             children: <Widget>[
               IconButton(
-                  icon: Icon(
-                    FrinoIcons.f_gif,
-                    color: Colors.blue,
-                  ),
-                  onPressed: () => pickGIF(context)),
+                icon: Icon(
+                  FrinoIcons.f_gif,
+                  color: Colors.blue,
+                ),
+                onPressed: () => pickGIF(context),
+              ),
               Flexible(
                 child: Platform.isIOS ? cupertinoTextField(context) : materialTextField(context),
               ),

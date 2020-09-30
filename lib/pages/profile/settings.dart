@@ -40,35 +40,25 @@ class SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text('Settings'),
-      ),
+      appBar: (Platform.isIOS)
+          ? CupertinoNavigationBar(
+              middle: Text(
+                'Settings',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            )
+          : AppBar(
+              title: Text('Settings'),
+            ),
       body: ListView(
         shrinkWrap: true,
         primary: false,
         controller: _scrollController,
         physics: BouncingScrollPhysics(),
         children: <Widget>[
-          ListTile(
-            leading: Icon(
-              FrinoIcons.f_shield,
-              color: IconTheme.of(context).color,
-              size: IconTheme.of(context).size,
-            ),
-            title: Text(
-              'Require PIN to open app',
-              style: _biggerFont,
-            ),
-            trailing: settingsSwitch(
-              value: enablePIN,
-              onChanged: (newValue) {
-                setState(() {
-                  enablePIN = !enablePIN;
-                });
-              },
-            ),
-          ),
-          Divider(),
           ListTile(
             leading: Icon(
               FrinoIcons.f_bell,

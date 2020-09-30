@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,13 +7,16 @@ import 'package:flutter_tab_bar_no_ripple/flutter_tab_bar_no_ripple.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frino_icons/frino_icons.dart';
 import 'package:lise/app_variables.dart';
+import 'package:lise/bloc/meetings_bloc.dart';
 import 'package:lise/bloc/p_matches_bloc.dart';
 import 'package:lise/bloc/profile_bloc.dart';
 import 'package:lise/pages/matches_page.dart';
+import 'package:lise/pages/meetings_page.dart';
 import 'package:lise/pages/potential_matches_page.dart';
 import 'package:lise/pages/profile_page.dart';
 import 'package:lise/splash_screen.dart';
 import 'package:lise/utils/database.dart';
+import 'package:lise/utils/get_meetings_from_server.dart';
 import 'package:sqflite/sqflite.dart';
 import 'bloc/conversation_bloc.dart';
 import 'bloc/matches_bloc.dart';
@@ -97,6 +101,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _db = await getMessagesDb();
     initPMatchesBloc();
     initMatchesBloc();
+    initMeetingsBloc();
   }
 
   Future<void> initPMatchesBloc() async {
@@ -167,7 +172,6 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         }
 
         // Adding the matches bloc
-        // ignore: close_sinks
         BlocProvider.of<MatchesBloc>(context)
           ..add(GetMatches(
             db: _db,
@@ -175,6 +179,14 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ));
       },
     );
+  }
+
+  Future<void> initMeetingsBloc() async {
+    // Starting meetings bloc
+    BlocProvider.of<MeetingsBloc>(context)
+      ..add(GetMeetings(
+        meetingsDocs: await getMeetings(),
+      ));
   }
 
   Future<StreamSubscription<QuerySnapshot>> initListener(String room) async {
@@ -332,7 +344,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       );
     }
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
@@ -383,6 +395,19 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ),
               ),
 
+              ///------------------------------------------- MEETINGS --------------------------------------------------
+              MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(value: BlocProvider.of<MeetingsBloc>(context)),
+                ],
+                child: MeetingsScreen(
+                  db: _db,
+                  scaffoldKey: _scaffoldKey,
+                  user: this.user,
+                  appVariables: this.appVariables,
+                ),
+              ),
+
               ///------------------------------------------- PROFILE ---------------------------------------------------
               BlocProvider.value(
                 value: BlocProvider.of<ProfileBloc>(context),
@@ -398,7 +423,7 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           child: TabBarNoRipple(
             indicatorColor: Colors.transparent,
             labelColor: Colors.red,
-            unselectedLabelColor: Colors.blueGrey[400],
+            unselectedLabelColor: Colors.grey,
             tabs: [
               Tab(
                 icon: Icon(
@@ -410,6 +435,12 @@ class HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 icon: Icon(
                   FrinoIcons.f_chat_text,
                   size: 26,
+                ),
+              ),
+              Tab(
+                icon: Icon(
+                  FrinoIcons.f_group,
+                  size: 36,
                 ),
               ),
               Tab(

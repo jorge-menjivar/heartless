@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +28,7 @@ class ProfilePicturesScreenState extends State<ProfilePicturesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('My Public Profile'),
+          title: Text('My Pictures'),
         ),
         body: UploadImagesPage(alias: alias, placeholder: loading_progress_indicator()));
   }

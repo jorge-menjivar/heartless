@@ -6,7 +6,7 @@ Widget loading_progress_indicator({double value}) {
       child: Container(
         padding: EdgeInsets.all(4),
         child: CircularProgressIndicator(
-          backgroundColor: Colors.redAccent[400],
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.redAccent[400]),
           value: value,
         ),
       ),
@@ -16,7 +16,7 @@ Widget loading_progress_indicator({double value}) {
       child: Container(
         padding: EdgeInsets.all(4),
         child: CircularProgressIndicator(
-          backgroundColor: Colors.redAccent[400],
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.redAccent[400]),
         ),
       ),
     );

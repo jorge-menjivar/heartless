@@ -47,15 +47,17 @@ class WelcomeScreenState extends State<WelcomeScreen> {
             height: 32.0,
           ),
           RaisedButton(
-              child: Text('SIGN IN'),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MySignInScreen()));
-              }),
+            child: Text('SIGN IN'),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => MySignInScreen()));
+            },
+          ),
           RaisedButton(
-              child: Text('Register'),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen()));
-              })
+            child: Text('Register'),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen()));
+            },
+          ),
         ],
       ),
     );

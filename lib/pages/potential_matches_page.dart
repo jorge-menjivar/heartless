@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frino_icons/frino_icons.dart';
 import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/conversation_bloc.dart';
@@ -13,8 +12,8 @@ import 'package:lise/utils/convert_p_match_time.dart';
 import 'package:lise/utils/delete_p_match.dart';
 import 'package:lise/utils/delete_request.dart';
 import 'package:lise/utils/send_p_match_request.dart';
+import 'package:lise/widgets/advertisements.dart';
 import 'package:lise/widgets/delete_dialog.dart';
-import 'package:lise/widgets/loading_dialog.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../localizations.dart';
@@ -57,14 +56,16 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
 
   ScrollController _scrollController;
 
-  final _listTitleStyle = const TextStyle(fontWeight: FontWeight.bold);
-  final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _listTitleStyle = const TextStyle(fontWeight: FontWeight.w800);
+  final _biggerFont = const TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600);
   final _subFont = const TextStyle(fontSize: 14.0);
   final _trailFont = const TextStyle(fontSize: 14.0);
 
   var variablesInitialized = false;
 
   var _list = [];
+
+  final _ads = Advertisements();
 
   @override
   bool get wantKeepAlive => true;
@@ -73,6 +74,7 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+    _ads.start();
   }
 
   Widget builder(BuildContext context, List pMatchesList) {
@@ -92,7 +94,7 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
           );
         }
 
-        if (i == pMatchesList.length + 1) {
+        if (i == 1) {
           return ListTile(
             title: Text(
               AppLocalizations.of(itemBuilderContext).translate('Find_someone_new'),
@@ -104,13 +106,13 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
               color: IconTheme.of(context).color,
               size: IconTheme.of(context).size,
             ),
-            onTap: () {
+            onTap: () async {
               sendPotentialMatchRequest(context, scaffoldKey);
             },
           );
         }
 
-        final pMatch = pMatchesList[i - 1];
+        final pMatch = pMatchesList[i - 2];
         var lastMessage;
         var time;
 
@@ -183,42 +185,46 @@ class _PotentialMatchesScreenState extends State<PotentialMatchesScreen> with Au
               textAlign: TextAlign.left,
             ),
             onTap: () {
+              _ads.interstitial(tapsInBetween: 2);
               appVariables.convoOpen[pMatch['room']] = true;
               // If the conversation is not finished go to chat, otherwise go to select connections screen
-              (convertPMatchTime(
-                        context: itemBuilderContext,
-                        userID: user.uid,
-                        time: int.parse(pMatch['key']),
-                        roomKey: pMatch['key'],
-                      ) !=
-                      AppLocalizations.of(itemBuilderContext).translate('COMPLETED'))
-                  ? Navigator.push(
-                      itemBuilderContext,
-                      MaterialPageRoute(
-                        builder: (childContext) => BlocProvider.value(
-                          value: BlocProvider.of<ConversationBloc>(itemBuilderContext),
-                          child: PMatchesConversationScreen(
-                            matchName: pMatch['otherUser'],
-                            username: user.uid,
-                            room: pMatch['room'],
-                            db: this.db,
-                            appVariables: this.appVariables,
-                          ),
-                        ),
+
+              if (convertPMatchTime(
+                    context: itemBuilderContext,
+                    userID: user.uid,
+                    time: int.parse(pMatch['key']),
+                    roomKey: pMatch['key'],
+                  ) ==
+                  AppLocalizations.of(itemBuilderContext).translate('COMPLETED')) {
+                Navigator.push(
+                  itemBuilderContext,
+                  MaterialPageRoute(
+                    builder: (context) => SelectMatchesScreen(
+                      user: user,
+                      room: pMatch['room'],
+                      roomKey: pMatch['key'],
+                    ),
+                  ),
+                );
+              } else {
+                Navigator.push(
+                  itemBuilderContext,
+                  MaterialPageRoute(
+                    builder: (childContext) => BlocProvider.value(
+                      value: BlocProvider.of<ConversationBloc>(itemBuilderContext),
+                      child: PMatchesConversationScreen(
+                        matchName: pMatch['otherUser'],
+                        username: user.uid,
+                        room: pMatch['room'],
+                        db: this.db,
+                        appVariables: this.appVariables,
                       ),
-                    ).then((value) {
-                      appVariables.convoRowCount = AppVariables.DEFAULT_ROW_COUNT;
-                    })
-                  : Navigator.push(
-                      itemBuilderContext,
-                      MaterialPageRoute(
-                        builder: (context) => SelectMatchesScreen(
-                          user: user,
-                          room: pMatch['room'],
-                          roomKey: pMatch['key'],
-                        ),
-                      ),
-                    );
+                    ),
+                  ),
+                ).then((value) {
+                  appVariables.convoRowCount = AppVariables.DEFAULT_ROW_COUNT;
+                });
+              }
             },
             onLongPress: () {
               setState(() {

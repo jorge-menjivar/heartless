@@ -61,8 +61,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutomaticKeepAliveCl
   var dataLoaded = false;
   var picturesLoaded = false;
 
-  final _listTitleStyle = const TextStyle(fontWeight: FontWeight.bold);
-  final _biggerFont = const TextStyle(fontSize: 18.0);
+  final _listTitleStyle = const TextStyle(fontWeight: FontWeight.w800);
+  final _biggerFont = const TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600);
   final _subFont = const TextStyle(fontSize: 14.0);
   final _trailFont = const TextStyle(fontSize: 14.0);
 
