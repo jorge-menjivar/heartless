@@ -36,5 +36,7 @@
 
     <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-3406887840465649~2347320999"/>
 
+    <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDqfYdbII8ZpRln9ZVFn5KAPmDo4UBICOI"/>
+
   </application>
 </manifest>

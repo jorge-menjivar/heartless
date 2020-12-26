@@ -14,7 +14,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lise/bloc/public_profile_bloc.dart';
 import 'package:lise/data/public_data.dart';
-import 'package:lise/pages/public_profile.dart';
+import 'package:lise/pages/public/public_profile.dart';
 import 'package:lise/widgets/animatedDismissibleIconBackground.dart';
 import 'package:lise/widgets/randomDismissIconData.dart';
 import 'package:location/location.dart';

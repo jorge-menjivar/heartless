@@ -1,13 +1,20 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/material.dart';
+import 'package:lise/widgets/loading_dialog.dart';
 
 /// Updates the location of the device to the database and sends a request for a potential match.
-Future<List<dynamic>> getMeetings(
-  double latitude,
-  double longitude,
-  String locName,
-  DateTime dateTime,
-  bool paying,
-) async {
+Future<void> createMeeting({
+  @required BuildContext context,
+  @required double latitude,
+  @required double longitude,
+  @required String locName,
+  @required num dateTime,
+  @required bool paying,
+  @required String locAddress,
+  @required String photoRef,
+}) async {
+  showLoadingDialog(context);
+
   // Getting instance of the server function
   final callable = CloudFunctions.instance.getHttpsCallable(
     functionName: 'createMeeting',
@@ -19,9 +26,15 @@ Future<List<dynamic>> getMeetings(
       'latitude': latitude,
       'longitude': longitude,
       'location_name': locName,
+      'location_address': locAddress,
       'date_time': dateTime,
       'paying': paying,
+      'photo_ref': photoRef,
     },
   );
-  return resp.data;
+
+  print(resp.data);
+  Navigator.pop(context);
+
+  return;
 }

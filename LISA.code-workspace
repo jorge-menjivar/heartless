@@ -25,6 +25,9 @@
 		"editor.tabSize": 2,
 		"dart.lineLength": 120,
 		"dart.allowAnalytics": false,
-		"zenMode.silentNotifications": false
+		"zenMode.silentNotifications": false,
+		"cSpell.words": [
+			"Frino"
+		]
 	}
 }

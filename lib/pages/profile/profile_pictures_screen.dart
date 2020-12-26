@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 // Tools
-import 'package:lise/pages/upload_images.dart';
+import 'package:lise/pages/profile/upload_images.dart';
 import 'package:lise/widgets/loading_progress_indicator.dart';
 
 // Storage

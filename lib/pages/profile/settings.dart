@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frino_icons/frino_icons.dart';
+import 'package:lise/widgets/switch.dart';
 
 final _biggerFont = const TextStyle(
   fontSize: 18.0,
@@ -113,11 +114,5 @@ class SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
-  }
-
-  Widget settingsSwitch({bool value, void Function(bool) onChanged}) {
-    return (Platform.isIOS)
-        ? CupertinoSwitch(value: value, onChanged: onChanged)
-        : Switch(value: value, onChanged: onChanged);
   }
 }

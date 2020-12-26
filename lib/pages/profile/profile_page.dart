@@ -17,8 +17,8 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../localizations.dart';
-import '../main.dart';
+import '../../localizations.dart';
+import '../../main.dart';
 
 Map<int, Color> color = {
   50: Color.fromRGBO(0, 0, 0, .1),

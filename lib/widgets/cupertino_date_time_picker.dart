@@ -6,7 +6,8 @@ Future<DateTime> showCupertinoDateTimePicker(
     @required DateTime dateStart,
     @required DateTime dateEnd,
     @required Widget title,
-    DateTime birthday}) async {
+    @required CupertinoDatePickerMode mode,
+    @required DateTime initialDateTime}) async {
   var tempDate;
   var date;
 
@@ -23,10 +24,10 @@ Future<DateTime> showCupertinoDateTimePicker(
       message: Container(
         height: MediaQuery.of(context).size.height / 4,
         child: CupertinoDatePicker(
-          initialDateTime: (birthday != null) ? birthday : DateTime(2000, 1, 1),
+          initialDateTime: initialDateTime,
           minimumDate: dateStart,
           maximumDate: dateEnd,
-          mode: CupertinoDatePickerMode.date,
+          mode: mode,
           onDateTimeChanged: (dateTime) {
             tempDate = dateTime;
           },
@@ -36,7 +37,7 @@ Future<DateTime> showCupertinoDateTimePicker(
         CupertinoDialogAction(
           child: Text("Done"),
           onPressed: () {
-            date = tempDate;
+            date = (tempDate != null) ? tempDate : initialDateTime;
             Navigator.of(context).pop();
           },
         ),

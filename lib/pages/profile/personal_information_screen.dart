@@ -176,7 +176,8 @@ class PersonalInformationScreenState extends State<PersonalInformationScreen> {
                               fontSize: 18,
                             ),
                           ),
-                          birthday: (_birthday != null) ? _birthday : null,
+                          initialDateTime: (_birthday != null) ? _birthday : DateTime(2000, 1, 1),
+                          mode: CupertinoDatePickerMode.date,
                         ).then((v) async {
                           if (v != null) {
                             await _updateBirthday(v);

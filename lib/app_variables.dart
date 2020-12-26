@@ -12,6 +12,8 @@ class AppVariables {
   static final String AD_MOB_INTERSTITIAL_ID_ANDROID = 'ca-app-pub-3940256099942544/8691691433'; // Test ad
   static final String AD_MOB_INTERSTITIAL_ID_IOS = 'ca-app-pub-3940256099942544/5135589807'; // Test ad
 
+  static final String MAPS_KEY = 'AIzaSyDqfYdbII8ZpRln9ZVFn5KAPmDo4UBICOI';
+
   bool nightModeON = false;
   static final Color NIGHT_MODE_COLOR_BACKGROUND = Colors.black12;
   static final Color DAY_MODE_COLOR_BACKGROUND = Colors.white;

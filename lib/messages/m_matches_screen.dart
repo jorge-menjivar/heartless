@@ -8,7 +8,7 @@ import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/conversation_bloc.dart';
 import 'package:lise/bloc/public_profile_bloc.dart';
 import 'package:lise/data/public_data.dart';
-import 'package:lise/pages/public_profile.dart';
+import 'package:lise/pages/public/public_profile.dart';
 import 'package:lise/utils/convert_match_time.dart';
 import 'package:lise/widgets/loading_progress_indicator.dart';
 import 'package:lise/widgets/matches_text_composer.dart';

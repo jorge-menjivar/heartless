@@ -6,7 +6,7 @@ import 'package:frino_icons/frino_icons.dart';
 import 'package:lise/app_variables.dart';
 import 'package:lise/bloc/conversation_bloc.dart';
 import 'package:lise/bloc/p_matches_bloc.dart';
-import 'package:lise/convo_completion/select_matches_screen.dart';
+import 'package:lise/pages/potential_matches/select_matches_screen.dart';
 import 'package:lise/messages/m_p_matches_screen.dart';
 import 'package:lise/utils/convert_p_match_time.dart';
 import 'package:lise/utils/delete_p_match.dart';
@@ -16,7 +16,7 @@ import 'package:lise/widgets/advertisements.dart';
 import 'package:lise/widgets/delete_dialog.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../localizations.dart';
+import '../../localizations.dart';
 
 class PotentialMatchesScreen extends StatefulWidget {
   final Database db;

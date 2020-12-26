@@ -10,7 +10,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // Tools
 
 import 'package:lise/main.dart';
-import 'package:lise/pages/upload_images.dart';
+import 'package:lise/pages/profile/upload_images.dart';
 import 'package:location/location.dart';
 
 class UploadPicturesScreen extends StatefulWidget {

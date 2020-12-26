@@ -28,10 +28,12 @@ class MeetingsRepository implements MeetingsData {
           'gender': meet['gender'],
           'location': meet['location'],
           'location_name': meet['location_name'],
-          'edit_time': meet['edit_time'],
+          'date_time': meet['date_time'],
           'paying': meet['paying'],
           'distance': meet['distance'],
           'age': meet['age'],
+          'location_address': meet['location_address'],
+          'photo_ref': meet['photo_ref'],
         };
         list.add(values);
       } catch (e) {
@@ -51,10 +53,12 @@ class MeetingsRepository implements MeetingsData {
           'gender': meet['gender'],
           'location': meet['location'],
           'location_name': meet['location_name'],
-          'edit_time': meet['edit_time'],
+          'date_time': meet['date_time'],
           'paying': meet['paying'],
           'distance': meet['distance'],
           'age': meet['age'],
+          'location_address': meet['location_address'],
+          'photo_ref': meet['photo_ref'],
         };
         list.add(values);
       } catch (e) {

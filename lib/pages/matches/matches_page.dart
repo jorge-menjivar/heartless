@@ -12,7 +12,7 @@ import 'package:lise/utils/delete_match.dart';
 import 'package:lise/widgets/delete_dialog.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../localizations.dart';
+import '../../localizations.dart';
 
 class MatchesScreen extends StatefulWidget {
   final Database db;

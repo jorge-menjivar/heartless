@@ -14,8 +14,6 @@ Future<void> sendPotentialMatchRequest(BuildContext context, GlobalKey<ScaffoldS
   showLoadingDialog(context);
   var location = Location();
 
-  print(location);
-
   bool serviceEnabled;
   PermissionStatus permissionGranted;
   LocationData locationData;
